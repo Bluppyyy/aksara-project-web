@@ -102,13 +102,6 @@ import Icon from '../components/Icon/Icon.jsx';
 
 Nama ikon bisa dicari di https://icon-sets.iconify.design/lucide/.
 
-## Deploy (Vercel)
-
-1. Import repo ini di [vercel.com](https://vercel.com).
-2. Isi **Root Directory** dengan `aksara`. Framework otomatis terdeteksi sebagai Vite.
-3. Kalau backend sudah online, tambahkan Environment Variable `VITE_API_URL` dengan alamat backend.
-4. Klik Deploy. Setiap push ke branch `main` akan otomatis ter-deploy ulang.
-
 ## Konvensi
 
 - Nama komponen dan file komponen: **PascalCase** (`ResourceCard.jsx`)
