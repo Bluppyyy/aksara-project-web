@@ -1,0 +1,47 @@
+.box {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 240px;
+  padding: 40px 24px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow-explore);
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-subtle);
+}
+
+.title {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--color-text);
+}
+
+.error {
+  color: #cf222e;
+}
+
+.button {
+  margin-top: 8px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.spin {
+  color: var(--color-primary);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

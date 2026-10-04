@@ -1,0 +1,168 @@
+.footer {
+  width: 100%;
+  background: var(--color-surface);
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.grid {
+  width: 100%;
+  max-width: 1058px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.brand {
+  grid-column: 1 / span 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logo {
+  width: 108.44px;
+  height: 28px;
+  object-fit: cover;
+  object-position: left top;
+}
+
+.tagline {
+  max-width: 384px;
+  padding-top: 4px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-nav);
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.12px;
+  white-space: nowrap;
+}
+
+.badgeBlue {
+  color: var(--color-primary);
+}
+
+.badgeGreen {
+  color: #1a7f37;
+}
+
+.badgeIconA {
+  width: 14.667px;
+  height: 12px;
+}
+
+.badgeIconB {
+  width: 14.667px;
+  height: 14px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: var(--font-inter);
+}
+
+.colExplore {
+  grid-column: 6 / span 2;
+}
+
+.colPlatform {
+  grid-column: 8 / span 3;
+}
+
+.colHelp {
+  grid-column: 11 / span 2;
+}
+
+.columnTitle {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: #1f2328;
+}
+
+.link {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-nav);
+}
+
+.link:hover,
+.legalLink:hover {
+  color: var(--color-primary);
+}
+
+.bottom {
+  width: 100%;
+  max-width: 1058px;
+  padding-top: 25px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.12px;
+  color: var(--color-text-nav);
+}
+
+.legal {
+  display: flex;
+  gap: 24px;
+}
+
+.legalLink {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .brand {
+    grid-column: 1 / -1;
+  }
+  .colExplore,
+  .colPlatform,
+  .colHelp {
+    grid-column: span 4;
+  }
+}
+
+@media (max-width: 560px) {
+  .colExplore,
+  .colPlatform,
+  .colHelp {
+    grid-column: 1 / -1;
+  }
+}

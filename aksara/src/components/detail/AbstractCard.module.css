@@ -1,0 +1,99 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 26px;
+  color: #00355f;
+}
+
+.heading img {
+  width: 16px;
+  height: 14px;
+}
+
+.body {
+  position: relative;
+  max-height: 390px; /* 2 paragraf penuh + sebagian paragraf ke-3, seperti di desain */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--color-text-muted);
+}
+
+.body strong {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.expanded {
+  max-height: none;
+}
+
+.fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 154px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: linear-gradient(to top, #fff 36%, rgba(255, 255, 255, 0) 118%);
+}
+
+.more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+  line-height: 26px;
+  color: #616161;
+  text-decoration: underline;
+}
+
+.more img {
+  width: 16px;
+  height: 16px;
+}
+
+.keywords {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: 4px;
+}
+
+.keywordsLabel {
+  padding-right: 4px;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.55px;
+  color: var(--color-text-subtle);
+}
+
+.keyword {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #e5e8ef;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-muted);
+}

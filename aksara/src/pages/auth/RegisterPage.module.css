@@ -1,0 +1,12 @@
+.passwordRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 420px) {
+  .passwordRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

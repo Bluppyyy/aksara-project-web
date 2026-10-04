@@ -1,0 +1,112 @@
+:root {
+  /* Warna dari Figma (AKSARA) */
+  --color-primary: #0f4c81;
+  --color-primary-600: #1261a2;
+  --color-primary-50: #e8f2fa;
+  --color-accent: #e88d67;
+  --color-text: #181c21;
+  --color-text-muted: #42474f;
+  --color-text-subtle: #727780;
+  --color-text-nav: #57606a;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f4fa;
+  --color-chip: #ebeef5;
+  --color-page: #f7f9fd;
+  --color-border: #e1e4e8;
+  --color-border-soft: rgba(194, 199, 209, 0.4);
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-public: 'Public Sans', system-ui, sans-serif;
+  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, serif;
+
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.04);
+  --shadow-explore: 0 1px 3px rgba(27, 31, 36, 0.03);
+  --shadow-landing: 2px 5px 20.2px rgba(0, 0, 0, 0.02);
+
+  --gradient-primary: linear-gradient(150.72deg, #0f4c81 0%, #1261a2 100%);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Indikator fokus keyboard yang jelas di seluruh halaman */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition: none !important;
+  }
+}

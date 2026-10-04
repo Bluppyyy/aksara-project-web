@@ -1,0 +1,223 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 728px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(32px);
+  pointer-events: none;
+}
+
+.blobOrange {
+  width: 384px;
+  height: 384px;
+  right: -80px;
+  bottom: -96px;
+  background: rgba(232, 141, 103, 0.2);
+}
+
+.blobBlue {
+  width: 320px;
+  height: 320px;
+  left: -80px;
+  top: -80px;
+  background: rgba(122, 183, 254, 0.2);
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 39px;
+  text-align: center;
+}
+
+.title {
+  max-width: 984px;
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 56px;
+  color: var(--color-primary-50);
+}
+
+.description {
+  max-width: 1120px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #f8f8f8;
+}
+
+.searchGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Search bar */
+.searchCard {
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: 1px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-shadow: var(--shadow-landing);
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 0 8px;
+  border-radius: 12px;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 12px;
+  cursor: text;
+}
+
+.searchIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.searchInput input {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.searchInput input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.submitButton {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.categories {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 0 0 18px;
+  border-top: 1px solid #eaeaea;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.categories::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryChip {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: var(--color-chip);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.categoryChip:hover {
+  background: #dfe4ee;
+}
+
+.categoryChipActive,
+.categoryChipActive:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* ===== Varian compact (setelah search) ===== */
+.compact {
+  min-height: 0;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.compact .container {
+  max-width: 1440px;
+}
+
+.compact .heading {
+  align-items: flex-start;
+  gap: 19px;
+  text-align: left;
+}
+
+.compact .description {
+  max-width: 1120px;
+}
+
+.compact .title {
+  width: 984px;
+  max-width: calc(100vw - 64px);
+}
+
+.compact .searchCard {
+  border-radius: 17px;
+  box-shadow: none;
+}
+
+.compact .searchRow {
+  filter: drop-shadow(0 4px 10px rgba(15, 76, 129, 0.06));
+}
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    padding: 56px 16px;
+  }
+  .title {
+    font-size: 32px;
+    line-height: 40px;
+  }
+  .heading {
+    gap: 16px;
+  }
+}

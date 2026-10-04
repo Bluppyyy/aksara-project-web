@@ -1,0 +1,320 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(238, 244, 251, 0.9) 100%),
+    linear-gradient(90deg, #f6f8fa 0%, #f6f8fa 100%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 27.7px rgba(31, 35, 40, 0.17);
+}
+
+.inner {
+  max-width: 1280px;
+  height: 80px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  width: 195px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 157px;
+  height: 40px;
+  object-fit: cover;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navLink {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-text-nav);
+  transition: color 0.15s ease;
+}
+
+.navLink:hover,
+.navLinkActive {
+  color: var(--color-primary);
+}
+
+.actions {
+  width: 181px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.loginButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 124.5px;
+  height: 40px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: background 0.15s ease;
+}
+
+.loginButton:hover {
+  background: var(--color-primary-600);
+}
+
+.loginIcon {
+  width: 13.5px;
+  height: 13.5px;
+}
+
+/* Varian "user" */
+.brandWide {
+  width: 276px;
+}
+
+.userActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 25px;
+}
+
+.contributeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 15px 0 12px;
+  border-radius: 30px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: background 0.15s ease;
+}
+
+.contributeButton:hover {
+  background: var(--color-primary-600);
+}
+
+/* akar-icons:circle-plus — inset 8.33%, lalu -4.8% seperti di Figma */
+.circlePlusBox {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+}
+
+.circlePlus {
+  position: absolute;
+  top: calc(8.33% - 0.8px);
+  left: calc(8.33% - 0.8px);
+  width: calc(83.34% + 1.6px);
+  height: calc(83.34% + 1.6px);
+}
+
+.iconLink,
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bookmarkIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Saat di halaman Koleksi: lingkaran biru 42px di belakang ikon */
+.iconLinkActive {
+  width: 42px;
+  height: 42px;
+  margin: -11px;
+  border-radius: 55px;
+  background: var(--color-primary);
+}
+
+.bellIcon {
+  width: 19px;
+  height: 22px;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  background-image: linear-gradient(45deg, #0f4c81 0%, #1261a2 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 16px;
+}
+
+/* ===== Menu akun ===== */
+.account {
+  position: relative;
+}
+
+.accountMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 60;
+  width: 220px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 41, 0.12);
+}
+
+.accountName {
+  padding: 6px 10px 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.accountEmail {
+  padding: 0 10px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.accountItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.accountItem:hover {
+  background: #f1f4fa;
+}
+
+/* ===== Menu HP ===== */
+.menuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: var(--color-text);
+}
+
+.menuButton:hover {
+  background: rgba(15, 76, 129, 0.06);
+}
+
+.mobileMenu {
+  display: none;
+  flex-direction: column;
+  padding: 8px 16px 16px;
+  border-top: 1px solid var(--color-border);
+  background: #fff;
+}
+
+.mobileLink {
+  text-align: left;
+  padding: 12px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-text-nav);
+}
+
+.mobileLink:hover,
+.mobileLinkActive {
+  background: #f1f4fa;
+  color: var(--color-primary);
+}
+
+.mobileCta {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .inner {
+    padding: 0 16px;
+    height: 64px;
+    gap: 12px;
+  }
+  .logo {
+    width: 126px;
+    height: 32px;
+  }
+  .menuButton {
+    display: flex;
+  }
+  .mobileMenu {
+    display: flex;
+  }
+  .actions,
+  .contributeButton,
+  .userActions > a:not(.contributeButton),
+  .userActions .iconButton {
+    display: none;
+  }
+  .userActions {
+    gap: 8px;
+    margin-left: auto;
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  .brandWide {
+    width: auto;
+  }
+  .contributeButton span:last-child {
+    display: none;
+  }
+
+  .brand,
+  .actions {
+    width: auto;
+  }
+  .nav {
+    display: none;
+  }
+}

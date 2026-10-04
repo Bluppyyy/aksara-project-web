@@ -1,0 +1,294 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleIcon {
+  width: 22px;
+  height: 16px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 26px;
+  color: #00355f;
+}
+
+.pageBadge {
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: var(--color-chip);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.44px;
+  color: var(--color-text-muted);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--color-surface-muted);
+}
+
+.controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.controls button:hover:not(:disabled) {
+  background: #fff;
+}
+
+.controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.controls button[aria-pressed='true'] {
+  background: #fff;
+}
+
+.pageCount {
+  padding: 0 8px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text);
+}
+
+.divider {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: #c2c7d1;
+}
+
+.canvas {
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+  padding: 24px;
+  border-radius: 12px;
+  background: #e5e8ef;
+}
+
+.paper {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 1 / 1.414;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+  transform-origin: top center;
+}
+
+.paperZoomed {
+  max-width: 672px;
+}
+
+.paperTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-top: 16px;
+}
+
+.emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  background: #00355f;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.emblem img {
+  width: 29.333px;
+  height: 24px;
+}
+
+.university {
+  padding-top: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 1.3px;
+  color: #00355f;
+}
+
+.faculty {
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.55px;
+  color: var(--color-text-muted);
+}
+
+.paperTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 448px;
+}
+
+.kicker {
+  font-weight: 700;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 1.1px;
+  color: var(--color-primary-600);
+}
+
+.paperTitle h3 {
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 22px;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.rule {
+  width: 64px;
+  height: 2px;
+  margin: 8px 0;
+  background: #00355f;
+}
+
+.purpose {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-text-muted);
+}
+
+.paperBottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 16px;
+}
+
+.signName {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 18px;
+  color: #00355f;
+}
+
+.signNim {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-muted);
+}
+
+.signPlace {
+  padding-top: 8px;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.44px;
+  color: var(--color-text-subtle);
+}
+
+.watermark {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.4;
+  font-size: 10px;
+  line-height: 20px;
+  color: #00355f;
+}
+
+.watermark img {
+  width: 10.667px;
+  height: 13.333px;
+}
+
+.jump {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: 4px;
+}
+
+.jumpLabel {
+  padding-right: 4px;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.44px;
+  color: var(--color-text-subtle);
+}
+
+.jumpButton {
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--color-chip);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.44px;
+  color: #00355f;
+}
+
+.jumpButton:hover {
+  background: #dfe4ee;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 20px;
+  }
+  .canvas {
+    padding: 12px;
+  }
+  .paper {
+    padding: 16px;
+  }
+}

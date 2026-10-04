@@ -1,0 +1,322 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 26px;
+  color: #00355f;
+}
+
+.heading img {
+  width: 20px;
+  height: 20px;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 26px;
+  color: var(--color-text);
+}
+
+.summaryStars {
+  display: flex;
+}
+
+.summaryStars img {
+  width: 16.667px;
+  height: 15.833px;
+}
+
+.count {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-text-subtle);
+}
+
+/* Form ulasan */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-surface-muted);
+}
+
+.formTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.formTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-text);
+}
+
+.formAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: #00355f;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.picker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pickerLabel {
+  padding-right: 4px;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.44px;
+  color: var(--color-text-subtle);
+}
+
+.picker button {
+  display: flex;
+  padding-bottom: 5px;
+  transition: transform 0.1s ease;
+}
+
+.picker button:hover {
+  transform: scale(1.12);
+}
+
+.picker img {
+  width: 20px;
+  height: 19px;
+}
+
+.pickerOff img {
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 92px;
+  margin-bottom: 5px;
+  padding: 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text);
+  resize: vertical;
+  outline: none;
+}
+
+.textarea::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.textarea:focus-visible {
+  box-shadow: 0 0 0 2px rgba(0, 53, 95, 0.3);
+}
+
+.formBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-style: italic;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-text-subtle);
+}
+
+.note img {
+  width: 10px;
+  height: 13.125px;
+}
+
+.submit {
+  padding: 4px 16px;
+  border-radius: 8px;
+  background: #00355f;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submitError {
+  font-size: 12px;
+  color: #cf222e;
+}
+
+/* Daftar ulasan */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review + .review {
+  padding-top: 17px;
+  border-top: 1px solid var(--color-chip);
+}
+
+.reviewTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reviewer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reviewAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: #e0e2e9;
+  font-weight: 700;
+  font-size: 14px;
+  color: #00355f;
+}
+
+.reviewName {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--color-text);
+}
+
+.reviewMeta {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-text-subtle);
+}
+
+.stars {
+  display: flex;
+  gap: 4px;
+}
+
+.stars img {
+  width: 13.333px;
+  height: 12.667px;
+}
+
+.starEmpty {
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+.reviewText {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-muted);
+}
+
+.reviewFooter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-text-subtle);
+}
+
+.helpful {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.helpful img {
+  width: 12.25px;
+  height: 11.667px;
+}
+
+.helpfulActive {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 20px;
+  }
+  .formBottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

@@ -1,0 +1,119 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: var(--color-surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow-explore);
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.count {
+  padding: 4px 10px 2px 6px;
+  border-radius: 9999px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 26px;
+  color: var(--color-text);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sortLabel {
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.44px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.selectWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.select {
+  appearance: none;
+  width: 184.7px;
+  padding: 6px 32px 6px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--color-surface-muted);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-text);
+  cursor: pointer;
+  outline: none;
+}
+
+.select:focus-visible {
+  box-shadow: 0 0 0 2px rgba(15, 76, 129, 0.3);
+}
+
+.selectChevron {
+  position: absolute;
+  right: 7.5px;
+  top: 13.5px;
+  width: 8px;
+  height: 4.933px;
+  pointer-events: none;
+}
+
+.viewToggle {
+  display: flex;
+  align-items: center;
+  height: 31px;
+  padding: 3px;
+  border: 1px solid rgba(194, 199, 209, 0.3);
+  border-radius: 8px;
+  background: var(--color-surface-muted);
+}
+
+.viewButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.viewButtonActive {
+  background: var(--color-surface);
+}
+
+.iconGrid {
+  width: 13.5px;
+  height: 13.5px;
+}
+
+.iconList {
+  width: 15px;
+  height: 12px;
+}

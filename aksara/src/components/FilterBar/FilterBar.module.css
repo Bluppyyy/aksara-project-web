@@ -1,0 +1,123 @@
+.hitbox {
+  padding-top: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.filter {
+  width: 100%;
+  max-width: 1216px;
+  display: flex;
+  align-items: center;
+  padding: 13px 13px 13px 30px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  box-shadow: var(--shadow-landing);
+}
+
+.scroller {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-right: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.selection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px 0 4px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.labelIcon {
+  width: 13.5px;
+  height: 13.5px;
+}
+
+.values {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: var(--color-chip);
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.chip:hover {
+  background: #dfe4ee;
+}
+
+.chipActive,
+.chipActive:hover {
+  background: rgba(15, 76, 129, 0.1);
+  border-color: rgba(15, 76, 129, 0.2);
+  color: var(--color-primary);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+}
+
+.removeIcon {
+  width: 8.75px;
+  height: 8.75px;
+}
+
+.chevron {
+  width: 7.5px;
+  height: 4.625px;
+}
+
+.reset {
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.44px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+.reset:hover {
+  color: var(--color-primary);
+}

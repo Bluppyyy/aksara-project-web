@@ -1,0 +1,75 @@
+.track {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+}
+
+.base,
+.range {
+  position: absolute;
+  top: 10px;
+  height: 4px;
+  border-radius: 999px;
+}
+
+.base {
+  left: 9px;
+  right: 9px;
+  background: var(--color-surface-muted);
+}
+
+.range {
+  left: calc(9px + (100% - 18px) * var(--lo));
+  width: calc((100% - 18px) * (var(--hi) - var(--lo)));
+  background: #d2e4ff;
+}
+
+.track input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.track input::-webkit-slider-runnable-track {
+  height: 24px;
+  background: none;
+}
+
+.track input::-moz-range-track {
+  height: 24px;
+  background: none;
+}
+
+/* Handle: aset "Handle Min" dari Figma (lingkaran putih + shadow) */
+.track input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  border: 0;
+  background: url('../../assets/explore/slider-handle.svg') center / 22px 22px no-repeat;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.track input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  background: url('../../assets/explore/slider-handle.svg') center / 22px 22px no-repeat;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.track input:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 999px;
+}

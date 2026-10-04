@@ -1,0 +1,48 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.iconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--color-surface-muted);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 26px;
+  color: var(--color-text);
+}
+
+.link {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

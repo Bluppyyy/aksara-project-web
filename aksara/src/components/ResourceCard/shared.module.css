@@ -1,0 +1,86 @@
+.category {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 21px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 16.5px;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.categoryIcon {
+  width: 11.917px;
+  height: 9.75px;
+}
+
+.format {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16.5px;
+}
+
+.formatIcon {
+  width: 10.833px;
+  height: 10.833px;
+}
+
+.bookmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  transition: background 0.15s ease;
+}
+
+.bookmark:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.bookmarkSolid,
+.bookmarkSolid:hover {
+  background: #c8c8c8;
+}
+
+.bookmarkIconBox {
+  position: relative;
+  width: 9.333px;
+  height: 12px;
+}
+
+.bookmarkIcon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* SVG versi aktif sedikit lebih lebar (inset 0 -3.57% di Figma) */
+.bookmarkIconActive {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -3.57%;
+  right: -3.57%;
+  width: 107.14%;
+  height: 100%;
+}
