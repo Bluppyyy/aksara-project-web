@@ -4,31 +4,38 @@ import heroBg from '../../assets/hero-bg.png';
 import iconSearch from '../../assets/icon-search.svg';
 import btnSubmitSearch from '../../assets/btn-submit-search.svg';
 import btnSubmitSearchAlt from '../../assets/btn-submit-search-alt.svg';
+import { QUICK_CATEGORIES } from '../../data/resources';
 
-const QUICK_CATEGORIES = [
-  'Semua',
-  'Tugas Kuliah & Makalah',
-  'Laporan Magang & PKL',
-  'Skripsi & Tugas Akhir',
-  'Bank Soal',
-  'Riset & Publikasi Paper',
-  'Modul Praktikum',
-  'Lainnya',
-];
 
 /**
  * variant:
  *  - "center"  → hero tinggi, judul di tengah (Explore sebelum search)
  *  - "compact" → hero pendek, rata kiri (Explore setelah search)
  */
-export default function Hero({ variant = 'center', initialQuery = '', onSearch, children }) {
+/**
+ * onSearch({ query, category })   dipanggil saat form dikirim
+ * onCategoryChange(category)       dipanggil saat chip kategori diklik (category = key atau null untuk "Semua")
+ */
+export default function Hero({
+  variant = 'center',
+  initialQuery = '',
+  initialCategory = null,
+  onSearch,
+  onCategoryChange,
+  children,
+}) {
   const compact = variant === 'compact';
   const [query, setQuery] = useState(initialQuery);
-  const [activeCategory, setActiveCategory] = useState('Semua');
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSearch?.({ query: query.trim(), category: activeCategory });
+  };
+
+  const handleCategory = (key) => {
+    setActiveCategory(key);
+    onCategoryChange?.(key, query.trim());
   };
 
   return (
@@ -69,15 +76,15 @@ export default function Hero({ variant = 'center', initialQuery = '', onSearch, 
             </div>
 
             <div className={styles.categories} role="group" aria-label="Kategori cepat">
-              {QUICK_CATEGORIES.map((cat) => (
+              {QUICK_CATEGORIES.map(({ key, label }) => (
                 <button
-                  key={cat}
+                  key={label}
                   type="button"
-                  className={`${styles.categoryChip} ${cat === activeCategory ? styles.categoryChipActive : ''}`}
-                  aria-pressed={cat === activeCategory}
-                  onClick={() => setActiveCategory(cat)}
+                  className={`${styles.categoryChip} ${key === activeCategory ? styles.categoryChipActive : ''}`}
+                  aria-pressed={key === activeCategory}
+                  onClick={() => handleCategory(key)}
                 >
-                  {cat}
+                  {label}
                 </button>
               ))}
             </div>

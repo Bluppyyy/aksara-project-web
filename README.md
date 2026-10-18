@@ -34,9 +34,18 @@ Buka http://localhost:5173.
 | **Demo** | Tidak membuat file `.env`, atau `VITE_API_URL` dikosongkan | Semua halaman memakai data dummy dari `src/data/` |
 | **API** | Salin `.env.example` jadi `.env`, isi `VITE_API_URL=http://localhost:3000` (alamat backend) | Halaman yang endpointnya sudah ada memakai data asli dari backend |
 
-Yang sudah tersambung ke backend: login, daftar, hasil eksplorasi, detail resource, ulasan, bookmark/koleksi, lapor konten, dan unggah.
+Yang sudah tersambung ke backend: login (peran dibaca dari `GET /test-auth`), daftar, hasil eksplorasi (search + filter), detail resource, ulasan, bookmark/koleksi, lapor konten, unggah resource, tulis wawasan (`POST /experience`), dan service panel admin (`/admin/*`).
 
-Yang masih memakai data dummy (endpoint belum tersedia): halaman Eksplorasi (rekomendasi dan trending), Wawasan, pilihan filter, statistik di Beranda, dan resource terkait.
+Yang masih memakai data dummy (endpoint belum tersedia): halaman Eksplorasi (rekomendasi dan trending), feed Aktivitas Komunitas, detail wawasan, statistik dashboard admin, detail laporan/moderasi, dan resource terkait.
+
+### Akun demo (mode Demo)
+
+| Peran | Email | Kata sandi |
+|---|---|---|
+| Mahasiswa | `demo@aksara.id` | `demo12345` |
+| Admin | `admin@aksara.id` | `admin12345` |
+
+Akun hasil halaman Daftar (mode demo) tersimpan di browser yang sama.
 
 ### Perintah
 
@@ -50,17 +59,26 @@ Yang masih memakai data dummy (endpoint belum tersedia): halaman Eksplorasi (rek
 
 ## Halaman
 
-| Route | Halaman | Perlu login |
+Satu web untuk dua peran (FR-LOGIN-03, NFR-SEC-01). Setelah login, peran dikenali otomatis: mahasiswa ke `/`, admin ke `/admin`. Penjagaan rute di frontend hanya untuk tampilan; keamanan sebenarnya ada di backend (`roleMiddleware('admin')`).
+
+| Route | Halaman | Akses |
 |---|---|---|
-| `/` | Beranda | – |
-| `/login` | Masuk | – |
-| `/daftar` | Daftar akun | – |
+| `/` | Landing page (tamu) / Aktivitas Komunitas (mahasiswa login) | – |
+| `/login`, `/admin/login` | Masuk (keduanya mengenali peran otomatis) | – |
+| `/daftar` | Registrasi 4 langkah + layar berhasil | – |
 | `/eksplorasi` | Eksplorasi (sebelum mencari) | – |
-| `/eksplorasi/hasil?q=` | Hasil pencarian dan filter | – |
+| `/eksplorasi/hasil?q=&kategori=&fakultas=…` | Hasil pencarian, kategori, dan filter | – |
 | `/wawasan` | Wawasan & pengalaman | – |
+| `/wawasan/:id` | Detail wawasan | – |
+| `/wawasan/tulis` | Tulis wawasan (share experience) | Mahasiswa |
 | `/resource/:id` | Detail resource | – |
-| `/unggah` | Unggah resource | ✓ |
-| `/koleksi` | Koleksi (bookmark) | ✓ |
+| `/unggah` | Unggah resource | Mahasiswa |
+| `/koleksi` | Koleksi (bookmark) | Mahasiswa |
+| `/admin` | Dashboard admin | Admin |
+| `/admin/resource` | Kelola resource (FR-ADM-01, 02) | Admin |
+| `/admin/laporan`, `/admin/laporan/:id` | Kelola & detail laporan (FR-ADM-03, 04) | Admin |
+| `/admin/moderasi`, `/admin/moderasi/:id` | Moderasi konten (FR-ADM-05) | Admin |
+| `/admin/profil`, `/admin/pengaturan` | Profil & pengaturan admin | Admin |
 
 ## Struktur folder
 
@@ -71,9 +89,10 @@ aksara/
 ├─ src/
 │  ├─ App.jsx           # daftar route
 │  ├─ index.css         # warna, font, dan style global
-│  ├─ pages/            # satu .jsx + .module.css per halaman (auth/ = login & daftar)
+│  ├─ pages/            # satu .jsx + .module.css per halaman (auth/ = login & daftar, admin/ = panel admin)
 │  ├─ components/       # komponen yang dipakai ulang (Header, Footer, ResourceCard, Icon, dst.)
-│  ├─ services/         # pemanggilan API: api.js, auth.js, resources.js, adapters.js
+│  ├─ services/         # pemanggilan API: api.js, auth.js, resources.js, wawasan.js, admin.js, adapters.js
+│  ├─ utils/            # filters.js (baca/tulis filter di URL, saring & urutkan hasil)
 │  ├─ context/          # AuthContext (status login)
 │  ├─ hooks/            # useAsync, useBookmark
 │  ├─ data/             # data dummy untuk mode demo

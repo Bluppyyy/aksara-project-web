@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import useBookmark from '../../hooks/useBookmark';
+import { thumbnailFor } from '../../data/resources';
 import styles from './ResourceListItem.module.css';
-import { CategoryBadge, FormatBadge, BookmarkButton } from '../ResourceCard/shared.jsx';
+import { CategoryBadge, FormatBadge, BookmarkButton, Thumbnail } from '../ResourceCard/shared.jsx';
 import previewAccent from '../../assets/list-preview-accent.svg';
 import iconBookOpen from '../../assets/icon-book-open.svg';
 import iconStar from '../../assets/icon-star-list.svg';
@@ -9,12 +10,14 @@ import iconDownload from '../../assets/icon-download-list.svg';
 
 export default function ResourceListItem({ resource, onBookmarkChange }) {
   const { id, category, format, course, title, description, tags, author, rating, downloads } = resource;
+  const thumb = thumbnailFor(resource);
   const [bookmarked, toggleBookmark] = useBookmark(resource.id, resource.bookmarked, onBookmarkChange);
 
   return (
     <article className={styles.item}>
       <div className={styles.preview}>
-        <img src={previewAccent} alt="" className={styles.accent} />
+        <Thumbnail src={thumb} />
+        {!thumb && <img src={previewAccent} alt="" className={styles.accent} />}
         <div className={styles.previewTop}>
           <CategoryBadge category={category} />
         </div>

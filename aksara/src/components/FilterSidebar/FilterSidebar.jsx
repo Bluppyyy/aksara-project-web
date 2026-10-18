@@ -8,31 +8,50 @@ import iconTagRemove from '../../assets/explore/icon-tag-remove.svg';
 import iconStar from '../../assets/explore/icon-star-sm.svg';
 import iconCheck from '../../assets/explore/icon-check-circle.svg';
 
+// Label sesuai Figma → kunci kategori di data
 const CATEGORIES = [
-  'Tugas Kuliah & Makalah',
-  'Laporan Magang & PKL',
-  'Skripsi & Tugas Akhir',
-  'Bank Soal',
-  'Riset & Publikasi Paper',
-  'Modul Praktikum',
-  'Misc',
+  { label: 'Tugas Kuliah & Makalah', key: 'tugas' },
+  { label: 'Laporan Magang & PKL', key: 'magang' },
+  { label: 'Skripsi & Tugas Akhir', key: 'skripsi' },
+  { label: 'Bank Soal', key: 'ujian' },
+  { label: 'Riset & Publikasi Paper', key: 'riset' },
+  { label: 'Modul Praktikum', key: 'project' },
+  { label: 'Misc', key: 'lainnya' },
 ];
-const FACULTIES = ['Fakultas Informatika (FIF)', 'Fakultas Teknik Elektro (FTE)', 'Fakultas Rekayasa Industri (FRI)'];
-const PRODI = ['S1 Informatika', 'S1 Rekayasa Perangkat Lunak', 'S1 Teknologi Informasi', 'S1 Data Sains'];
+const FACULTIES = ['Semua Fakultas', 'Fakultas Informatika (FIF)', 'Fakultas Teknik Elektro (FTE)', 'Fakultas Rekayasa Industri (FRI)'];
+const PRODI = ['Semua Program Studi', 'S1 Informatika', 'S1 Rekayasa Perangkat Lunak', 'S1 Teknologi Informasi', 'S1 Data Sains', 'S1 Teknik Telekomunikasi'];
 const SEMESTERS = ['Smt 1', 'Smt 2', 'Smt 3', 'Smt 4', 'Smt 5', 'Smt 6', 'Smt 7', 'Smt 8+'];
 const FORMATS = ['PDF', 'DOC', 'PPT', 'ZIP'];
+const smtNum = (s) => parseInt(s.replace(/\D/g, ''), 10);
 
-const INITIAL = {
-  categories: ['Tugas Kuliah & Makalah', 'Laporan Magang & PKL'],
-  faculty: FACULTIES[0],
-  prodi: PRODI[0],
-  semesters: ['Smt 3'],
-  courseQuery: '',
-  courses: ['Pemrograman Berbasis Objek'],
-  formats: ['PDF'],
-  years: [2010, 2026],
-  rating: [1, 5],
-};
+/** Objek filter (utils/filters.js) → state form sidebar */
+function toForm(v = {}) {
+  return {
+    categories: CATEGORIES.filter((c) => (v.kategori || []).includes(c.key)).map((c) => c.label),
+    faculty: v.fakultas || FACULTIES[0],
+    prodi: v.prodi || PRODI[0],
+    semesters: SEMESTERS.filter((s) => (v.semester || []).includes(smtNum(s))),
+    courseQuery: '',
+    courses: v.matkul || [],
+    formats: v.format || [],
+    years: v.tahun || [2010, 2026],
+    rating: v.rating || [1, 5],
+  };
+}
+
+/** State form sidebar → objek filter */
+function fromForm(f) {
+  return {
+    kategori: CATEGORIES.filter((c) => f.categories.includes(c.label)).map((c) => c.key),
+    fakultas: f.faculty === FACULTIES[0] ? '' : f.faculty,
+    prodi: f.prodi === PRODI[0] ? '' : f.prodi,
+    semester: f.semesters.map(smtNum),
+    matkul: f.courses,
+    format: f.formats,
+    tahun: f.years,
+    rating: f.rating,
+  };
+}
 
 const toggle = (list, item) => (list.includes(item) ? list.filter((x) => x !== item) : [...list, item]);
 
@@ -58,8 +77,12 @@ function Select({ id, label, value, options, onChange }) {
   );
 }
 
-export default function FilterSidebar({ onApply }) {
-  const [f, setF] = useState(INITIAL);
+/**
+ * Sidebar filter halaman Hasil Eksplorasi (FR-EXP-03).
+ * value  : filter aktif (dari URL)  •  onApply(filter) : dipanggil saat "Terapkan Filter" / "Reset Filter"
+ */
+export default function FilterSidebar({ value, onApply }) {
+  const [f, setF] = useState(() => toForm(value));
   const set = (key, value) => setF((prev) => ({ ...prev, [key]: value }));
 
   const addCourse = (e) => {
@@ -67,6 +90,7 @@ export default function FilterSidebar({ onApply }) {
     e.preventDefault();
     const name = f.courseQuery.trim();
     if (name && !f.courses.includes(name)) setF((p) => ({ ...p, courses: [...p.courses, name], courseQuery: '' }));
+    else setF((p) => ({ ...p, courseQuery: '' }));
   };
 
   return (
@@ -79,7 +103,11 @@ export default function FilterSidebar({ onApply }) {
         <button
           type="button"
           className={styles.reset}
-          onClick={() => setF({ ...INITIAL, categories: [], semesters: [], courses: [], formats: [] })}
+          onClick={() => {
+            const empty = toForm({});
+            setF(empty);
+            onApply?.(fromForm(empty));
+          }}
         >
           Reset Filter
         </button>
@@ -90,7 +118,7 @@ export default function FilterSidebar({ onApply }) {
           <section className={styles.section}>
             <SectionTitle>KATEGORI BERKAS</SectionTitle>
             <div className={styles.checkList}>
-              {CATEGORIES.map((c) => (
+              {CATEGORIES.map(({ label: c }) => (
                 <label key={c} className={styles.check}>
                   <input
                     type="checkbox"
@@ -203,7 +231,7 @@ export default function FilterSidebar({ onApply }) {
         </div>
       </div>
 
-      <button type="button" className={styles.apply} onClick={() => onApply?.(f)}>
+      <button type="button" className={styles.apply} onClick={() => onApply?.(fromForm(f))}>
         <img src={iconCheck} alt="" />
         Terapkan Filter
       </button>

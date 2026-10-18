@@ -1,19 +1,22 @@
 import { Link } from 'react-router-dom';
 import useBookmark from '../../hooks/useBookmark';
+import { thumbnailFor } from '../../data/resources';
 import styles from './ResourceCard.module.css';
-import { CategoryBadge, FormatBadge, BookmarkButton } from './shared.jsx';
+import { CategoryBadge, FormatBadge, BookmarkButton, Thumbnail } from './shared.jsx';
 import iconCourse from '../../assets/icon-course.svg';
 import iconStar from '../../assets/icon-star-card.svg';
 import iconDownload from '../../assets/icon-download-card.svg';
 
 export default function ResourceCard({ resource, onBookmarkChange }) {
   const { id, category, format, course, title, description, tags, author, rating, downloads } = resource;
+  const thumb = thumbnailFor(resource);
   const [bookmarked, toggleBookmark] = useBookmark(resource.id, resource.bookmarked, onBookmarkChange);
 
   return (
     <article className={styles.card}>
       <div className={styles.preview}>
-        <div className={styles.previewGlow} aria-hidden="true" />
+        <Thumbnail src={thumb} />
+        {!thumb && <div className={styles.previewGlow} aria-hidden="true" />}
         <div className={styles.previewTop}>
           <CategoryBadge category={category} />
         </div>

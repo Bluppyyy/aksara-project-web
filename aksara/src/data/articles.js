@@ -5,6 +5,7 @@ import img3 from '../assets/wawasan/article-3.png';
 import img4 from '../assets/wawasan/article-4.png';
 import img5 from '../assets/wawasan/article-5.png';
 import img6 from '../assets/wawasan/article-6.png';
+import heroImg from '../assets/wawasan/detail-hero.jpg';
 
 export const articles = [
   {
@@ -68,3 +69,35 @@ export const articles = [
     readTime: '7 min read',
   },
 ];
+
+// Detail tulisan (halaman Detail Wawasan) — isi sesuai Figma
+
+export const articleDetail = {
+  id: 'msib-telkomsel',
+  readTime: '6 Menit Baca',
+  title: 'Panduan Lengkap Lolos Seleksi Magang Merdeka (MSIB) Batch 8 di Telkomsel',
+  subtitle:
+    'Catatan retrospektif, bedah berkas portofolio berstandar industri, serta strategi taktis menghadapi wawancara studi kasus teknis dan budaya korporat BUMN Telekomunikasi.',
+  date: '18 Des 2024',
+  reads: '1.240',
+  rating: 4.9,
+  reviewCount: 42,
+  image: heroImg,
+  caption: 'Dokumentasi: Ruang kerja kolaboratif dan suasana orientasi hari pertama mahasiswa magang di Innovation Lab Telkomsel Smart Office.',
+  author: { initials: 'ZP', name: 'Zulfan Falah', meta: "FIF '21 • RPL" },
+  keywords: ['Internet of Things', 'Air Quality Index', 'ESP32', 'Random Forest', 'AWS Cloud'],
+  // Blok isi artikel. Teks dengan `code`, *miring* didukung oleh renderer sederhana di halaman.
+  blocks: [
+    { type: 'lead', text: 'Bagi mahasiswa Telkom University, kabar dibukanya pendaftaran Magang dan Studi Independen Bersertifikat (MSIB) selalu membawa denyut antusiasme sekaligus ujian mental tersendiri. Pada Batch 8 lalu, kompetisi untuk menempati posisi *Software Engineer Intern* di PT Telkomsel menembus angka lebih dari 15.000 pendaftar nasional. Dengan kuota per divisi yang dirancang sangat selektif, mengandalkan Indeks Prestasi Kumulatif (IPK) tinggi saja terbukti tidak mencukupi tanpa artikulasi portofolio yang dapat diuji nyata oleh tim rekruter industri.' },
+    { type: 'p', text: 'Dalam tulisan retrospektif ini, saya merangkum seluruh catatan perjalanan sejak persiapan berkas, bedah filter sistem pelacak pelamar, hingga taktik wawancara berbasis budaya kerja BUMN yang mengantarkan saya lolos di unit Core Platform.' },
+    { type: 'h2', text: '1. Persiapan Dokumen CV & Portfolio ATS-Friendly' },
+    { type: 'p', text: 'Sistem seleksi awal di perusahaan telekomunikasi berskala besar menerapkan sistem *Applicant Tracking System (ATS)* yang ketat. Mesin menyaring kata kunci teknis yang selaras dengan tech stack mereka, mulai dari `RESTful API`, `CI/CD Pipelines`, hingga `Microservices` dan arsitektur awan (GCP).' },
+    { type: 'quote', text: '“Jangan pernah mengunggah portofolio yang hanya berisi daftar tautan GitHub mati. Rekruter industri mencari quantitive impact — seberapa besar efisiensi komputasi atau reduksi latensi yang berhasil kamu capai pada tugas besar kampus.”' },
+    { type: 'h2', text: '2. Menaklukkan Asesmen Teknis & Algoritma' },
+    { type: 'p', text: 'Tahap coding assessment dilaksanakan melalui platform HackerRank dengan durasi 90 menit untuk memecahkan tiga studi kasus algoritma serta serangkaian pertanyaan konsep rekayasa perangkat lunak.' },
+    { type: 'h2', text: '3. Tahap Wawancara Pengguna & Keselarasan Budaya' },
+    { type: 'p', text: 'Wawancara dengan Engineering Manager tidak ditujukan untuk menjebak kandidat dengan detail sintaksis teoretis, melainkan menilai kerangka penalaran logis saat berhadapan dengan masalah nyata. Susun narasi menggunakan struktur STAR (*Situation, Task, Action, Result*).' },
+    { type: 'h2', text: 'Refleksi & Langkah Selanjutnya' },
+    { type: 'p', text: 'Persaingan magang industri bukanlah perlombaan siapa yang paling pintar di kelas, melainkan siapa yang paling persisten menyiapkan rekam jejak karyanya secara jujur, terukur, dan berdampak. Mulai audit portofolio Anda hari ini, dan jangan ragu berdiskusi dengan kakak tingkat serta pembimbing akademik di kampus.' },
+  ],
+};

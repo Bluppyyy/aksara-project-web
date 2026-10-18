@@ -147,7 +147,7 @@ export default function LandingPage() {
                 Mulai Eksplorasi
                 <img src={iconArrow} alt="" />
               </Link>
-              <Link to="/unggah" className={styles.btnSecondary}>
+              <Link to="/wawasan/tulis" className={styles.btnSecondary}>
                 <img src={iconPlusCircle} alt="" />
                 Bagikan Pengalaman
               </Link>

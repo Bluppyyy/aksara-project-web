@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { login } from '../../services/auth';
+import { login, homeFor, isAdmin } from '../../services/auth';
 import AuthShell from './AuthShell.jsx';
 import PasswordInput from './PasswordInput.jsx';
 import layout from './AuthLayout.module.css';
@@ -35,11 +35,16 @@ export default function LoginPage() {
     setLoading(true);
     setServerError('');
     try {
-      await login(form.email.trim(), form.password);
-      navigate(location.state?.from || '/eksplorasi/hasil', { replace: true });
+      const user = await login(form.email.trim(), form.password);
+      // FR-LOGIN-03: arahkan sesuai peran. Admin selalu ke panel admin.
+      const from = location.state?.from;
+      const target = isAdmin(user) ? (from?.startsWith('/admin') ? from : homeFor(user)) : from || homeFor(user);
+      navigate(target, { replace: true });
     } catch (err) {
       setServerError(
-        /invalid login/i.test(err.message) ? 'Email atau kata sandi salah.' : err.message
+        /invalid login/i.test(err.message)
+          ? 'Email atau kata sandi tidak sesuai. Belum punya akun? Daftar dulu ya.'
+          : err.message
       );
       setLoading(false);
     }

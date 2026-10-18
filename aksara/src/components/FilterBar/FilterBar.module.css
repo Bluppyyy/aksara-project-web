@@ -121,3 +121,68 @@
 .reset:hover {
   color: var(--color-primary);
 }
+
+/* Chip aktif terdiri dari 2 tombol: buka menu & hapus filter */
+.chipMain,
+.removeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  font: inherit;
+}
+
+.removeBtn {
+  padding: 2px;
+  margin: -2px -4px -2px 0;
+  border-radius: 9999px;
+}
+
+.removeBtn:hover {
+  background: rgba(15, 76, 129, 0.12);
+}
+
+.chipOpen {
+  background: #dfe4ee;
+  border-color: rgba(15, 76, 129, 0.2);
+}
+
+/* Menu dropdown (fixed supaya tidak terpotong oleh scroller horizontal) */
+.menu {
+  position: fixed;
+  z-index: 50;
+  min-width: 200px;
+  max-width: 240px;
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.option {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text);
+}
+
+.option:hover {
+  background: var(--color-surface-muted);
+}
+
+.optionActive,
+.optionActive:hover {
+  background: rgba(15, 76, 129, 0.1);
+  color: var(--color-primary);
+  font-weight: 600;
+}

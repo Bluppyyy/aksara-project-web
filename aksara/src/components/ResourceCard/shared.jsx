@@ -8,10 +8,20 @@ import iconPdf from '../../assets/icon-format-pdf.svg';
 import iconBookmark from '../../assets/icon-bookmark.svg';
 import iconBookmarkActive from '../../assets/icon-bookmark-active.svg';
 
-// Bank Soal belum punya ikon tersendiri di komponen Figma → pakai ikon Tugas Kuliah
-const CATEGORY_ICONS = { tugas: iconTugas, riset: iconRiset, magang: iconMagang, bank: iconTugas };
+// Kategori yang belum punya ikon tersendiri di komponen Figma memakai ikon terdekat
+const CATEGORY_ICONS = {
+  tugas: iconTugas,
+  project: iconTugas,
+  skripsi: iconMagang,
+  ujian: iconTugas,
+  bank: iconTugas,
+  riset: iconRiset,
+  magang: iconMagang,
+  lainnya: iconTugas,
+};
 
 export function CategoryBadge({ category }) {
+  if (!CATEGORIES[category]) category = 'lainnya';
   return (
     <span className={styles.category}>
       <img src={CATEGORY_ICONS[category]} alt="" className={styles.categoryIcon} />
@@ -29,7 +39,13 @@ export function FormatBadge({ format = 'PDF' }) {
   );
 }
 
-/** variant: "glass" (di atas gradient biru) | "solid" (abu-abu, dipakai di list item) */
+/** Foto sampul kartu (kalau ada). Dipasang absolut di belakang badge. */
+export function Thumbnail({ src }) {
+  if (!src) return null;
+  return <img src={src} alt="" className={styles.thumbnail} loading="lazy" />;
+}
+
+/** variant: "glass" (di atas foto / gradient biru) | "solid" (abu-abu, dipakai di list item) */
 export function BookmarkButton({ active, onToggle, variant = 'glass' }) {
   return (
     <button

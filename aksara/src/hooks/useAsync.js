@@ -20,5 +20,11 @@ export default function useAsync(fn, deps = []) {
 
   useEffect(() => reload(), [reload]);
 
-  return { ...state, reload, setData: (data) => setState((s) => ({ ...s, data })) };
+  // setData menerima nilai baru atau fungsi updater (seperti setState)
+  const setData = useCallback(
+    (next) => setState((s) => ({ ...s, data: typeof next === 'function' ? next(s.data) : next })),
+    []
+  );
+
+  return { ...state, reload, setData };
 }

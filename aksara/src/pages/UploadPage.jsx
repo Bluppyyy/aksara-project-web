@@ -180,6 +180,12 @@ export default function UploadPage() {
         <div className={`${styles.blob} ${styles.blobBlue}`} aria-hidden="true" />
         <div className={`${styles.blob} ${styles.blobOrange}`} aria-hidden="true" />
 
+        <div className={styles.backRow}>
+          <button type="button" className={styles.back} onClick={() => navigate(-1)}>
+            <Icon icon="lucide:chevron-left" size={12} />
+            Kembali
+          </button>
+        </div>
         <form className={styles.card} onSubmit={handleSubmit} noValidate={false}>
           <header className={styles.cardHeader}>
             <h1 className={styles.title}>Unggah Resource Akademik</h1>

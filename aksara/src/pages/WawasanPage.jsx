@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './WawasanPage.module.css';
 import Header from '../components/Header/Header.jsx';
 import Footer from '../components/Footer/Footer.jsx';
@@ -80,10 +81,10 @@ export default function WawasanPage() {
                     <span className={styles.batch}>Batch 8 - 2025</span>
                   </div>
                   <h2 className={styles.featuredTitle}>
-                    <a href="#">
+                    <Link to="/wawasan/msib-telkomsel">
                       Panduan Lengkap Lolos Seleksi Magang Merdeka (MSIB) Batch 8 di Top National Tech &amp;
                       BUMN
-                    </a>
+                    </Link>
                   </h2>
                   <p className={styles.featuredExcerpt}>
                     Bedah lengkap tahapan berkas CV ATS, tes kebinekaan, tips wawancara user dan studi kasus
@@ -104,10 +105,10 @@ export default function WawasanPage() {
                       </p>
                     </div>
                   </div>
-                  <a href="#" className={styles.readMore}>
+                  <Link to="/wawasan/msib-telkomsel" className={styles.readMore}>
                     Baca Selengkapnya
                     <img src={iconArrow} alt="" />
-                  </a>
+                  </Link>
                 </div>
               </div>
             </article>

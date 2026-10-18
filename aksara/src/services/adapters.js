@@ -29,12 +29,23 @@ export function toResourceCard(r) {
     course: r.mata_kuliah ? `${r.mata_kuliah.kode}  ${r.mata_kuliah.nama}` : r.sumber || 'Resource Akademik',
     title: r.judul,
     description: r.deskripsi,
-    tags: [r.fakultas, r.prodi, r.semester ? `Semester ${r.semester}` : null].filter(Boolean),
+    tags: [
+      r.fakultas?.nama || (typeof r.fakultas === 'string' ? r.fakultas : null),
+      r.prodi?.nama || (typeof r.prodi === 'string' ? r.prodi : null),
+      r.semester || r.semester_id ? `Semester ${r.semester?.angka || r.semester || r.semester_id}` : null,
+    ].filter(Boolean),
     author: { initials: initials(authorName), name: authorName, meta: r.pengunggah?.angkatan || '' },
     rating: r.rating_rata ?? '–',
     downloads: r.jumlah_unduhan ?? '–',
     bookmarked: Boolean(r.is_bookmarked),
     linkFile: r.link_file,
+    thumbnail: r.thumbnail || r.link_thumbnail || null,
+    // Dipakai filter sisi klien (lihat utils/filters.js)
+    fakultas: r.fakultas?.nama || (typeof r.fakultas === 'string' ? r.fakultas : ''),
+    prodi: r.prodi?.nama || (typeof r.prodi === 'string' ? r.prodi : ''),
+    semester: r.semester?.angka || r.semester_id || null,
+    matkul: r.mata_kuliah?.nama || '',
+    year: r.created_at ? new Date(r.created_at).getFullYear() : null,
   };
 }
 

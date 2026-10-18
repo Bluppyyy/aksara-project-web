@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Icon from '../components/Icon/Icon.jsx';
 import styles from './ExploreResultsPage.module.css';
@@ -13,16 +13,37 @@ import Footer from '../components/Footer/Footer.jsx';
 import { listResources } from '../services/resources';
 import useAsync from '../hooks/useAsync';
 import { Loading, ErrorState, Empty } from '../components/Status/Status.jsx';
+import { readFilters, writeFilters, countActive, sortResources } from '../utils/filters';
+import { CATEGORIES } from '../data/resources';
+
+const URUT_TO_SORT = { populer: 'Paling Banyak Diunduh', terbaru: 'Terbaru', rating: 'Rating Tertinggi' };
 
 export default function ExploreResultsPage() {
-  const [sort, setSort] = useState('Paling Relevan');
+  const [params, setParams] = useSearchParams();
+  const filters = useMemo(() => readFilters(params), [params]);
+  const [sort, setSort] = useState(URUT_TO_SORT[filters.urut] || 'Paling Relevan');
   const [view, setView] = useState('grid');
   const [page, setPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [params, setParams] = useSearchParams();
-  const q = params.get('q') || '';
-  const { data: results, loading, error, reload } = useAsync(() => listResources({ q }), [q]);
-  const items = results || [];
+  const q = filters.q;
+  const kategori = filters.kategori.length === 1 ? filters.kategori[0] : null;
+  const key = params.toString();
+  // Data diambil ulang setiap filter di URL berubah
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const { data: results, loading, error, reload } = useAsync(() => listResources(filters), [key]);
+  const items = useMemo(() => sortResources(results || [], sort), [results, sort]);
+  const active = countActive(filters);
+
+  const updateParams = (next) => {
+    setParams(writeFilters({ ...filters, ...next }));
+    setPage(1);
+  };
+
+  const title = q
+    ? `Hasil untuk “${q}”`
+    : kategori
+      ? `Kategori: ${CATEGORIES[kategori]}`
+      : 'Hasil Eksplorasi';
 
   return (
     <div className={styles.page}>
@@ -30,13 +51,12 @@ export default function ExploreResultsPage() {
 
       <main>
         <Hero
-          key={q}
+          key={`${q}|${kategori}`}
           variant="compact"
           initialQuery={q}
-          onSearch={({ query }) => {
-            setParams(query ? { q: query } : {});
-            setPage(1);
-          }}
+          initialCategory={kategori}
+          onSearch={({ query, category }) => updateParams({ q: query, kategori: category ? [category] : filters.kategori })}
+          onCategoryChange={(category) => updateParams({ kategori: category ? [category] : [] })}
         />
 
         <section className={styles.layout}>
@@ -49,12 +69,14 @@ export default function ExploreResultsPage() {
               onClick={() => setFilterOpen((o) => !o)}
             >
               <Icon icon="lucide:sliders-horizontal" size={16} />
-              {filterOpen ? 'Sembunyikan Filter' : 'Tampilkan Filter'}
+              {filterOpen ? 'Sembunyikan Filter' : `Tampilkan Filter${active ? ` (${active})` : ''}`}
             </button>
             <div className={`${styles.sidebarWrap} ${filterOpen ? styles.sidebarOpen : ''}`}>
               <FilterSidebar
+                key={key}
+                value={filters}
                 onApply={(f) => {
-                  console.log('filter', f);
+                  updateParams(f);
                   setFilterOpen(false);
                 }}
               />
@@ -62,7 +84,7 @@ export default function ExploreResultsPage() {
 
             <div className={styles.results}>
               <ResultsToolbar
-                title={q ? `Hasil untuk “${q}”` : 'Hasil Eksplorasi'}
+                title={title}
                 count={loading ? null : items.length}
                 sort={sort}
                 onSortChange={setSort}
@@ -79,8 +101,10 @@ export default function ExploreResultsPage() {
                   title="Resource tidak ditemukan"
                   description={
                     q
-                      ? `Tidak ada hasil untuk “${q}”. Coba kata kunci lain.`
-                      : 'Belum ada resource yang tersedia.'
+                      ? `Tidak ada hasil untuk “${q}”${active ? ' dengan filter yang dipilih' : ''}. Coba kata kunci lain atau reset filter.`
+                      : active
+                        ? 'Tidak ada resource yang cocok dengan filter. Coba kurangi filter.'
+                        : 'Belum ada resource yang tersedia.'
                   }
                 />
               ) : view === 'grid' ? (

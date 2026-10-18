@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './ArticleCard.module.css';
 import iconBookmark from '../../assets/wawasan/icon-bookmark.svg';
 
 export default function ArticleCard({ article }) {
-  const { image, label, labelColor, title, excerpt, author, readTime } = article;
+  const { id, image, label, labelColor, title, excerpt, author, readTime } = article;
   const [saved, setSaved] = useState(false);
 
   return (
@@ -17,7 +18,7 @@ export default function ArticleCard({ article }) {
       <div className={styles.body}>
         <div className={styles.texts}>
           <h4 className={styles.title}>
-            <a href="#">{title}</a>
+            <Link to={`/wawasan/${id}`}>{title}</Link>
           </h4>
           <p className={styles.excerpt}>{excerpt}</p>
         </div>

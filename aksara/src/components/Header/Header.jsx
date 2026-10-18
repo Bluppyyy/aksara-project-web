@@ -29,10 +29,12 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [contribOpen, setContribOpen] = useState(false);
   const { pathname } = useLocation();
   useEffect(() => {
     setMenuOpen(false);
     setAccountOpen(false);
+    setContribOpen(false);
   }, [pathname]);
 
   const handleLogout = () => {
@@ -75,12 +77,33 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
 
         {variant === 'user' && (
           <div className={styles.userActions}>
-            <Link to="/unggah" className={styles.contributeButton}>
-              <span className={styles.circlePlusBox}>
-                <img src={iconCirclePlus} alt="" className={styles.circlePlus} />
-              </span>
-              <span>Kontribusi</span>
-            </Link>
+            <div className={styles.account}>
+              <button
+                type="button"
+                className={styles.contributeButton}
+                aria-haspopup="menu"
+                aria-expanded={contribOpen}
+                onClick={() => {
+                  setContribOpen((o) => !o);
+                  setAccountOpen(false);
+                }}
+              >
+                <span className={styles.circlePlusBox}>
+                  <img src={iconCirclePlus} alt="" className={styles.circlePlus} />
+                </span>
+                <span>Kontribusi</span>
+              </button>
+              {contribOpen && (
+                <div className={styles.accountMenu} role="menu">
+                  <Link to="/unggah" className={styles.accountItem} role="menuitem">
+                    <Icon icon="lucide:file-up" size={15} /> Unggah Resource
+                  </Link>
+                  <Link to="/wawasan/tulis" className={styles.accountItem} role="menuitem">
+                    <Icon icon="lucide:pen-line" size={15} /> Tulis Wawasan
+                  </Link>
+                </div>
+              )}
+            </div>
             <Link
               to="/koleksi"
               className={`${styles.iconLink} ${bookmarkActive ? styles.iconLinkActive : ''}`}
@@ -101,7 +124,10 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
                 className={styles.avatar}
                 aria-label="Menu akun"
                 aria-expanded={accountOpen}
-                onClick={() => setAccountOpen((o) => !o)}
+                onClick={() => {
+                  setAccountOpen((o) => !o);
+                  setContribOpen(false);
+                }}
               >
                 {user.initials}
               </button>
@@ -112,6 +138,11 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
                   <Link to="/koleksi" className={styles.accountItem}>
                     Koleksi Saya
                   </Link>
+                  {user.role === 'admin' && (
+                    <Link to="/admin" className={styles.accountItem}>
+                      Panel Admin
+                    </Link>
+                  )}
                   <button type="button" className={styles.accountItem} onClick={handleLogout}>
                     <Icon icon="lucide:log-out" size={15} /> Keluar
                   </button>
@@ -154,8 +185,11 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
               <button type="button" className={styles.mobileLink} onClick={handleLogout}>
                 Keluar
               </button>
+              <NavLink to="/wawasan/tulis" className={styles.mobileLink}>
+                Tulis Wawasan
+              </NavLink>
               <Link to="/unggah" className={styles.mobileCta}>
-                Kontribusi
+                Unggah Resource
               </Link>
             </>
           ) : (

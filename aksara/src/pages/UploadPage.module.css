@@ -618,3 +618,24 @@
     padding: 28px 16px;
   }
 }
+
+.backRow {
+  position: relative;
+  max-width: 896px;
+  margin: -48px auto 16px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+}
+
+.back:hover {
+  color: var(--color-primary);
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { writeFilters } from '../utils/filters';
 import styles from './ExplorePage.module.css';
 import Header from '../components/Header/Header.jsx';
 import Hero from '../components/Hero/Hero.jsx';
@@ -33,11 +34,33 @@ function CardRow({ items }) {
 }
 
 export default function ExplorePage() {
-  const [activeFilters, setActiveFilters] = useState(['Fakultas Informatika (FIF)']);
+  const [filters, setFilters] = useState({ fakultas: 'Fakultas Informatika (FIF)' });
   const [sort, setSort] = useState('Paling Relevan');
   const [view, setView] = useState('grid');
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+
+  // Alur Figma: Eksplorasi (sebelum pencarian) → Eksplorasi — Hasil Pencarian.
+  // Filter dari FilterBar dibawa lewat URL dan dibaca ulang oleh halaman hasil (utils/filters.js).
+  const goToResults = ({ q, kategori } = {}) => {
+    const f = filters;
+    const tahun = f.tahun ? (/ke bawah/.test(f.tahun) ? [2010, parseInt(f.tahun, 10)] : [+f.tahun, +f.tahun]) : undefined;
+    const rating = f.rating ? [parseFloat(f.rating.replace(/[^\d.]/g, '')), 5] : undefined;
+    const search = new URLSearchParams(
+      writeFilters({
+        q,
+        kategori: kategori ? [kategori] : [],
+        fakultas: f.fakultas,
+        prodi: f.prodi,
+        semester: f.semester ? [parseInt(f.semester.replace(/\D/g, ''), 10)] : [],
+        matkul: f.matkul ? [f.matkul] : [],
+        format: f.format ? [f.format] : [],
+        tahun,
+        rating,
+      })
+    ).toString();
+    navigate(search ? `/eksplorasi/hasil?${search}` : '/eksplorasi/hasil');
+  };
 
   return (
     <div className={styles.page}>
@@ -45,15 +68,16 @@ export default function ExplorePage() {
 
       <main>
         <Hero
-          onSearch={({ query }) =>
-            navigate(query ? `/eksplorasi/hasil?q=${encodeURIComponent(query)}` : '/eksplorasi/hasil')
-          }
+          onSearch={({ query, category }) => goToResults({ q: query, kategori: category })}
+          onCategoryChange={(category, query) => {
+            // "Semua" tetap di halaman ini; kategori lain langsung menampilkan hasil eksplorasi
+            if (category) goToResults({ q: query, kategori: category });
+          }}
         >
           <FilterBar
-            activeFilters={activeFilters}
-            onRemove={(label) => setActiveFilters((f) => f.filter((x) => x !== label))}
-            onOpenDropdown={(label) => console.log('open dropdown', label)}
-            onReset={() => setActiveFilters([])}
+            value={filters}
+            onChange={(key, option) => setFilters((f) => ({ ...f, [key]: option }))}
+            onReset={() => setFilters({})}
           />
         </Hero>
 
@@ -103,7 +127,11 @@ export default function ExplorePage() {
         {/* Karya Riset dari Fakultas Kamu */}
         <section className={styles.section}>
           <div className={styles.sectionInner}>
-            <SectionHeader icon={iconUniversity} title="Karya Riset dari Fakultas Kamu" />
+            <SectionHeader
+              icon={iconUniversity}
+              title="Karya Riset dari Fakultas Kamu"
+              to="/eksplorasi/hasil?kategori=riset"
+            />
             <span className={styles.facultyBadge}>Fakultas Teknik Elektro &amp; Informatika</span>
             <CardRow items={facultyResearch} />
           </div>
@@ -120,7 +148,11 @@ export default function ExplorePage() {
         {/* Sedang Trending */}
         <section className={styles.section}>
           <div className={styles.sectionInner}>
-            <SectionHeader icon={iconTrending} title="Sedang Trending di AKSARA" />
+            <SectionHeader
+              icon={iconTrending}
+              title="Sedang Trending di AKSARA"
+              to="/eksplorasi/hasil?urut=populer"
+            />
             <CardRow items={trending} />
           </div>
         </section>

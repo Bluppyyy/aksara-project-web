@@ -1,26 +1,31 @@
 import { api, USE_API } from './api';
 import { toResourceCard, toResourceDetail, toReview } from './adapters';
+import { applyFilters } from '../utils/filters';
 import { searchResults, bookmarkedResources } from '../data/resources';
 import { resourceDetail } from '../data/resourceDetail.jsx';
 
 const delay = (v, ms = 250) => new Promise((r) => setTimeout(() => r(v), ms));
 
 /**
- * Daftar resource untuk halaman Eksplorasi.
- * Backend sekarang punya 3 endpoint terpisah (semua, search, filter) tanpa pagination;
- * begitu ada satu endpoint GET /resource?q=&...&page=, cukup fungsi ini yang diubah.
+ * Daftar resource untuk halaman Hasil Eksplorasi (FR-EXP-01..03).
+ * - Ada kata kunci → GET /resource/search?q=  (cari di judul & deskripsi, sesuai SRS)
+ * - Tanpa kata kunci → GET /resource
+ * Backend belum bisa menggabungkan search + filter, belum punya kolom kategori, dan filter
+ * fakultas/prodi/semester masih memakai ID (belum ada endpoint daftar ID-nya). Karena itu
+ * filter lanjutan diterapkan di sisi klien lewat applyFilters(). Begitu backend punya satu
+ * endpoint GET /resource?q=&kategori=&...&page=, cukup fungsi ini yang diubah.
  */
-export async function listResources({ q, fakultas_id, prodi_id, semester_id } = {}) {
-  if (!USE_API) return delay(searchResults);
-  let res;
-  if (q) res = await api('/resource/search', { query: { q } });
-  else if (fakultas_id || prodi_id || semester_id)
-    res = await api('/resource/filter', { query: { fakultas_id, prodi_id, semester_id } });
-  else res = await api('/resource');
-
-  // Sementara backend belum menyaring status, frontend hanya menampilkan yang approved
-  const items = (res.data || []).filter((r) => !r.status || r.status === 'approved');
-  return items.map(toResourceCard);
+export async function listResources(filters = {}) {
+  const f = { kategori: [], semester: [], matkul: [], format: [], tahun: [2010, 2026], rating: [1, 5], ...filters };
+  let items;
+  if (!USE_API) {
+    items = await delay(searchResults);
+  } else {
+    const res = f.q ? await api('/resource/search', { query: { q: f.q } }) : await api('/resource');
+    // Sementara backend belum menyaring status, frontend hanya menampilkan yang approved
+    items = (res.data || []).filter((r) => !r.status || r.status === 'approved').map(toResourceCard);
+  }
+  return applyFilters(items, USE_API ? { ...f, q: '' } : f);
 }
 
 export async function getResource(id) {

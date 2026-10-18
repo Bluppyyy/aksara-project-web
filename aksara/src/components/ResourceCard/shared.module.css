@@ -21,12 +21,13 @@
 }
 
 .format {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(10, 31, 46, 0.66);
   backdrop-filter: blur(6px);
   color: #fff;
   font-weight: 600;
@@ -40,6 +41,7 @@
 }
 
 .bookmark {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -47,13 +49,13 @@
   height: 32px;
   flex-shrink: 0;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(10, 31, 46, 0.66);
   backdrop-filter: blur(6px);
   transition: background 0.15s ease;
 }
 
 .bookmark:hover {
-  background: rgba(255, 255, 255, 0.32);
+  background: rgba(10, 31, 46, 0.8);
 }
 
 .bookmarkSolid,
@@ -83,4 +85,13 @@
   right: -3.57%;
   width: 107.14%;
   height: 100%;
+}
+
+.thumbnail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
 }
