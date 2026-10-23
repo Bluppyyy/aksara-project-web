@@ -1,0 +1,173 @@
+.wrap {
+  position: relative;
+}
+
+.bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-height: 40px;
+  border-radius: var(--radius-full);
+}
+
+.bell:hover,
+.bell[aria-expanded='true'] {
+  background: var(--color-surface-muted);
+}
+
+.bellIcon {
+  width: 19px;
+  height: 22px;
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 0 var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  border-radius: var(--radius-full);
+  background: #ba1a1a;
+  font-weight: 700;
+  font-size: var(--text-caption-sm);
+  line-height: 1;
+  color: #fff;
+}
+
+/* Dropdown melayang di bawah lonceng */
+.panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 60;
+  width: 360px;
+  max-width: calc(100vw - var(--space-8));
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 41, 0.12);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-body);
+  color: var(--color-text);
+}
+
+.markRead {
+  font-weight: 600;
+  font-size: var(--text-label);
+  color: var(--color-primary-600);
+}
+
+.markRead:hover {
+  text-decoration: underline;
+}
+
+.list {
+  max-height: 400px;
+  margin: 0;
+  padding: var(--space-1);
+  overflow-y: auto;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.item:hover {
+  background: var(--color-surface-muted);
+}
+
+.unread {
+  background: var(--color-primary-50);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+}
+
+.toneOk {
+  background: #e5f4e4;
+  color: #1f7a3a;
+}
+
+.tonePrimary {
+  background: #e7f1fb;
+  color: var(--color-primary);
+}
+
+.toneAccent {
+  background: #f9ece7;
+  color: #a4471f;
+}
+
+.texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 600;
+  font-size: var(--text-body-sm);
+  line-height: 18px;
+  color: var(--color-text);
+}
+
+.text {
+  font-size: var(--text-label);
+  line-height: 17px;
+  color: var(--color-text-muted);
+  overflow-wrap: break-word;
+}
+
+.time {
+  font-size: var(--text-caption);
+  color: var(--color-text-subtle);
+}
+
+.empty {
+  padding: var(--space-6) var(--space-4);
+  font-size: var(--text-body-sm);
+  line-height: 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* Di HP lonceng tidak di pojok kanan → panel dibuat selebar layar di bawah header */
+@media (max-width: 640px) {
+  .panel {
+    position: fixed;
+    top: 72px;
+    left: var(--space-4);
+    right: var(--space-4);
+    width: auto;
+    max-width: none;
+  }
+}

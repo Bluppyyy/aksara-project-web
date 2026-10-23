@@ -49,6 +49,7 @@ function toArticle(e, i = 0) {
     },
     readTime: e.menit_baca ? `${e.menit_baca} Menit Baca` : readTime(e.konten),
     date: fmtDate(e.created_at),
+    createdAt: e.created_at || null,
     reads: e.jumlah_dilihat ?? '–',
     tags: (e.tags || []).map((t) => String(t).replace(/^#/, '')).filter(Boolean),
     konten: e.konten || '',

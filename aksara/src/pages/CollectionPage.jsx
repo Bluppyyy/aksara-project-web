@@ -4,6 +4,7 @@ import Header from '../components/Header/Header.jsx';
 import Footer from '../components/Footer/Footer.jsx';
 import ResourceCard from '../components/ResourceCard/ResourceCard.jsx';
 import { listBookmarks } from '../services/resources';
+import useDragScroll from '../hooks/useDragScroll';
 import useAsync from '../hooks/useAsync';
 import { Loading, ErrorState, Empty } from '../components/Status/Status.jsx';
 import { Link } from 'react-router-dom';
@@ -23,6 +24,7 @@ const SORTS = ['Terbaru', 'Terlama', 'Rating Tertinggi'];
 
 export default function CollectionPage() {
   const [filter, setFilter] = useState('Semua');
+  const pillsRef = useDragScroll();
   const [sort, setSort] = useState('Terbaru');
   const [query, setQuery] = useState('');
 
@@ -63,7 +65,7 @@ export default function CollectionPage() {
           </label>
 
           <div className={styles.filters}>
-            <div className={styles.pills} role="group" aria-label="Filter koleksi">
+            <div ref={pillsRef} className={styles.pills} role="group" aria-label="Filter koleksi">
               {filters.map((f) => (
                 <button
                   key={f}

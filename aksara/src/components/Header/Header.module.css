@@ -134,8 +134,7 @@
   height: calc(83.34% + 1.6px);
 }
 
-.iconLink,
-.iconButton {
+.iconLink {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,11 +152,6 @@
   margin: -12px;
   border-radius: var(--radius-full);
   background: var(--color-primary);
-}
-
-.bellIcon {
-  width: 19px;
-  height: 22px;
 }
 
 .avatar {
@@ -322,10 +316,10 @@
   .mobileMenu {
     display: flex;
   }
+  /* Di HP, Kontribusi & Koleksi pindah ke menu ☰; lonceng notifikasi tetap tampil */
   .actions,
   .contributeButton,
-  .userActions > a:not(.contributeButton),
-  .userActions .iconButton {
+  .userActions > a:not(.contributeButton) {
     display: none;
   }
   .userActions {

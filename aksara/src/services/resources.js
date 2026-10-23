@@ -78,6 +78,10 @@ const withExtras = (row, extras) => {
     prodi_id: row.prodi_id ?? x.prodi_id,
     semester_id: row.semester_id ?? x.semester_id,
     created_at: row.created_at || x.created_at,
+    // GET /bookmark belum mengirim kategori & mata kuliah → dilengkapi dari /resource
+    kategori: row.kategori || x.kategori,
+    category_id: row.category_id ?? x.category_id,
+    matkul_id: row.matkul_id ?? x.matkul_id,
   };
 };
 

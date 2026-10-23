@@ -56,6 +56,18 @@ export default function useDragScroll({ paged = false, ready = true } = {}) {
     };
     const onDragStart = (e) => e.preventDefault();
 
+    // data-overflow="true" selama masih ada isi di sebelah kanan → CSS memakainya untuk efek pudar di tepi
+    const updateOverflow = () => {
+      if (el.scrollWidth - el.clientWidth - el.scrollLeft > 1) el.dataset.overflow = 'true';
+      else delete el.dataset.overflow;
+    };
+    updateOverflow();
+    el.addEventListener('scroll', updateOverflow, { passive: true });
+    const resize = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateOverflow) : null;
+    resize?.observe(el);
+    const mutation = new MutationObserver(updateOverflow); // isi berubah, mis. pill baru setelah data dimuat
+    mutation.observe(el, { childList: true, subtree: true });
+
     el.addEventListener('pointerdown', onDown);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
@@ -67,6 +79,9 @@ export default function useDragScroll({ paged = false, ready = true } = {}) {
       window.removeEventListener('pointerup', onUp);
       el.removeEventListener('click', onClick, true);
       el.removeEventListener('dragstart', onDragStart);
+      el.removeEventListener('scroll', updateOverflow);
+      resize?.disconnect();
+      mutation.disconnect();
     };
   }, [paged, ready]); // ready: pasang ulang saat elemen baru muncul (mis. setelah data dimuat)
   return ref;

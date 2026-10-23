@@ -44,7 +44,8 @@
 .container {
   position: relative;
   width: 100%;
-  max-width: 1440px;
+  /* Sama dengan lebar konten kartu di bawahnya (1280px − padding 2 × 32px) dan filter bar yang menempel */
+  max-width: 1216px;
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
@@ -53,9 +54,9 @@
 .heading {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-10);
-  text-align: center;
+  text-align: left;
 }
 
 .title {
@@ -183,7 +184,8 @@
 }
 
 .compact .container {
-  max-width: 1440px;
+  max-width: 1216px;
+  margin: 0 auto; /* .compact memakai align-items: stretch, jadi perlu dipusatkan manual */
 }
 
 .compact .heading {

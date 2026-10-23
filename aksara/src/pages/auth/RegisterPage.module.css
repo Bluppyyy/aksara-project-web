@@ -704,7 +704,8 @@
 }
 
 .idPerson span {
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-caption-sm);
   opacity: 0.85;
 }
@@ -1813,7 +1814,8 @@
   padding: 0 var(--space-2);
   border-radius: var(--radius-md);
   background: #e2e8f2;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums; /* angka sama lebar, tetap Plus Jakarta Sans */
   font-weight: 600;
   font-size: var(--text-body);
   color: var(--r-text);
@@ -1833,7 +1835,8 @@
   border: 1px solid #d5dce8;
   border-radius: var(--radius-md);
   background: #fff;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums; /* angka sama lebar, tetap Plus Jakarta Sans */
   font-weight: 600;
   font-size: var(--text-body);
   text-align: center;

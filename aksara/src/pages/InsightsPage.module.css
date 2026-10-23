@@ -79,7 +79,7 @@
   background: #fff;
   border-radius: var(--radius-2xl);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  font-family: var(--font-public);
+  font-family: var(--font-sans);
 }
 
 .featuredMedia {
@@ -542,10 +542,13 @@
   background: #fff;
 }
 
-/* Pills kategori: bisa digeser dengan drag mouse; tepi kanan memudar sebagai tanda masih ada */
+/* Pills kategori: bisa digeser dengan drag mouse; tepi kanan memudar selama masih ada pill di kanan */
 .pills {
+  padding-right: var(--space-8);
+}
+
+.pills[data-overflow] {
   cursor: grab;
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
   mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
-  padding-right: var(--space-8);
 }

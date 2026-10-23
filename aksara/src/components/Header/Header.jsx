@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../Icon/Icon.jsx';
+import NotificationBell from '../Notifications/NotificationBell.jsx';
 import { useAuth } from '../../context/useAuth';
 import { logout, isAdmin } from '../../services/auth';
 import styles from './Header.module.css';
@@ -112,6 +113,13 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
             >
               <img src={bookmarkActive ? iconBookmarkActive : iconBookmark} alt="" className={styles.bookmarkIcon} />
             </Link>
+            <NotificationBell
+              user={user}
+              onOpen={() => {
+                setAccountOpen(false);
+                setContribOpen(false);
+              }}
+            />
             <div className={styles.account}>
               <button
                 type="button"
