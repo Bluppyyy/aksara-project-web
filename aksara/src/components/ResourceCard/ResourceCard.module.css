@@ -146,6 +146,7 @@
 
 .author {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   gap: var(--space-2);
   min-width: 0;
@@ -176,16 +177,17 @@
 .authorName {
   font-weight: 600;
   font-size: var(--text-caption);
-  line-height: 11px;
+  line-height: 14px;
   color: var(--color-text);
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
+/* Teks panjang (mis. "Rekayasa Perangkat Lunak") turun ke baris berikutnya, tidak menimpa rating */
 .authorMeta {
   font-size: var(--text-caption-sm);
   line-height: 15px;
   color: var(--color-text-muted);
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .stats {
