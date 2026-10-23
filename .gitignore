@@ -8,3 +8,4 @@ backend-aksara-lengkap/
 Claude outputs/
 aksara/.env.*
 !aksara/.env.example
+!aksara/.env.development
