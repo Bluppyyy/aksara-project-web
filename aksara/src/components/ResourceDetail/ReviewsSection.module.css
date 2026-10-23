@@ -1,10 +1,10 @@
 .card {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 32px;
+  gap: var(--space-6);
+  padding: var(--space-8);
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -13,15 +13,15 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .heading {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   font-weight: 600;
-  font-size: 20px;
+  font-size: var(--text-title);
   line-height: 26px;
   color: #00355f;
 }
@@ -34,12 +34,12 @@
 .summary {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .score {
   font-weight: 700;
-  font-size: 20px;
+  font-size: var(--text-title);
   line-height: 26px;
   color: var(--color-text);
 }
@@ -54,7 +54,7 @@
 }
 
 .count {
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 18px;
   color: var(--color-text-subtle);
 }
@@ -63,9 +63,9 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  border-radius: 12px;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
   background: var(--color-surface-muted);
 }
 
@@ -74,15 +74,15 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .formTitle {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   line-height: 18px;
   color: var(--color-text);
 }
@@ -92,24 +92,24 @@
   align-items: center;
   justify-content: center;
   width: 32px;
-  height: 32px;
-  border-radius: 9999px;
+  min-height: 32px;
+  border-radius: var(--radius-full);
   background: #00355f;
   color: #fff;
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 
 .picker {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .pickerLabel {
-  padding-right: 4px;
+  padding-right: var(--space-1);
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16px;
   letter-spacing: 0.44px;
   color: var(--color-text-subtle);
@@ -117,7 +117,7 @@
 
 .picker button {
   display: flex;
-  padding-bottom: 5px;
+  padding-bottom: var(--space-1);
   transition: transform 0.1s ease;
 }
 
@@ -138,13 +138,13 @@
 .textarea {
   width: 100%;
   min-height: 92px;
-  margin-bottom: 5px;
-  padding: 16px;
+  margin-bottom: var(--space-1);
+  padding: var(--space-4);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 20px;
   color: var(--color-text);
   resize: vertical;
@@ -163,15 +163,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .note {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
   font-style: italic;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 18px;
   color: var(--color-text-subtle);
 }
@@ -182,12 +182,12 @@
 }
 
 .submit {
-  padding: 4px 16px;
-  border-radius: 8px;
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-md);
   background: #00355f;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   line-height: 18px;
   color: #fff;
   white-space: nowrap;
@@ -199,7 +199,7 @@
 }
 
 .submitError {
-  font-size: 12px;
+  font-size: var(--text-label);
   color: #cf222e;
 }
 
@@ -210,17 +210,17 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .review {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .review + .review {
-  padding-top: 17px;
+  padding-top: var(--space-4);
   border-top: 1px solid var(--color-chip);
 }
 
@@ -233,7 +233,7 @@
 .reviewer {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .reviewAvatar {
@@ -241,31 +241,31 @@
   align-items: center;
   justify-content: center;
   width: 36px;
-  height: 36px;
-  border-radius: 9999px;
+  min-height: 36px;
+  border-radius: var(--radius-full);
   background: #e0e2e9;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--text-body);
   color: #00355f;
 }
 
 .reviewName {
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--text-body-lg);
   line-height: 22px;
   color: var(--color-text);
 }
 
 .reviewMeta {
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 18px;
   color: var(--color-text-subtle);
 }
 
 .stars {
   display: flex;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .stars img {
@@ -279,7 +279,7 @@
 }
 
 .reviewText {
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 20px;
   color: var(--color-text-muted);
 }
@@ -287,8 +287,8 @@
 .reviewFooter {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 12px;
+  gap: var(--space-4);
+  font-size: var(--text-label);
   line-height: 18px;
   color: var(--color-text-subtle);
 }
@@ -296,8 +296,8 @@
 .helpful {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: var(--space-1);
+  font-size: var(--text-label);
   color: var(--color-text-subtle);
 }
 
@@ -313,7 +313,7 @@
 
 @media (max-width: 640px) {
   .card {
-    padding: 20px;
+    padding: var(--space-5);
   }
   .formBottom {
     flex-direction: column;

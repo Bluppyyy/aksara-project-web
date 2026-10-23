@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icon/Icon.jsx';
 import AuthPanel from '../../components/AuthPanel/AuthPanel.jsx';
-import { useAuth } from '../../context/AuthContext.jsx';
+import { useAuth } from '../../context/useAuth';
 import { login, logout, homeFor, isAdmin } from '../../services/auth';
 import styles from './AdminLoginPage.module.css';
 
@@ -25,14 +25,17 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  if (user) return <Navigate to={homeFor(user)} replace />;
+  // Sudah login sebagai admin → langsung ke panel. Login sebagai mahasiswa → tampilkan form + info (jangan dialihkan).
+  if (user && isAdmin(user)) return <Navigate to={homeFor(user)} replace />;
+  const signedInAsStudent = user && !isAdmin(user);
 
   const errors = {
     email: !form.email ? 'Email wajib diisi.' : !EMAIL_RE.test(form.email) ? 'Format email belum benar.' : '',
     password: !form.password ? 'Kata sandi wajib diisi.' : '',
   };
   const fieldError = (k) => touched[k] && errors[k];
-  const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+  const update = (k) => (e) =>
+    setForm((f) => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
   const submit = async (e) => {
     e.preventDefault();
@@ -42,6 +45,15 @@ export default function AdminLoginPage() {
     setError('');
     try {
       const u = await login(form.email.trim(), form.password);
+      if (!isAdmin(u)) {
+        // Halaman ini khusus admin: akun mahasiswa tidak dialihkan diam-diam ke Beranda
+        logout();
+        setError(
+          'Akun ini terdaftar sebagai mahasiswa, bukan admin. Masuk lewat halaman login mahasiswa, atau minta role akunmu diubah menjadi "admin".'
+        );
+        setLoading(false);
+        return;
+      }
       const from = location.state?.from;
       navigate(isAdmin(u) && from?.startsWith('/admin') ? from : homeFor(u), { replace: true });
     } catch (err) {
@@ -70,6 +82,19 @@ export default function AdminLoginPage() {
             <p className={styles.subtitle}>Gunakan email dan kata sandi akun AKSARA Anda.</p>
           </div>
 
+          {signedInAsStudent && !error && (
+            <p className={`${styles.alert} ${styles.notice}`} role="status">
+              <Icon icon="lucide:info" size={16} />
+              <span>
+                Kamu sedang masuk sebagai mahasiswa ({user.email}).{' '}
+                <button type="button" className={styles.noticeLink} onClick={() => logout()}>
+                  Keluar
+                </button>{' '}
+                lalu masuk dengan akun admin.
+              </span>
+            </p>
+          )}
+
           {error && (
             <p className={styles.alert} role="alert">
               <Icon icon="lucide:circle-alert" size={16} />
@@ -93,7 +118,11 @@ export default function AdminLoginPage() {
                 onBlur={() => setTouched((t) => ({ ...t, email: true }))}
                 aria-invalid={!!fieldError('email') || undefined}
               />
-              <Icon icon="lucide:circle-check" size={15} className={EMAIL_RE.test(form.email) ? styles.valid : styles.muted} />
+              <Icon
+                icon="lucide:circle-check"
+                size={15}
+                className={EMAIL_RE.test(form.email) ? styles.valid : styles.muted}
+              />
             </div>
             {fieldError('email') && <p className={styles.error}>{errors.email}</p>}
           </div>
@@ -103,9 +132,6 @@ export default function AdminLoginPage() {
               <label htmlFor="admin-password">
                 Kata Sandi <span>*</span>
               </label>
-              <a href="mailto:helpdesk-aksara@telkomuniversity.ac.id" className={styles.link}>
-                Lupa Kata Sandi?
-              </a>
             </div>
             <div className={`${styles.input} ${fieldError('password') ? styles.invalid : ''}`}>
               <Icon icon="lucide:lock" size={16} />
@@ -119,7 +145,12 @@ export default function AdminLoginPage() {
                 onBlur={() => setTouched((t) => ({ ...t, password: true }))}
                 aria-invalid={!!fieldError('password') || undefined}
               />
-              <button type="button" className={styles.eye} onClick={() => setShow((s) => !s)} aria-label={show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}>
+              <button
+                type="button"
+                className={styles.eye}
+                onClick={() => setShow((s) => !s)}
+                aria-label={show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+              >
                 <Icon icon={show ? 'lucide:eye-off' : 'lucide:eye'} size={17} />
               </button>
             </div>
@@ -131,9 +162,6 @@ export default function AdminLoginPage() {
               <input type="checkbox" checked={form.remember} onChange={update('remember')} />
               Ingat saya di perangkat ini
             </label>
-            <button type="button" className={styles.simulate} onClick={() => setError(GENERIC_ERROR)}>
-              Simulasi Galat
-            </button>
           </div>
 
           <button type="submit" className={styles.submit} disabled={loading}>

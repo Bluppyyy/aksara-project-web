@@ -1,43 +1,45 @@
-import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icon/Icon.jsx';
 import ui from './admin.module.css';
 import styles from './AdminDashboard.module.css';
-import { useToast, AdminPager } from './shared.jsx';
-import {
-  dashboardStats,
-  monthlyUploads,
-  categoryDistribution,
-  dashboardQueue,
-  dashboardReports,
-} from '../../data/admin';
+import { PageHeader, StatCards, StatusBadge } from './shared.jsx';
+import { useToast } from './useToast.jsx';
+import AdminTable, {
+  TitleCell,
+  PersonCell,
+  TextCell,
+  Actions,
+  ActionButton,
+  ActionText,
+  TableChips,
+  CategoryBadge,
+} from './AdminTable.jsx';
+import { dashboardStats, monthlyUploads, categoryDistribution, dashboardQueue } from '../../data/admin';
+import { USE_API } from '../../services/api';
+import { listModeration, moderate } from '../../services/admin';
+import useAsync from '../../hooks/useAsync';
 
-const TONE = {
-  primary: { box: styles.icPrimary, badge: ui.tonePrimary },
-  secondary: { box: styles.icPrimary, badge: ui.toneSecondary },
-  warn: { box: styles.icWarn, badge: ui.toneWarn },
-  danger: { box: styles.icDanger, badge: ui.toneDanger },
-};
-
-const SERIES = [
+const CHART_SERIES = [
   { label: 'Laporan Proyek', color: '#1f5faf' },
   { label: 'Tugas Akhir / TA', color: '#a8c8fc' },
   { label: 'Paper Riset', color: '#ffb598' },
 ];
 
 const QUEUE_FILTERS = [
-  { key: 'all', label: 'Semua (28)' },
+  { key: 'all', label: 'Semua' },
   { key: 'proyek', label: 'Laporan Proyek' },
-  { key: 'source', label: 'Source Code' },
+  { key: 'catatan', label: 'Catatan Kuliah' },
+  { key: 'source', label: 'Source Code & Data' },
 ];
 
 /** Grafik batang SVG murni (tanpa library) */
 function UploadChart() {
   const W = 584;
-  const H = 230;
+  const H = 232;
   const left = 32;
-  const base = 206;
-  const scale = (v) => ((v - 0) / 250) * 184;
+  const base = 208;
+  const scale = (v) => (v / 250) * 184;
   const ticks = [250, 180, 100, 40];
   const step = (W - left - 16) / monthlyUploads.length;
   return (
@@ -47,7 +49,7 @@ function UploadChart() {
         return (
           <g key={t}>
             <line x1={left} x2={W - 16} y1={y} y2={y} stroke="#dce9ff" strokeDasharray="4 4" />
-            <text x={left - 8} y={y + 4} textAnchor="end" className={styles.axis}>
+            <text x={left - 8} y={y + 4} textAnchor="end" className={styles.chartAxis}>
               {t}
             </text>
           </g>
@@ -55,19 +57,27 @@ function UploadChart() {
       })}
       <line x1={left} x2={W - 16} y1={base} y2={base} stroke="#c2c6d3" />
       {monthlyUploads.map((m, i) => {
-        const x0 = left + 13 + i * step;
+        const x0 = left + 12 + i * step;
         return (
           <g key={m.month}>
             {m.values.map((v, s) => (
-              <rect key={s} x={x0 + s * 9.8} y={base - scale(v)} width={8} height={scale(v)} rx={1.5} fill={SERIES[s].color}>
-                <title>{`${m.month} • ${SERIES[s].label}: ${v} berkas`}</title>
+              <rect
+                key={s}
+                x={x0 + s * 10}
+                y={base - scale(v)}
+                width={8}
+                height={scale(v)}
+                rx={2}
+                fill={CHART_SERIES[s].color}
+              >
+                <title>{`${m.month} • ${CHART_SERIES[s].label}: ${v} berkas`}</title>
               </rect>
             ))}
             <text
-              x={x0 + 13}
+              x={x0 + 14}
               y={base + 20}
               textAnchor="middle"
-              className={i === monthlyUploads.length - 1 ? styles.axisActive : styles.axisMonth}
+              className={i === monthlyUploads.length - 1 ? styles.chartMonthActive : styles.chartMonth}
             >
               {m.month}
             </text>
@@ -82,279 +92,258 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [toast, notify] = useToast();
   const [filter, setFilter] = useState('all');
-  const queue = useMemo(
-    () => (filter === 'all' ? dashboardQueue : dashboardQueue.filter((q) => q.type === filter)),
-    [filter]
-  );
+  // Mode API: angka & antrean dihitung dari GET /admin/resource + GET /admin/experience
+  const {
+    data: items,
+    loading,
+    error,
+    reload,
+  } = useAsync(() => (USE_API ? listModeration() : Promise.resolve(null)), []);
+  const all = items || [];
+  const resources = all.filter((i) => i.type === 'resource');
+  const count = (list, st) => list.filter((i) => i.status === st).length;
+  const stats = USE_API
+    ? [
+        {
+          label: 'Total Resource',
+          value: String(resources.length),
+          note: 'Semua status',
+          icon: 'lucide:book-open-text',
+          tone: 'primary',
+        },
+        {
+          label: 'Terpublikasi',
+          value: String(count(resources, 'approved')),
+          note: 'Tampil di Eksplorasi',
+          icon: 'lucide:badge-check',
+          tone: 'ok',
+        },
+        {
+          label: 'Antrean Moderasi',
+          value: String(count(all, 'pending')),
+          note: 'Resource & wawasan',
+          icon: 'lucide:clipboard-clock',
+          tone: 'warn',
+        },
+        {
+          label: 'Wawasan Mahasiswa',
+          value: String(all.length - resources.length),
+          note: `${count(
+            all.filter((i) => i.type === 'experience'),
+            'approved'
+          )} dipublikasikan`,
+          icon: 'lucide:newspaper',
+          tone: 'primary',
+        },
+        {
+          label: 'Ditolak',
+          value: String(count(all, 'rejected')),
+          note: 'Resource & wawasan',
+          icon: 'lucide:circle-x',
+          tone: 'danger',
+        },
+        {
+          label: 'Kategori',
+          value: String(new Set(resources.map((r) => r.category)).size),
+          note: 'Kategori terpakai',
+          icon: 'lucide:layout-grid',
+          tone: 'primary',
+        },
+      ]
+    : dashboardStats;
+  // Distribusi kategori dari data nyata (mode API)
+  const PALETTE = ['#00478e', '#3f5f8e', '#1f5faf', '#9a4823', '#5c7ca8', '#7c310d'];
+  const distribution = USE_API
+    ? Object.entries(resources.reduce((acc, r) => ({ ...acc, [r.category]: (acc[r.category] || 0) + 1 }), {}))
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, n], i) => {
+          const percent = resources.length ? Math.round((n / resources.length) * 100) : 0;
+          return { label, detail: `${percent}% • ${n} berkas`, percent, color: PALETTE[i % PALETTE.length] };
+        })
+    : categoryDistribution;
+
+  const source = USE_API ? all.filter((i) => i.status === 'pending') : dashboardQueue;
+  const queue = filter === 'all' ? source : source.filter((q) => q.type === filter);
+
+  const [handled, setHandled] = useState({});
+  const rows = queue.map((q) => (handled[q.id] ? { ...q, status: handled[q.id] } : q));
+  const decide = async (q, status) => {
+    setHandled((h) => ({ ...h, [q.id]: status }));
+    try {
+      if (USE_API) await moderate(q.id, status);
+      notify(
+        status === 'approved' ? `"${q.title}" disetujui & dipublikasikan.` : `"${q.title}" ditolak.`,
+        status === 'approved' ? 'success' : 'error'
+      );
+    } catch (err) {
+      // NFR-REL-02: kembalikan status kalau backend gagal
+      setHandled((h) => {
+        const { [q.id]: _, ...rest } = h;
+        return rest;
+      });
+      notify(err.message || 'Gagal memperbarui status.', 'error');
+    }
+  };
+  const filters = USE_API
+    ? [
+        { key: 'all', label: 'Semua' },
+        { key: 'resource', label: 'Resource' },
+        { key: 'experience', label: 'Wawasan' },
+      ]
+    : QUEUE_FILTERS;
+
+  const columns = [
+    {
+      key: 'title',
+      label: 'Konten',
+      render: (q) => (
+        <TitleCell
+          code={q.code}
+          over={q.course}
+          title={q.title}
+          to={`/admin/moderasi/${q.id}`}
+          meta={[{ icon: 'lucide:file-text', text: `${q.format} • ${q.size}` }]}
+        />
+      ),
+    },
+    {
+      key: 'author',
+      label: 'Kontributor',
+      width: 230,
+      render: (q) => <PersonCell name={q.author} lines={[q.nim && `NIM ${q.nim}`, q.prodi]} />,
+    },
+    { key: 'category', label: 'Kategori', width: 140, render: (q) => <CategoryBadge>{q.category}</CategoryBadge> },
+    {
+      key: 'date',
+      label: 'Tanggal',
+      width: 112,
+      render: (q) => <TextCell primary={q.date} secondary={q.time} nowrap />,
+    },
+    { key: 'status', label: 'Status', width: 156, render: (q) => <StatusBadge status={q.status} /> },
+    {
+      key: 'actions',
+      label: 'Aksi',
+      width: 156,
+      align: 'right',
+      render: (q) => {
+        const done = ['approved', 'rejected'].includes(q.status);
+        return (
+          <Actions>
+            <ActionText onClick={() => navigate(`/admin/moderasi/${q.id}`)}>Tinjau</ActionText>
+            <ActionButton
+              icon="lucide:circle-check"
+              tone="ok"
+              label={`Setujui ${q.title}`}
+              disabled={done}
+              onClick={() => decide(q, 'approved')}
+            />
+            <ActionButton
+              icon="lucide:circle-x"
+              tone="danger"
+              label={`Tolak ${q.title}`}
+              disabled={done}
+              onClick={() => decide(q, 'rejected')}
+            />
+          </Actions>
+        );
+      },
+    },
+  ];
 
   return (
-    <>
-      <div className={ui.pageHead}>
-        <div className={ui.pageHeadText}>
-          <div className={ui.eyebrow}>
-            <span className={ui.pill}>
-              <span className={ui.dot} />
-              Sistem Repositori Aktif
-            </span>
-            <span>• Tahun Akademik 2024/2025</span>
-          </div>
-          <h1 className={ui.title}>Dashboard Administrator</h1>
-          <p className={ui.subtitle}>
-            Ringkasan statistik, arus kurasi konten, dan antrean moderasi akademik Telkom University.
-          </p>
-        </div>
-        <div className={ui.headActions}>
-          <button type="button" className={`${ui.btn} ${ui.btnWhite} ${styles.period}`}>
-            <Icon icon="lucide:calendar-days" size={15} color="#00478e" />
-            Januari - Desember 2024
-          </button>
-          <button type="button" className={`${ui.btn} ${ui.btnPrimary}`} onClick={() => notify('Rekap 2024 sedang disiapkan untuk diunduh.')}>
-            <Icon icon="lucide:download" size={14} />
-            Unduh Rekap
-          </button>
-        </div>
-      </div>
-
-      {/* 6 kartu metrik */}
-      <section className={styles.stats} aria-label="Statistik ringkasan">
-        {dashboardStats.map((s) => (
-          <article key={s.key} className={`${ui.card} ${styles.stat} ${s.highlight ? styles.statHighlight : ''}`}>
-            <div className={styles.statTop}>
-              <span className={`${styles.statIcon} ${TONE[s.tone].box}`}>
-                <Icon icon={s.icon} size={20} />
-              </span>
-              <span className={`${ui.badge} ${ui.badgeRound} ${TONE[s.tone].badge} ${styles.statBadge}`}>{s.badge}</span>
-            </div>
-            <div className={styles.statBody}>
-              <span className={ui.overline}>{s.label}</span>
-              <p className={styles.statValue}>
-                <strong className={styles[`val_${s.tone}`]}>{s.value}</strong>
-                <span>{s.unit}</span>
-              </p>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      {/* Grafik & distribusi */}
-      <section className={styles.middle}>
-        <article className={`${ui.card} ${styles.chartCard}`}>
-          <div className={styles.chartHead}>
-            <div>
-              <h2 className={ui.cardTitle}>
-                <Icon icon="lucide:chart-column" size={16} color="#00478e" />
-                Tren Unggahan &amp; Kontribusi Bulanan (2024)
-              </h2>
-              <p className={ui.cardSub}>
-                Volumetrik arsip akademik berdasarkan Tugas Akhir, Laporan Proyek IoT, dan Paper Riset
-              </p>
-            </div>
-            <ul className={styles.legend}>
-              {SERIES.map((s) => (
-                <li key={s.label}>
-                  <span style={{ background: s.color }} />
-                  {s.label}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <UploadChart />
-          <div className={styles.insight}>
-            <p>
-              <Icon icon="lucide:trending-up" size={15} color="#00478e" />
-              Puncak kontribusi tertinggi terjadi pada periode Sidang Akhir Semester (Juni: 395 berkas).
-            </p>
-            <Link to="/admin/resource" className={styles.linkSmall}>
-              Lihat Detail Log →
-            </Link>
-          </div>
-        </article>
-
-        <article className={`${ui.card} ${styles.distCard}`}>
-          <div>
-            <div className={styles.distHead}>
-              <h2 className={ui.cardTitle}>
-                <Icon icon="lucide:chart-pie" size={17} color="#3f5f8e" />
-                Distribusi Kategori
-              </h2>
-              <span className={ui.cardSub}>Total 2.845</span>
-            </div>
-            <p className={styles.distText}>Proporsi format dan ragam arsip ilmiah yang tersimpan dalam indeks AKSARA.</p>
-            <ul className={styles.bars}>
-              {categoryDistribution.map((c) => (
-                <li key={c.label}>
-                  <div className={styles.barLabel}>
-                    <span>{c.label}</span>
-                    <span style={{ color: c.color }}>{c.detail}</span>
-                  </div>
-                  <div className={styles.barTrack}>
-                    <span style={{ width: `${c.percent}%`, background: c.color }} />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className={styles.sync}>
-            <span className={styles.syncIcon}>
-              <Icon icon="lucide:users-round" size={14} />
-            </span>
-            <div>
-              <strong>Sinkronisasi Open Tel-U</strong>
-              <span>Terakhir diperbarui 5 menit lalu</span>
-            </div>
-            <button type="button" aria-label="Sinkronkan ulang" onClick={() => notify('Sinkronisasi Open Tel-U diperbarui.')}>
-              <Icon icon="lucide:refresh-cw" size={14} />
+    <div className={ui.page}>
+      <PageHeader
+        crumbs={[{ label: 'Beranda' }]}
+        title="Dashboard Administrator"
+        subtitle="Ringkasan statistik, kurasi konten, dan antrean moderasi repositori FIF."
+        actions={
+          <>
+            <button
+              type="button"
+              className={`${ui.btn} ${ui.btnPrimary}`}
+              onClick={() => notify('Rekap 2024 sedang disiapkan untuk diunduh.')}
+            >
+              <Icon icon="lucide:download" size={16} />
+              Unduh Rekap
             </button>
-          </div>
-        </article>
-      </section>
+          </>
+        }
+      />
 
-      {/* Antrean moderasi & widget */}
-      <section className={styles.bottom}>
-        <article className={`${ui.card} ${styles.queueCard}`}>
-          <div className={styles.queueHead}>
-            <div>
-              <h2 className={ui.cardTitle}>
-                <Icon icon="lucide:list-checks" size={17} color="#7c310d" />
-                Antrean Moderasi Konten Terbaru
-              </h2>
-              <p className={ui.cardSub}>Verifikasi berkas unggahan mahasiswa sebelum terindeks publik di AKSARA.</p>
-            </div>
-            <div className={styles.quickFilters} role="group" aria-label="Filter antrean">
-              {QUEUE_FILTERS.map((f) => (
-                <button
-                  key={f.key}
-                  type="button"
-                  className={`${styles.qf} ${filter === f.key ? styles.qfActive : ''}`}
-                  aria-pressed={filter === f.key}
-                  onClick={() => setFilter(f.key)}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className={ui.tableWrap}>
-            <table className={ui.table}>
-              <thead>
-                <tr>
-                  <th>Judul Konten</th>
-                  <th>Kontributor</th>
-                  <th>Kategori</th>
-                  <th>Tanggal</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'right' }}>Aksi Tindakan</th>
-                </tr>
-              </thead>
-              <tbody>
-                {queue.map((q) => (
-                  <tr key={q.id}>
-                    <td style={{ minWidth: 300 }}>
-                      <p className={ui.cellTitle}>
-                        <Link to={`/admin/moderasi/${q.id}`}>{q.title}</Link>
-                      </p>
-                      <p className={`${ui.cellMeta} ${styles.fileMeta}`}>
-                        <Icon icon="lucide:paperclip" size={11} />
-                        {q.meta}
-                      </p>
-                    </td>
-                    <td style={{ minWidth: 120 }}>
-                      <p className={ui.cellStrong}>{q.author}</p>
-                      <p className={ui.cellMeta}>{q.authorMeta}</p>
-                    </td>
-                    <td>
-                      <span className={`${ui.badge} ${q.categoryTone === 'warn' ? ui.toneWarn : q.categoryTone === 'secondary' ? ui.toneSecondary : ui.tonePrimary}`}>
-                        {q.category}
-                      </span>
-                    </td>
-                    <td className={ui.cellMeta} style={{ whiteSpace: 'nowrap' }}>{q.date}</td>
-                    <td>
-                      <span className={`${ui.badge} ${ui.badgeRound} ${q.status === 'Menunggu' ? ui.toneWarn : ui.toneSecondary}`}>
-                        <span className={ui.dot} />
-                        {q.status}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className={styles.rowActions}>
-                        <button type="button" className={`${ui.btn} ${ui.btnSm} ${ui.btnSoft}`} onClick={() => navigate(`/admin/moderasi/${q.id}`)}>
-                          Tinjau
-                        </button>
-                        <button type="button" className={styles.iconOk} aria-label={`Setujui ${q.title}`} onClick={() => notify(`"${q.title}" disetujui & dipublikasikan.`)}>
-                          <Icon icon="lucide:check" size={14} />
-                        </button>
-                        <button type="button" className={styles.iconNo} aria-label={`Tolak ${q.title}`} onClick={() => notify(`"${q.title}" ditolak.`, 'error')}>
-                          <Icon icon="lucide:x" size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+      <StatCards items={stats} />
+
+      {/* ---------- Grafik tren + distribusi kategori ---------- */}
+      <section className={styles.splitRow} style={USE_API ? { gridTemplateColumns: 'minmax(0, 1fr)' } : undefined}>
+        {/* Backend belum mengirim tanggal unggah, jadi grafik tren hanya tampil di mode demo */}
+        {!USE_API && (
+          <article className={`${ui.card} ${styles.chartCard}`}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardHeaderText}>
+                <h2 className={ui.cardTitle}>
+                  <Icon icon="lucide:chart-column" size={16} color="#00478e" />
+                  Tren Unggahan Bulanan (2024)
+                </h2>
+              </div>
+              <ul className={styles.chartLegend}>
+                {CHART_SERIES.map((s) => (
+                  <li key={s.label}>
+                    <span className={styles.chartLegendSwatch} style={{ background: s.color }} />
+                    {s.label}
+                  </li>
                 ))}
-              </tbody>
-            </table>
+              </ul>
+            </div>
+            <UploadChart />
+          </article>
+        )}
+
+        <article className={`${ui.card} ${styles.categoryCard}`}>
+          <div className={styles.cardHeader}>
+            <h2 className={ui.cardTitle}>
+              <Icon icon="lucide:chart-pie" size={16} color="#00478e" />
+              Distribusi Kategori
+            </h2>
+            <span className={ui.cardSub}>Total {USE_API ? resources.length : '2.845'}</span>
           </div>
-          <AdminPager info={`Menampilkan ${queue.length} dari 28 berkas antrean aktif`} pages={[1]} />
+          <ul className={styles.categoryList}>
+            {USE_API && distribution.length === 0 && <li className={ui.cardSub}>Belum ada resource.</li>}
+            {distribution.map((c) => (
+              <li key={c.label} className={styles.categoryItem}>
+                <div className={styles.categoryLabel}>
+                  <span className={styles.categoryName}>{c.label}</span>
+                  <span className={styles.categoryDetail} style={{ color: c.color }}>
+                    {c.detail}
+                  </span>
+                </div>
+                <div className={styles.progressTrack}>
+                  <span className={styles.progressFill} style={{ width: `${c.percent}%`, background: c.color }} />
+                </div>
+              </li>
+            ))}
+          </ul>
         </article>
-
-        <div className={styles.side}>
-          <article className={`${ui.card} ${ui.cardPad} ${styles.reportWidget}`}>
-            <div className={styles.widgetHead}>
-              <h2 className={ui.cardTitle}>
-                <Icon icon="lucide:triangle-alert" size={18} color="#ba1a1a" />
-                Laporan Membutuhkan Tindakan
-              </h2>
-              <span className={`${ui.badge} ${ui.badgeRound} ${ui.toneDanger}`}>7 Isu</span>
-            </div>
-            <ul className={styles.reportList}>
-              {dashboardReports.map((r) => (
-                <li key={r.id} className={styles.reportItem}>
-                  <div className={styles.reportTop}>
-                    <strong>{r.title}</strong>
-                    <span className={r.priority === 'Urgen' ? styles.urgent : styles.normal}>{r.priority}</span>
-                  </div>
-                  <p>{r.text}</p>
-                  <div className={styles.reportFoot}>
-                    <span>{r.reporter}</span>
-                    <Link
-                      to={`/admin/laporan/${r.id}`}
-                      className={`${styles.reportBtn} ${r.priority === 'Urgen' ? styles.reportBtnDanger : ''}`}
-                    >
-                      {r.action}
-                    </Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <Link to="/admin/laporan" className={`${ui.btn} ${ui.btnSoft} ${styles.fullBtn}`}>
-              Buka Seluruh Laporan (7)
-            </Link>
-          </article>
-
-          <article className={`${ui.card} ${ui.cardPad} ${styles.storage}`}>
-            <div className={styles.widgetHead}>
-              <h2 className={ui.cardTitle}>Penyimpanan Object AKSARA</h2>
-              <Icon icon="lucide:database" size={16} color="#00478e" />
-            </div>
-            <div className={styles.storageRow}>
-              <span>Terpakai: 1.42 TB dari 4.00 TB</span>
-              <strong>35.5%</strong>
-            </div>
-            <div className={styles.barTrack}>
-              <span style={{ width: '35.5%', background: '#00478e' }} />
-            </div>
-            <div className={styles.storageGrid}>
-              <div>
-                <span>Total Unduhan</span>
-                <strong>48.209x</strong>
-              </div>
-              <div>
-                <span>Uptime Server</span>
-                <strong>99.98%</strong>
-              </div>
-            </div>
-          </article>
-        </div>
       </section>
+
+      {/* ---------- Antrean moderasi — komponen tabel utama ---------- */}
+      <AdminTable
+        title="Antrean Moderasi Terbaru"
+        headerExtra={<TableChips options={filters} value={filter} onChange={setFilter} label="Filter antrean" />}
+        columns={columns}
+        rows={rows}
+        loading={USE_API && loading}
+        error={error}
+        onRetry={reload}
+        emptyText="Tidak ada antrean pada kategori ini."
+        pager={{
+          info: (
+            <>
+              Menampilkan <strong>{rows.length}</strong> dari <strong>{USE_API ? source.length : 28}</strong> antrean
+            </>
+          ),
+          pages: [1],
+        }}
+      />
       {toast}
-    </>
+    </div>
   );
 }

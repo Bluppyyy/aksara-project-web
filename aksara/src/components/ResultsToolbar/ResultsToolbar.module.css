@@ -2,24 +2,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--space-4);
   flex-wrap: wrap;
-  padding: 16px;
+  padding: var(--space-4);
   background: var(--color-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-explore);
 }
 
 .titleGroup {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .count {
-  padding: 4px 10px 2px 6px;
-  border-radius: 9999px;
-  font-size: 11px;
+  padding: var(--space-1) var(--space-2) 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
   line-height: 16px;
   color: var(--color-text-subtle);
   white-space: nowrap;
@@ -27,7 +27,7 @@
 
 .title {
   font-weight: 600;
-  font-size: 20px;
+  font-size: var(--text-title);
   line-height: 26px;
   color: var(--color-text);
 }
@@ -35,18 +35,18 @@
 .controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .sort {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .sortLabel {
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16px;
   letter-spacing: 0.44px;
   color: var(--color-text-muted);
@@ -61,12 +61,12 @@
 .select {
   appearance: none;
   width: 184.7px;
-  padding: 6px 32px 6px 12px;
+  padding: var(--space-2) var(--space-8) var(--space-2) var(--space-3);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-surface-muted);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   line-height: 18px;
   color: var(--color-text);
   cursor: pointer;
@@ -90,9 +90,9 @@
   display: flex;
   align-items: center;
   height: 31px;
-  padding: 3px;
+  padding: var(--space-1);
   border: 1px solid rgba(194, 199, 209, 0.3);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-surface-muted);
 }
 
@@ -100,8 +100,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  border-radius: 6px;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
 }
 
 .viewButtonActive {

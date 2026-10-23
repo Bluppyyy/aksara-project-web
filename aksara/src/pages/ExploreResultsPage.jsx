@@ -12,9 +12,11 @@ import Pagination from '../components/Pagination/Pagination.jsx';
 import Footer from '../components/Footer/Footer.jsx';
 import { listResources } from '../services/resources';
 import useAsync from '../hooks/useAsync';
+import { USE_API } from '../services/api';
 import { Loading, ErrorState, Empty } from '../components/Status/Status.jsx';
 import { readFilters, writeFilters, countActive, sortResources } from '../utils/filters';
 import { CATEGORIES } from '../data/resources';
+import { kategoriOptions } from '../services/master';
 
 const URUT_TO_SORT = { populer: 'Paling Banyak Diunduh', terbaru: 'Terbaru', rating: 'Rating Tertinggi' };
 
@@ -29,9 +31,12 @@ export default function ExploreResultsPage() {
   const kategori = filters.kategori.length === 1 ? filters.kategori[0] : null;
   const key = params.toString();
   // Data diambil ulang setiap filter di URL berubah
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const { data: results, loading, error, reload } = useAsync(() => listResources(filters), [key]);
-  const items = useMemo(() => sortResources(results || [], sort), [results, sort]);
+  const sorted = useMemo(() => sortResources(results || [], sort), [results, sort]);
+  // 12 kartu per halaman (sama dengan backend /resource-relevan)
+  const PER_PAGE = 12;
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+  const items = sorted.slice((page - 1) * PER_PAGE, page * PER_PAGE);
   const active = countActive(filters);
 
   const updateParams = (next) => {
@@ -39,11 +44,9 @@ export default function ExploreResultsPage() {
     setPage(1);
   };
 
-  const title = q
-    ? `Hasil untuk “${q}”`
-    : kategori
-      ? `Kategori: ${CATEGORIES[kategori]}`
-      : 'Hasil Eksplorasi';
+  const { data: dbCats } = useAsync(() => (USE_API ? kategoriOptions().catch(() => []) : Promise.resolve([])), []);
+  const kategoriLabel = CATEGORIES[kategori] || dbCats?.find((c) => c.key === kategori)?.label || '';
+  const title = q ? `Hasil untuk “${q}”` : kategoriLabel ? `Kategori: ${kategoriLabel}` : 'Hasil Eksplorasi';
 
   return (
     <div className={styles.page}>
@@ -55,7 +58,9 @@ export default function ExploreResultsPage() {
           variant="compact"
           initialQuery={q}
           initialCategory={kategori}
-          onSearch={({ query, category }) => updateParams({ q: query, kategori: category ? [category] : filters.kategori })}
+          onSearch={({ query, category }) =>
+            updateParams({ q: query, kategori: category ? [category] : filters.kategori })
+          }
           onCategoryChange={(category) => updateParams({ kategori: category ? [category] : [] })}
         />
 
@@ -85,7 +90,7 @@ export default function ExploreResultsPage() {
             <div className={styles.results}>
               <ResultsToolbar
                 title={title}
-                count={loading ? null : items.length}
+                count={loading ? null : sorted.length}
                 sort={sort}
                 onSortChange={setSort}
                 view={view}
@@ -121,10 +126,16 @@ export default function ExploreResultsPage() {
                 </div>
               )}
 
-              {/* Backend belum mendukung pagination; tampil kalau sudah ada meta.total_pages */}
-              {!loading && !error && items.length > 0 && (
+              {!loading && !error && totalPages > 1 && (
                 <div className={styles.paginationSpacing}>
-                  <Pagination page={page} totalPages={12} onChange={setPage} />
+                  <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    onChange={(n) => {
+                      setPage(n);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  />
                 </div>
               )}
             </div>

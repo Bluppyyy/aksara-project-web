@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import styles from './DocumentPreview.module.css';
+import { USE_API } from '../../services/api';
+import { getResourceFileUrl } from '../../services/resources';
+import FileViewer from './FileViewer.jsx';
+import { useFilePreview } from './useFilePreview';
 import iconPreview from '../../assets/detail/icon-preview.svg';
 import iconPrev from '../../assets/detail/icon-page-prev.svg';
 import iconNext from '../../assets/detail/icon-page-next.svg';
@@ -8,15 +12,41 @@ import iconFullscreen from '../../assets/detail/icon-fullscreen.svg';
 import iconEmblem from '../../assets/detail/icon-emblem.svg';
 import iconWatermark from '../../assets/detail/icon-watermark.svg';
 
-const CHAPTERS = [
-  'Halaman Sampul',
-  'Kata Pengantar',
-  'Arsitektur Hardware',
-  'Evaluasi Akurasi',
-  'Daftar Pustaka',
-];
+const CHAPTERS = ['Halaman Sampul', 'Kata Pengantar', 'Arsitektur Hardware', 'Evaluasi Akurasi', 'Daftar Pustaka'];
 
-export default function DocumentPreview({ totalPages = 48, cover }) {
+/**
+ * Mode API: pratinjau file asli dari Supabase Storage (GET /resource/:id/file → signed URL).
+ * Logika pengambilan file ada di useFilePreview(), tampilannya di <FileViewer>.
+ */
+function LivePreview({ resourceId, title }) {
+  const [state, openFile] = useFilePreview(() => getResourceFileUrl(resourceId, { preview: true }), resourceId);
+
+  return (
+    <section className={styles.card}>
+      <div className={styles.top}>
+        <div className={styles.titleGroup}>
+          <img src={iconPreview} alt="" className={styles.titleIcon} />
+          <h2 className={styles.title}>Pratinjau Dokumen</h2>
+          {state.ext && <span className={styles.pageBadge}>{state.ext.toUpperCase()}</span>}
+        </div>
+        <div className={styles.controls}>
+          <button type="button" className={styles.openBtn} onClick={openFile}>
+            Buka di tab baru
+          </button>
+        </div>
+      </div>
+      <FileViewer state={state} title={title} />
+    </section>
+  );
+}
+
+export default function DocumentPreview({ totalPages = 48, cover, resourceId, title }) {
+  if (USE_API && resourceId) return <LivePreview resourceId={resourceId} title={title} />;
+  return <DemoPreview totalPages={totalPages} cover={cover} />;
+}
+
+/** Mode demo: halaman sampul tiruan sesuai Figma */
+function DemoPreview({ totalPages, cover }) {
   const [page, setPage] = useState(1);
   const [zoomed, setZoomed] = useState(false);
 
@@ -52,12 +82,7 @@ export default function DocumentPreview({ totalPages = 48, cover }) {
             <img src={iconNext} alt="" style={{ width: 5.55, height: 9 }} />
           </button>
           <span className={styles.divider} />
-          <button
-            type="button"
-            aria-label="Perbesar"
-            aria-pressed={zoomed}
-            onClick={() => setZoomed((z) => !z)}
-          >
+          <button type="button" aria-label="Perbesar" aria-pressed={zoomed} onClick={() => setZoomed((z) => !z)}>
             <img src={iconZoom} alt="" style={{ width: 13.5, height: 13.5 }} />
           </button>
           <button type="button" aria-label="Layar penuh">
@@ -96,14 +121,17 @@ export default function DocumentPreview({ totalPages = 48, cover }) {
         </div>
       </div>
 
-      <div className={styles.jump}>
-        <span className={styles.jumpLabel}>Lompat Bab:</span>
-        {CHAPTERS.map((c) => (
-          <button key={c} type="button" className={styles.jumpButton}>
-            {c}
-          </button>
-        ))}
-      </div>
+      {/* Daftar bab contoh — backend belum menyediakan struktur dokumen */}
+      {!USE_API && (
+        <div className={styles.jump}>
+          <span className={styles.jumpLabel}>Lompat Bab:</span>
+          {CHAPTERS.map((c) => (
+            <button key={c} type="button" className={styles.jumpButton}>
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

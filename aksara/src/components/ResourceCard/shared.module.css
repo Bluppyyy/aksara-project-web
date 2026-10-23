@@ -1,37 +1,43 @@
 .category {
+  /* Hug isi seperti auto-layout Figma; nama kategori panjang turun ke baris berikutnya */
   display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 21px;
-  padding: 4px 10px;
-  border-radius: 6px;
+  align-items: flex-start;
+  gap: var(--space-1);
+  max-width: 100%;
+  min-height: 21px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-md);
   background: var(--color-accent);
   color: #fff;
   font-weight: 700;
-  font-size: 10px;
+  font-size: var(--text-caption-sm);
   line-height: 16.5px;
   letter-spacing: 0.55px;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: left;
 }
 
 .categoryIcon {
+  flex-shrink: 0;
   width: 11.917px;
   height: 9.75px;
+  margin-top: var(--space-1);
 }
 
 .format {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 4px;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
   background: rgba(10, 31, 46, 0.66);
   backdrop-filter: blur(6px);
   color: #fff;
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16.5px;
 }
 
@@ -48,7 +54,7 @@
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background: rgba(10, 31, 46, 0.66);
   backdrop-filter: blur(6px);
   transition: background 0.15s ease;

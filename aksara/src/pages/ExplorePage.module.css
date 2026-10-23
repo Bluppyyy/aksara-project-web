@@ -8,10 +8,10 @@
 .sectionInner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 32px;
+  padding: var(--space-8);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .results {
@@ -26,8 +26,8 @@
 .cardGridResults {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: 24.9px;
-  row-gap: 21px;
+  column-gap: var(--space-6);
+  row-gap: var(--space-5);
 }
 
 .list {
@@ -36,17 +36,17 @@
 }
 
 .paginationSpacing {
-  padding-top: 24px;
+  padding-top: var(--space-6);
 }
 
 .facultyBadge {
   align-self: flex-start;
-  padding: 6px 12px;
-  border-radius: 9999px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
   background: rgba(15, 76, 129, 0.1);
   color: var(--color-primary);
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16px;
   letter-spacing: 0.55px;
   text-transform: uppercase;
@@ -67,7 +67,7 @@
 @media (max-width: 640px) {
   .resultsInner,
   .sectionInner {
-    padding: 24px 16px;
+    padding: var(--space-6) var(--space-4);
   }
   .cardGrid,
   .cardGridResults {

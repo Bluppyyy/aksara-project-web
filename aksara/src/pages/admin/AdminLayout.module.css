@@ -1,4 +1,4 @@
-/* Token warna panel admin (palet Figma "Admin AKSARA") */
+/* Token warna & spacing panel admin (palet Figma "Admin AKSARA") */
 .shell {
   --a-primary: #00478e;
   --a-primary-2: #1f5faf;
@@ -21,30 +21,50 @@
   --a-ok-bg: #dcf5e6;
   --a-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
+  /* Skala spacing 8px (4px & 12px hanya untuk elemen mikro: badge, chip, tombol kecil) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+
+  --sidebar-w: 256px;
+  --topbar-h: 64px;
+
   min-height: 100vh;
   background: var(--a-bg);
   color: var(--a-text);
 }
 
-/* ---------- Sidebar ---------- */
-.aside {
+/* ================= Sidebar (fixed, kolom vertikal) ================= */
+.sidebar {
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 40;
-  width: 256px;
+  width: var(--sidebar-w);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: var(--sp-6);
+  padding-bottom: var(--sp-6);
   background: #fff;
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
   overflow-y: auto;
 }
 
+.sidebarSection {
+  display: flex;
+  flex-direction: column;
+}
+
 .brand {
+  flex: none;
   display: flex;
   align-items: center;
-  height: 64px;
-  padding: 0 24px;
+  height: var(--topbar-h);
+  padding: 0 var(--sp-6);
 }
 
 .brand img {
@@ -53,44 +73,39 @@
 }
 
 .navLabel {
-  padding: 13.5px 28px 10.5px;
+  padding: var(--sp-4) var(--sp-6) var(--sp-2);
   font-weight: 700;
-  font-size: 11px;
-  line-height: 14px;
+  font-size: var(--text-caption);
+  line-height: 16px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
   color: var(--a-muted);
 }
 
-.asideBottom .navLabel {
-  padding-left: 24px;
-}
-
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 0 12px;
+  gap: var(--sp-1);
+  padding: 0 var(--sp-3);
 }
 
-.asideBottom {
-  padding-bottom: 24px;
-}
-
+/* Item navigasi: fill lebar sidebar, tinggi tetap 40px untuk semua state */
 .navLink {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-3);
   width: 100%;
   min-height: 40px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-md);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 20px;
   color: var(--a-muted);
   text-align: left;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .navLink:hover {
@@ -100,11 +115,9 @@
 
 .navLinkActive,
 .navLinkActive:hover {
-  min-height: 42px;
   background: var(--a-primary-2);
   color: #fff;
   font-weight: 700;
-  line-height: 22px;
   box-shadow: var(--a-shadow);
 }
 
@@ -117,22 +130,23 @@
   display: none;
 }
 
-/* ---------- Topbar ---------- */
-.main {
-  margin-left: 256px;
+/* ================= Area utama ================= */
+.mainArea {
+  margin-left: var(--sidebar-w);
   min-width: 0;
 }
 
+/* ---------- Topbar (baris horizontal) ---------- */
 .topbar {
   position: sticky;
   top: 0;
   z-index: 30;
-  height: 64px;
+  height: var(--topbar-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 0 32px;
+  gap: var(--sp-4);
+  padding: 0 var(--sp-8);
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(24px);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
@@ -140,21 +154,23 @@
 
 .menuButton {
   display: none;
-  width: 36px;
-  height: 36px;
+  flex: none;
+  width: 40px;
+  height: 40px;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--a-muted);
 }
 
 .crumbs {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 0;
+  gap: var(--sp-2);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   letter-spacing: 0.2px;
   color: var(--a-muted);
@@ -162,60 +178,49 @@
   overflow: hidden;
 }
 
-.crumbDot {
-  margin: 0 4px;
-  font-size: 14px;
-  color: var(--a-line);
-}
-
 .crumbSep {
-  color: var(--a-line);
   font-weight: 400;
+  color: var(--a-line);
 }
 
 .crumbActive {
-  font-weight: 500;
   color: var(--a-primary);
 }
 
-.crumbs nav .crumbActive,
-nav.crumbs .crumbActive {
-  font-weight: 600;
-}
-
-.topRight {
+.topbarActions {
+  flex: none;
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
+  gap: var(--sp-4);
 }
 
-.bell {
+.notifBtn {
   position: relative;
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--a-muted);
 }
 
-.bell:hover {
+.notifBtn:hover {
   background: var(--a-soft);
 }
 
-.bellDot {
+.notifDot {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: var(--sp-2);
+  right: var(--sp-2);
   width: 8px;
   height: 8px;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background: var(--a-warn);
 }
 
 .divider {
+  flex: none;
   width: 1px;
   height: 24px;
   background: var(--a-chip);
@@ -224,7 +229,7 @@ nav.crumbs .crumbActive {
 .profile {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-3);
 }
 
 .profileText {
@@ -232,44 +237,45 @@ nav.crumbs .crumbActive {
   flex-direction: column;
   align-items: flex-end;
   font-weight: 500;
-  font-size: 11px;
-  line-height: 14px;
+  font-size: var(--text-caption);
+  line-height: 16px;
   letter-spacing: 0.3px;
   color: var(--a-muted);
 }
 
 .profileText strong {
   font-weight: 600;
-  font-size: 12px;
-  line-height: 15px;
+  font-size: var(--text-label);
   letter-spacing: 0.2px;
   color: var(--a-text);
 }
 
 .avatar {
+  flex: none;
   width: 32px;
-  height: 32px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background: #1c2230;
   color: #fff;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-caption);
 }
 
+/* ---------- Konten halaman ---------- */
 .content {
-  padding: 16px 32px 48px;
+  padding: var(--sp-6) var(--sp-8) var(--sp-12);
 }
 
-/* ---------- Responsif ---------- */
-@media (max-width: 1024px) {
-  .aside {
+/* ================= Responsif ================= */
+@media (max-width: 1100px) {
+  .sidebar {
     transform: translateX(-100%);
     transition: transform 0.2s ease;
   }
-  .asideOpen {
+  .sidebarOpen {
     transform: none;
   }
   .scrim {
@@ -279,7 +285,7 @@ nav.crumbs .crumbActive {
     z-index: 35;
     background: rgba(8, 28, 50, 0.35);
   }
-  .main {
+  .mainArea {
     margin-left: 0;
   }
   .menuButton {
@@ -289,17 +295,21 @@ nav.crumbs .crumbActive {
 
 @media (max-width: 640px) {
   .topbar {
-    padding: 0 16px;
+    padding: 0 var(--sp-4);
   }
   .content {
-    padding: 16px 16px 40px;
+    padding: var(--sp-4) var(--sp-4) var(--sp-8);
   }
   .profileText,
   .divider,
   .crumbs {
     display: none;
   }
-  .topRight {
+  .topbarActions {
     margin-left: auto;
   }
+}
+
+.topSpacer {
+  flex: 1;
 }

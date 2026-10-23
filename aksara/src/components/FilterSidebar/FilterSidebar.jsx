@@ -7,6 +7,10 @@ import iconSearch from '../../assets/explore/icon-search-sm.svg';
 import iconTagRemove from '../../assets/explore/icon-tag-remove.svg';
 import iconStar from '../../assets/explore/icon-star-sm.svg';
 import iconCheck from '../../assets/explore/icon-check-circle.svg';
+import { PRODI_FIF } from '../../data/academic';
+import { USE_API } from '../../services/api';
+import { kategoriOptions } from '../../services/master';
+import useAsync from '../../hooks/useAsync';
 
 // Label sesuai Figma → kunci kategori di data
 const CATEGORIES = [
@@ -18,8 +22,7 @@ const CATEGORIES = [
   { label: 'Modul Praktikum', key: 'project' },
   { label: 'Misc', key: 'lainnya' },
 ];
-const FACULTIES = ['Semua Fakultas', 'Fakultas Informatika (FIF)', 'Fakultas Teknik Elektro (FTE)', 'Fakultas Rekayasa Industri (FRI)'];
-const PRODI = ['Semua Program Studi', 'S1 Informatika', 'S1 Rekayasa Perangkat Lunak', 'S1 Teknologi Informasi', 'S1 Data Sains', 'S1 Teknik Telekomunikasi'];
+const PRODI = ['Semua Program Studi', ...PRODI_FIF];
 const SEMESTERS = ['Smt 1', 'Smt 2', 'Smt 3', 'Smt 4', 'Smt 5', 'Smt 6', 'Smt 7', 'Smt 8+'];
 const FORMATS = ['PDF', 'DOC', 'PPT', 'ZIP'];
 const smtNum = (s) => parseInt(s.replace(/\D/g, ''), 10);
@@ -27,8 +30,7 @@ const smtNum = (s) => parseInt(s.replace(/\D/g, ''), 10);
 /** Objek filter (utils/filters.js) → state form sidebar */
 function toForm(v = {}) {
   return {
-    categories: CATEGORIES.filter((c) => (v.kategori || []).includes(c.key)).map((c) => c.label),
-    faculty: v.fakultas || FACULTIES[0],
+    categories: v.kategori || [], // kunci kategori (mode API: "k:<category_id>")
     prodi: v.prodi || PRODI[0],
     semesters: SEMESTERS.filter((s) => (v.semester || []).includes(smtNum(s))),
     courseQuery: '',
@@ -42,8 +44,7 @@ function toForm(v = {}) {
 /** State form sidebar → objek filter */
 function fromForm(f) {
   return {
-    kategori: CATEGORIES.filter((c) => f.categories.includes(c.label)).map((c) => c.key),
-    fakultas: f.faculty === FACULTIES[0] ? '' : f.faculty,
+    kategori: f.categories,
     prodi: f.prodi === PRODI[0] ? '' : f.prodi,
     semester: f.semesters.map(smtNum),
     matkul: f.courses,
@@ -83,6 +84,9 @@ function Select({ id, label, value, options, onChange }) {
  */
 export default function FilterSidebar({ value, onApply }) {
   const [f, setF] = useState(() => toForm(value));
+  // Mode API: daftar kategori sama dengan database (GET /kategori)
+  const { data: dbCats } = useAsync(() => (USE_API ? kategoriOptions().catch(() => null) : Promise.resolve(null)), []);
+  const categoryList = dbCats?.length ? dbCats : CATEGORIES;
   const set = (key, value) => setF((prev) => ({ ...prev, [key]: value }));
 
   const addCourse = (e) => {
@@ -118,25 +122,31 @@ export default function FilterSidebar({ value, onApply }) {
           <section className={styles.section}>
             <SectionTitle>KATEGORI BERKAS</SectionTitle>
             <div className={styles.checkList}>
-              {CATEGORIES.map(({ label: c }) => (
-                <label key={c} className={styles.check}>
+              {categoryList.map(({ label, key }) => (
+                <label key={key} className={styles.check}>
                   <input
                     type="checkbox"
-                    checked={f.categories.includes(c)}
-                    onChange={() => set('categories', toggle(f.categories, c))}
+                    checked={f.categories.includes(key)}
+                    onChange={() => set('categories', toggle(f.categories, key))}
                   />
                   <span className={styles.checkBox} aria-hidden="true" />
-                  {c}
+                  {label}
                 </label>
               ))}
             </div>
           </section>
 
+          {/* Prodi & semester: dicocokkan dari prodi_id / semester_id resource (GET /prodi, GET /semester) */}
           <section className={styles.section}>
-            <SectionTitle>FAKULTAS &amp; PROGRAM STUDI</SectionTitle>
+            <SectionTitle>PROGRAM STUDI</SectionTitle>
             <div className={styles.fields}>
-              <Select id="f-fakultas" label="Fakultas" value={f.faculty} options={FACULTIES} onChange={(v) => set('faculty', v)} />
-              <Select id="f-prodi" label="Program Studi" value={f.prodi} options={PRODI} onChange={(v) => set('prodi', v)} />
+              <Select
+                id="f-prodi"
+                label="Program Studi"
+                value={f.prodi}
+                options={PRODI}
+                onChange={(v) => set('prodi', v)}
+              />
             </div>
           </section>
 
@@ -178,7 +188,12 @@ export default function FilterSidebar({ value, onApply }) {
                     <button
                       type="button"
                       aria-label={`Hapus ${c}`}
-                      onClick={() => set('courses', f.courses.filter((x) => x !== c))}
+                      onClick={() =>
+                        set(
+                          'courses',
+                          f.courses.filter((x) => x !== c)
+                        )
+                      }
                     >
                       <img src={iconTagRemove} alt="" />
                     </button>
@@ -193,7 +208,7 @@ export default function FilterSidebar({ value, onApply }) {
           <section className={styles.section}>
             <SectionTitle>FORMAT</SectionTitle>
             <div className={styles.formatList}>
-              {FORMATS.map((fm) => (
+              {FORMATS.filter((fm) => !(USE_API && fm === 'ZIP')).map((fm) => (
                 <button
                   key={fm}
                   type="button"
@@ -211,7 +226,13 @@ export default function FilterSidebar({ value, onApply }) {
             <SectionTitle>TAHUN UPLOAD</SectionTitle>
             <div className={styles.sliderRow}>
               <span className={styles.sliderValue}>{f.years[0]}</span>
-              <RangeSlider label="Tahun upload" min={2010} max={2026} value={f.years} onChange={(v) => set('years', v)} />
+              <RangeSlider
+                label="Tahun upload"
+                min={2010}
+                max={2026}
+                value={f.years}
+                onChange={(v) => set('years', v)}
+              />
               <span className={styles.sliderValue}>{f.years[1]}</span>
             </div>
           </section>

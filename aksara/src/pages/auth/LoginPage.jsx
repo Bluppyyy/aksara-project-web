@@ -5,7 +5,6 @@ import AuthShell from './AuthShell.jsx';
 import PasswordInput from './PasswordInput.jsx';
 import layout from './AuthLayout.module.css';
 import styles from './LoginPage.module.css';
-import googleIcon from '../../assets/auth/google-g.svg';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -41,10 +40,13 @@ export default function LoginPage() {
       const target = isAdmin(user) ? (from?.startsWith('/admin') ? from : homeFor(user)) : from || homeFor(user);
       navigate(target, { replace: true });
     } catch (err) {
+      // NFR-SEC: pesan umum, tidak membedakan email tidak terdaftar vs kata sandi salah
       setServerError(
         /invalid login/i.test(err.message)
           ? 'Email atau kata sandi tidak sesuai. Belum punya akun? Daftar dulu ya.'
-          : err.message
+          : /not confirmed/i.test(err.message)
+            ? 'Email belum diverifikasi. Buka tautan verifikasi yang dikirim ke emailmu, lalu masuk lagi.'
+            : err.message
       );
       setLoading(false);
     }
@@ -98,14 +100,11 @@ export default function LoginPage() {
             <label htmlFor="password" className={layout.label}>
               Kata Sandi
             </label>
-            <a href="#" className={layout.link}>
-              Lupa kata sandi?
-            </a>
           </div>
           <PasswordInput
             id="password"
             autoComplete="current-password"
-            placeholder="Masukkan kata sandi"
+            placeholder="Masukkan Kata Sandi"
             value={form.password}
             onChange={update('password')}
             onBlur={blur('password')}
@@ -116,26 +115,17 @@ export default function LoginPage() {
 
         <label className={styles.remember}>
           <input type="checkbox" checked={form.remember} onChange={update('remember')} />
-          Ingat saya di perangkat ini
+          Ingat kata sandi di perangkat ini
         </label>
 
         <button type="submit" className={layout.primaryButton} disabled={loading}>
           {loading ? 'Memproses…' : 'Masuk'}
         </button>
 
-        <div className={styles.divider}>
-          <span>atau</span>
-        </div>
-
-        <button type="button" className={styles.googleButton}>
-          <img src={googleIcon} alt="" />
-          Masuk dengan Google
-        </button>
-
         <p className={layout.footerText}>
           Belum punya akun?
           <Link to="/daftar" className={layout.link}>
-            Daftar sekarang
+            Daftar Sekarang
           </Link>
         </p>
       </form>

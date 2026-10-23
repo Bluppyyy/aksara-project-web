@@ -4,9 +4,11 @@
   overflow: hidden;
   min-width: 0;
   background: var(--color-surface);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .card:hover {
@@ -18,7 +20,7 @@
 .preview {
   position: relative;
   height: 160px;
-  padding: 16px;
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -48,7 +50,7 @@
 
 /* Isi kartu */
 .body {
-  padding: 20px;
+  padding: var(--space-5);
   display: flex;
   flex-direction: column;
 }
@@ -56,15 +58,15 @@
 .info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .course {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   font-weight: 600;
-  font-size: 10px;
+  font-size: var(--text-caption-sm);
   line-height: 16px;
   color: var(--color-primary);
   white-space: pre;
@@ -79,13 +81,13 @@
 .texts {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .title {
   height: 44px;
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--text-body-lg);
   line-height: 22px;
   color: var(--color-text);
   display: -webkit-box;
@@ -101,7 +103,7 @@
 .description {
   height: 41px;
   font-family: var(--font-public);
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 19.5px;
   color: var(--color-text-muted);
   display: -webkit-box;
@@ -113,37 +115,39 @@
 .tags {
   list-style: none;
   margin: 0;
-  padding: 14px 0;
+  padding: var(--space-4) 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .tag {
-  height: 20.5px;
-  padding: 2px 8px;
-  border-radius: 4px;
+  min-height: 20.5px;
+  max-width: 100%;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
   background: var(--color-chip);
   font-weight: 500;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16.5px;
   color: var(--color-text-muted);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding-top: 15px;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--color-border-soft);
 }
 
 .author {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
 }
 
@@ -152,13 +156,13 @@
   align-items: center;
   justify-content: center;
   width: 32px;
-  height: 32px;
+  min-height: 32px;
   flex-shrink: 0;
-  border-radius: 9999px;
-  background-image: linear-gradient(45deg, #0f4c81 0%, #1261a2 100%);
+  border-radius: var(--radius-full);
+  background-image: linear-gradient(45deg, var(--color-primary) 0%, var(--color-primary-600) 100%);
   color: #fff;
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
 }
 
@@ -171,14 +175,14 @@
 
 .authorName {
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 11px;
   color: var(--color-text);
   white-space: nowrap;
 }
 
 .authorMeta {
-  font-size: 10px;
+  font-size: var(--text-caption-sm);
   line-height: 15px;
   color: var(--color-text-muted);
   white-space: nowrap;
@@ -187,7 +191,7 @@
 .stats {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   flex-shrink: 0;
 }
 
@@ -195,10 +199,10 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   color: var(--color-accent);
 }
@@ -213,7 +217,7 @@
   align-items: center;
   gap: 2px;
   font-weight: 500;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16.5px;
   color: var(--color-text-muted);
 }

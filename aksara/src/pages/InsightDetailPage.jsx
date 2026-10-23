@@ -1,15 +1,17 @@
 import { Fragment, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import CoverFrame from '../components/CoverFrame/CoverFrame.jsx';
 import Header from '../components/Header/Header.jsx';
 import Footer from '../components/Footer/Footer.jsx';
 import Icon from '../components/Icon/Icon.jsx';
-import ReviewsSection from '../components/detail/ReviewsSection.jsx';
+import ReviewsSection from '../components/ResourceDetail/ReviewsSection.jsx';
 import { Loading, ErrorState } from '../components/Status/Status.jsx';
+import { USE_API } from '../services/api';
 import useAsync from '../hooks/useAsync';
-import { useAuth } from '../context/AuthContext.jsx';
-import { getArticle, reportArticle } from '../services/wawasan';
+import { useAuth } from '../context/useAuth';
+import { getArticle, reportArticle } from '../services/insights';
 import { resourceDetail } from '../data/resourceDetail.jsx';
-import styles from './WawasanDetailPage.module.css';
+import styles from './InsightDetailPage.module.css';
 
 /** Ubah teks sederhana: `kode` → <code>, *miring* → <em> (tanpa dangerouslySetInnerHTML) */
 function RichText({ text }) {
@@ -21,7 +23,7 @@ function RichText({ text }) {
   });
 }
 
-export default function WawasanDetailPage() {
+export default function InsightDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = useAuth();
@@ -89,29 +91,60 @@ export default function WawasanDetailPage() {
               <h1 className={styles.title}>{a.title}</h1>
               <p className={styles.subtitle}>{a.subtitle}</p>
               <div className={styles.heroFoot}>
+                {/* Mode API: hanya tampilkan metrik yang dikirim backend (ulasan wawasan belum ada) */}
                 <div className={styles.metrics}>
-                  <span>
-                    <Icon icon="lucide:calendar" size={13} />
-                    {a.date}
-                  </span>
-                  <span className={styles.sep}>•</span>
-                  <span>
-                    <Icon icon="lucide:eye" size={14} />
-                    <strong>{a.reads}</strong> Baca
-                  </span>
-                  <span className={styles.sep}>•</span>
-                  <span>
-                    <Icon icon="lucide:star" size={13} fill="#e88d67" color="#e88d67" />
-                    <strong>{a.rating}</strong>
-                    <em>({a.reviewCount} ulasan)</em>
-                  </span>
+                  {[
+                    a.date && (
+                      <span key="d">
+                        <Icon icon="lucide:calendar" size={13} />
+                        {a.date}
+                      </span>
+                    ),
+                    a.reads !== '–' && a.reads != null && (
+                      <span key="r">
+                        <Icon icon="lucide:eye" size={14} />
+                        <strong>{a.reads}</strong> Baca
+                      </span>
+                    ),
+                    !USE_API && (
+                      <span key="s">
+                        <Icon icon="lucide:star" size={13} fill="#e88d67" color="#e88d67" />
+                        <strong>{a.rating}</strong>
+                        <em>({a.reviewCount} ulasan)</em>
+                      </span>
+                    ),
+                  ]
+                    .filter(Boolean)
+                    .flatMap((el, i) =>
+                      i
+                        ? [
+                            <span key={`sep${i}`} className={styles.sep}>
+                              •
+                            </span>,
+                            el,
+                          ]
+                        : [el]
+                    )}
                 </div>
                 <div className={styles.actions}>
-                  <button type="button" className={`${styles.save} ${saved ? styles.saveOn : ''}`} onClick={toggleSave} aria-pressed={saved}>
-                    <Icon icon="lucide:bookmark" size={14} fill={saved ? 'currentColor' : undefined} />
-                    {saved ? 'Tersimpan di Koleksi' : 'Simpan ke Koleksi'}
-                  </button>
-                  <button type="button" className={styles.report} onClick={() => requireLogin() && setReportOpen((o) => !o)} aria-expanded={reportOpen}>
+                  {/* Bookmark backend hanya untuk resource → simpan wawasan disembunyikan di mode API */}
+                  {!USE_API && (
+                    <button
+                      type="button"
+                      className={`${styles.save} ${saved ? styles.saveOn : ''}`}
+                      onClick={toggleSave}
+                      aria-pressed={saved}
+                    >
+                      <Icon icon="lucide:bookmark" size={14} fill={saved ? 'currentColor' : undefined} />
+                      {saved ? 'Tersimpan di Koleksi' : 'Simpan ke Koleksi'}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className={styles.report}
+                    onClick={() => requireLogin() && setReportOpen((o) => !o)}
+                    aria-expanded={reportOpen}
+                  >
                     <Icon icon="lucide:flag" size={12} />
                     Laporkan Konten
                   </button>
@@ -159,9 +192,17 @@ export default function WawasanDetailPage() {
             <div className={styles.layout}>
               <div className={styles.left}>
                 <article className={styles.article}>
+                  {/* Sampul unggahan penulis: bingkai seragam, gambar utuh. Gambar contoh mengikuti rasio Figma */}
                   <figure className={styles.figure}>
-                    <img src={a.image} alt="Suasana ruang kerja dan kolaborasi mahasiswa magang di Telkomsel Innovation Lab" />
-                    <figcaption>{a.caption}</figcaption>
+                    {a.hasCover ? (
+                      <CoverFrame src={a.image} alt={`Sampul tulisan ${a.title}`} className={styles.coverFrame} />
+                    ) : (
+                      <img
+                        src={a.image}
+                        alt="Suasana ruang kerja dan kolaborasi mahasiswa magang di Telkomsel Innovation Lab"
+                      />
+                    )}
+                    {a.caption && <figcaption>{a.caption}</figcaption>}
                   </figure>
                   <div className={styles.body}>
                     {a.blocks.map((b, i) => {
@@ -179,17 +220,27 @@ export default function WawasanDetailPage() {
                       );
                     })}
                   </div>
-                  <div className={styles.keywords}>
-                    <span>Kata Kunci:</span>
-                    {a.keywords.map((k) => (
-                      <Link key={k} to={`/eksplorasi/hasil?q=${encodeURIComponent(k)}`}>
-                        {k}
-                      </Link>
-                    ))}
-                  </div>
+                  {a.keywords.length > 0 && (
+                    <div className={styles.keywords}>
+                      <span>Kata Kunci:</span>
+                      {a.keywords.map((k) => (
+                        <Link key={k} to={`/eksplorasi/hasil?q=${encodeURIComponent(k)}`}>
+                          {k}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </article>
 
-                <ReviewsSection rating={a.rating} count={a.reviewCount} reviews={resourceDetail.reviews} onSubmit={async () => {}} />
+                {/* Ulasan untuk wawasan belum ada di backend → hanya tampil di mode demo */}
+                {!USE_API && (
+                  <ReviewsSection
+                    rating={a.rating}
+                    count={a.reviewCount}
+                    reviews={resourceDetail.reviews}
+                    onSubmit={async () => {}}
+                  />
+                )}
               </div>
 
               <aside className={styles.right}>

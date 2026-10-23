@@ -3,7 +3,7 @@ import iconChevron from '../../assets/icon-chevron-down-sort.svg';
 import iconGrid from '../../assets/icon-view-grid.svg';
 import iconList from '../../assets/icon-view-list.svg';
 
-export const SORT_OPTIONS = ['Paling Relevan', 'Terbaru', 'Rating Tertinggi', 'Paling Banyak Diunduh'];
+const SORT_OPTIONS = ['Paling Relevan', 'Terbaru', 'Rating Tertinggi', 'Paling Banyak Diunduh'];
 
 export default function ResultsToolbar({ title, count, sort, onSortChange, view, onViewChange }) {
   return (

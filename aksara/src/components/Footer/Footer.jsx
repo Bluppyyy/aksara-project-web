@@ -31,8 +31,8 @@ export default function Footer() {
           <div className={styles.brand}>
             <img src={logo} alt="AKSARA" className={styles.logo} />
             <p className={styles.tagline}>
-              Wadah berbagi referensi akademik, laporan proyek, tips magang, dan beasiswa terpercaya
-              bagi mahasiswa Telkom University.
+              Wadah berbagi referensi akademik, laporan proyek, tips magang, dan beasiswa terpercaya bagi mahasiswa
+              Telkom University.
             </p>
             <div className={styles.badges}>
               <span className={`${styles.badge} ${styles.badgeBlue}`}>
@@ -60,8 +60,7 @@ export default function Footer() {
 
         <div className={styles.bottom}>
           <p className={styles.copyright}>
-            © 2026 AKSARA - Academic Repository. Advanced Software Engineering Laboratory, Telkom
-            University.
+            © 2026 AKSARA - Academic Repository. Advanced Software Engineering Laboratory, Telkom University.
           </p>
           <div className={styles.legal}>
             {LEGAL_LINKS.map((link) => (

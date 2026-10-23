@@ -25,6 +25,62 @@
   --shadow-landing: 2px 5px 20.2px rgba(0, 0, 0, 0.02);
 
   --gradient-primary: linear-gradient(150.72deg, #0f4c81 0%, #1261a2 100%);
+
+  /* ---------- Design token ---------- */
+  /* Spacing: grid 4px — kelipatan 8 untuk jarak antar blok, 4 untuk elemen mikro.
+     Angka di nama = kelipatan 4 (--space-2 = 8px, --space-4 = 16px). 1–2px dipakai langsung untuk penyesuaian optis. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-11: 44px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-15: 60px;
+  --space-16: 64px;
+  --space-17: 68px;
+  --space-18: 72px;
+  --space-20: 80px;
+  --space-23: 92px;
+  --space-24: 96px;
+  --space-28: 112px;
+  --space-32: 128px;
+
+  /* Skala tipografi */
+  --text-caption-sm: 10px;
+  --text-caption: 11px;
+  --text-label: 12px;
+  --text-body-sm: 13px;
+  --text-body: 14px;
+  --text-body-lg: 16px;
+  --text-title-sm: 18px;
+  --text-title: 20px;
+  --text-heading-sm: 24px;
+  --text-heading: 28px;
+  --text-heading-lg: 32px;
+  --text-display-xs: 36px;
+  --text-display-sm: 40px;
+  --text-display: 44px;
+  --text-display-lg: 48px;
+  --text-display-xl: 64px;
+
+  /* Sudut */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Breakpoint (ditulis langsung di @media karena CSS belum mendukung var() di media query):
+     640px HP · 768px tablet · 960px tablet besar · 1100px laptop kecil · 1280px laptop · 1440px · 1600px layar lebar */
 }
 
 *,
@@ -109,4 +165,11 @@ html {
   * {
     transition: none !important;
   }
+}
+
+/* Ruang kosong sementara saat file halaman (lazy loading) sedang diunduh */
+.page-loader {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
 }

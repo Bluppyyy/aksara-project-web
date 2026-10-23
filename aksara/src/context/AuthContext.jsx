@@ -1,8 +1,7 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { currentUser, homeFor } from '../services/auth';
-
-const AuthContext = createContext(null);
+import { currentUser, homeFor, isAdmin } from '../services/auth';
+import { AuthContext, useAuth } from './useAuth';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(currentUser);
@@ -20,16 +19,17 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={user}>{children}</AuthContext.Provider>;
 }
 
-/** User yang sedang login, atau null */
-export function useAuth() {
-  return useContext(AuthContext);
-}
-
-/** Bungkus halaman yang wajib login; kalau belum, arahkan ke /login lalu kembali lagi */
-export function RequireAuth({ children }) {
+/**
+ * Bungkus halaman yang wajib login; kalau belum, arahkan ke /login lalu kembali lagi
+ * ke halaman yang sama (termasuk ?query, misalnya kata kunci pencarian).
+ */
+export function RequireAuth({
+  children,
+  notice = 'Masuk dulu untuk melanjutkan. Halaman ini khusus mahasiswa yang sudah login.',
+}) {
   const user = useAuth();
   const location = useLocation();
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search, notice }} />;
   return children;
 }
 
@@ -42,6 +42,7 @@ export function RequireRole({ role, loginPath = '/login', children }) {
   const user = useAuth();
   const location = useLocation();
   if (!user) return <Navigate to={loginPath} replace state={{ from: location.pathname }} />;
-  if (user.role !== role) return <Navigate to={homeFor(user)} replace />;
+  const allowed = role === 'admin' ? isAdmin(user) : user.role === role;
+  if (!allowed) return <Navigate to={homeFor(user)} replace />;
   return children;
 }

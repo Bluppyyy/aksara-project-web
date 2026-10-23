@@ -1,8 +1,10 @@
-/* Dipakai bersama oleh LoginPage & RegisterPage */
+/* Halaman Login (frame Figma "login mahasiswa"): panel kiri + kartu form di kanan */
 .page {
   display: flex;
   min-height: 100vh;
-  background: #f7f9fd;
+  background: #fff;
+  font-family: 'Plus Jakarta Sans', var(--font-sans);
+  letter-spacing: 0.06em;
 }
 
 .main {
@@ -11,26 +13,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px;
+  padding: var(--space-10) var(--space-6);
 }
 
+/* Kartu 567px, sudut 15, garis tipis + bayangan lembut */
 .card {
   width: 100%;
-  max-width: 420px;
-  padding: 32px;
+  max-width: 567px;
+  padding: var(--space-12) var(--space-15) var(--space-12);
   background: #fff;
-  border: 1px solid #e6e9ef;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(15, 23, 41, 0.06);
-  color: var(--color-text);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  color: #000;
 }
 
 /* Logo kecil — hanya tampil di layar sempit saat panel kiri disembunyikan */
 .mobileLogo {
   display: none;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
 }
 
 .mobileLogo img {
@@ -38,49 +41,36 @@
   height: auto;
 }
 
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  align-self: center;
-  margin-bottom: 16px;
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--color-text-subtle);
-}
-
-.backLink:hover {
-  color: var(--color-primary);
-}
-
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-5);
 }
 
 .header {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-4);
 }
 
 .title {
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 32px;
-  color: var(--color-text);
+  font-weight: 800;
+  font-size: var(--text-heading);
+  line-height: 35px;
+  color: #000;
 }
 
 .subtitle {
-  margin-top: 6px;
-  font-size: 14px;
-  line-height: 21px;
-  color: var(--color-text-subtle);
+  max-width: 345px;
+  margin-top: var(--space-4);
+  font-weight: 400;
+  font-size: var(--text-body);
+  line-height: 18px;
+  color: #000;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-4);
   min-width: 0;
 }
 
@@ -88,47 +78,54 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .label {
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: var(--text-body);
   line-height: 18px;
-  color: #1f2328;
+  color: #000;
 }
 
+/* Input persegi 53px dengan garis hitam 50% (sesuai Figma) */
 .input,
 .inputGroup {
   width: 100%;
-  height: 44px;
+  height: 53px;
   background: #fff;
-  border: 1px solid #d0d7de;
-  border-radius: 10px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 0;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .input {
-  padding: 0 14px;
-  font-size: 14px;
-  color: var(--color-text);
+  padding: 0 var(--space-6);
+  font-weight: 300;
+  font-size: var(--text-body);
+  letter-spacing: 0.06em;
+  color: #000;
   outline: none;
 }
 
 .input::placeholder,
 .inputGroup input::placeholder {
-  color: #9aa1ab;
+  color: #000;
+  opacity: 0.7;
+  font-weight: 300;
 }
 
 .input:hover,
 .inputGroup:hover {
-  border-color: #b4bcc7;
+  border-color: rgba(0, 0, 0, 0.7);
 }
 
 .input:focus,
 .inputGroup:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.12);
+  border-color: #1a7acc;
+  box-shadow: 0 0 0 3px rgba(26, 122, 204, 0.15);
 }
 
 .inputInvalid,
@@ -147,28 +144,14 @@
   flex: 1;
   min-width: 0;
   height: 100%;
-  padding: 0 8px 0 14px;
+  padding: 0 var(--space-2) 0 var(--space-6);
   border: 0;
-  border-radius: 10px;
   background: transparent;
   outline: none;
-  font-size: 14px;
-  color: var(--color-text);
-}
-
-.prefix {
-  display: flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 10px 0 14px;
-  border-right: 1px solid #d0d7de;
-  font-size: 14px;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.prefix + input {
-  padding-left: 10px;
+  font-weight: 300;
+  font-size: var(--text-body);
+  letter-spacing: 0.06em;
+  color: #000;
 }
 
 .eyeButton {
@@ -177,35 +160,32 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  margin-right: 4px;
+  margin-right: var(--space-2);
   flex-shrink: 0;
-  border-radius: 8px;
-  color: var(--color-text-subtle);
+  border-radius: var(--radius-md);
+  color: rgba(0, 0, 0, 0.55);
 }
 
 .eyeButton:hover {
-  background: #f1f4fa;
-  color: var(--color-text);
-}
-
-.helper {
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--color-text-subtle);
+  background: var(--color-surface-muted);
+  color: #000;
 }
 
 .error {
-  font-size: 12px;
+  margin-top: -8px;
+  font-size: var(--text-label);
   line-height: 16px;
+  letter-spacing: 0;
   color: #cf222e;
 }
 
 .alert,
 .notice {
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 13px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body-sm);
   line-height: 19px;
+  letter-spacing: 0;
 }
 
 .alert {
@@ -221,8 +201,8 @@
 }
 
 .link {
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 800;
+  font-size: var(--text-body);
   color: #1a7acc;
 }
 
@@ -230,20 +210,24 @@
   text-decoration: underline;
 }
 
+/* Tombol Masuk 60px, sudut 10, teks 24 */
 .primaryButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   width: 100%;
-  height: 44px;
-  margin-top: 4px;
-  border-radius: 10px;
-  background: #e88d67;
+  min-height: 60px;
+  margin-top: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
   color: #fff;
   font-weight: 700;
-  font-size: 15px;
-  transition: background 0.15s ease, transform 0.1s ease;
+  font-size: var(--text-heading-sm);
+  letter-spacing: 0.06em;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
 }
 
 .primaryButton:hover:not(:disabled) {
@@ -260,15 +244,14 @@
 }
 
 .footerText {
-  margin-top: 4px;
-  font-size: 14px;
+  font-weight: 300;
+  font-size: var(--text-body);
   text-align: center;
-  color: var(--color-text-muted);
+  color: #000;
 }
 
 .footerText .link {
-  margin-left: 4px;
-  font-size: 14px;
+  margin-left: 2px;
 }
 
 @media (max-width: 960px) {
@@ -277,17 +260,23 @@
   }
   .main {
     justify-content: flex-start;
-    padding-top: 48px;
+    padding-top: var(--space-12);
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .main {
-    padding: 24px 16px;
+    padding: var(--space-6) var(--space-4);
   }
   .card {
-    padding: 24px 20px;
-    border: 0;
-    box-shadow: 0 4px 16px rgba(15, 23, 41, 0.06);
+    padding: var(--space-8) var(--space-5);
+  }
+  .title {
+    font-size: var(--text-heading-sm);
+    line-height: 30px;
+  }
+  .primaryButton {
+    min-height: 52px;
+    font-size: var(--text-title);
   }
 }

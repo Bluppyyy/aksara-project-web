@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import useBookmark from '../../hooks/useBookmark';
+import { addRecent } from '../../utils/recent';
 import { thumbnailFor } from '../../data/resources';
 import styles from './ResourceCard.module.css';
 import { CategoryBadge, FormatBadge, BookmarkButton, Thumbnail } from './shared.jsx';
@@ -18,7 +19,7 @@ export default function ResourceCard({ resource, onBookmarkChange }) {
         <Thumbnail src={thumb} />
         {!thumb && <div className={styles.previewGlow} aria-hidden="true" />}
         <div className={styles.previewTop}>
-          <CategoryBadge category={category} />
+          <CategoryBadge category={category} label={resource.categoryLabel} thumb={resource.thumb} />
         </div>
         <div className={styles.previewBottom}>
           <FormatBadge format={format} />
@@ -34,7 +35,9 @@ export default function ResourceCard({ resource, onBookmarkChange }) {
           </div>
           <div className={styles.texts}>
             <h3 className={styles.title}>
-              <Link to={`/resource/${id}`}>{title}</Link>
+              <Link to={`/resource/${id}`} onClick={() => addRecent(resource)}>
+                {title}
+              </Link>
             </h3>
             <p className={styles.description}>{description}</p>
           </div>

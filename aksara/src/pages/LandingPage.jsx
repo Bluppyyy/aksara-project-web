@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 import Icon from '../components/Icon/Icon.jsx';
 import styles from './LandingPage.module.css';
 import Header from '../components/Header/Header.jsx';
 import Footer from '../components/Footer/Footer.jsx';
+import { USE_API } from '../services/api';
+import { countResources } from '../services/resources';
+import { listArticles } from '../services/insights';
+import { getKategori } from '../services/master';
+import useAsync from '../hooks/useAsync';
 import iconVerified from '../assets/landing/icon-verified.svg';
 import sparkleOrange from '../assets/landing/sparkle-orange.svg';
 import sparkleBlue from '../assets/landing/sparkle-blue.svg';
@@ -33,7 +39,7 @@ const STATS = [
   { value: '500+', label: 'Resource Tersedia', tone: 'dark' },
   { value: '1.200+', label: 'Mahasiswa Bergabung', tone: 'blue' },
   { value: '300+', label: 'Pengalaman Dibagikan', tone: 'orange' },
-  { value: '100%', label: 'Akses Gratis via SSO Tel-U', tone: 'green' },
+  { value: '100%', label: 'Gratis untuk Mahasiswa', tone: 'green' },
 ];
 
 const CATEGORIES = [
@@ -43,22 +49,59 @@ const CATEGORIES = [
   },
   {
     title: 'Pengalaman Magang / Kerja',
-    desc: 'abcd lorem ipusm abcd lorem ipusm abcd lorem ipusm abcd lorem ipusm abcd lorem ipusm',
+    desc: 'Cerita proses seleksi, persiapan wawancara, dan suasana kerja langsung dari kakak tingkat.',
   },
   {
     title: 'Panduan Beasiswa',
-    desc: 'Lorem piusm Lorem piusm Lorem piusm Lorem piusm Lorem piusm Lorem piusm Lorem piusm',
+    desc: 'Tips esai, berkas, dan timeline pendaftaran beasiswa dari mahasiswa yang sudah lolos.',
   },
 ];
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
-  const [hotSaved, setHotSaved] = useState([false, true]);
+  // Mode API: angka statistik diambil dari database (resource disetujui, wawasan disetujui, kategori)
+  const { data: live } = useAsync(
+    () =>
+      USE_API
+        ? Promise.all([
+            countResources().catch(() => null),
+            listArticles()
+              .then((a) => a.length)
+              .catch(() => null),
+            getKategori()
+              .then((k) => k.length)
+              .catch(() => null),
+          ])
+        : Promise.resolve(null),
+    []
+  );
+  const fmt = (n) => (n == null ? '–' : n.toLocaleString('id-ID'));
+  const stats = USE_API
+    ? [
+        { value: fmt(live?.[0]), label: 'Resource Tersedia', tone: 'dark' },
+        { value: fmt(live?.[2]), label: 'Kategori Resource', tone: 'blue' },
+        { value: fmt(live?.[1]), label: 'Pengalaman Dibagikan', tone: 'orange' },
+        STATS[3],
+      ]
+    : STATS;
+  // Belum ada yang tersimpan saat halaman dibuka (tamu tidak bisa menyimpan)
+  const [hotSaved, setHotSavedRaw] = useState([false, false]);
+  const user = useAuth();
+  // Menyimpan ke koleksi butuh login
+  const setHotSaved = (fn) => {
+    if (!user) {
+      navigate('/login', { state: { from: '/', notice: 'Masuk dulu untuk menyimpan ke koleksi.' } });
+      return;
+    }
+    setHotSavedRaw(fn);
+  };
 
   const search = (e) => {
     e.preventDefault();
-    navigate('/eksplorasi/hasil');
+    const q = query.trim();
+    // Halaman hasil wajib login; kalau belum, RequireAuth mengarahkan ke /login lalu kembali ke sini
+    navigate(q ? `/eksplorasi/hasil?q=${encodeURIComponent(q)}` : '/eksplorasi/hasil');
   };
 
   return (
@@ -73,7 +116,7 @@ export default function LandingPage() {
           <div className={styles.heroContent}>
             <div className={styles.heroHeader}>
               <p className={styles.community}>
-                12.000+ Mahasiswa &amp; Dosen Tel-U
+                Repositori Akademik Mahasiswa FIF Tel-U
                 <img src={iconVerified} alt="" />
               </p>
 
@@ -98,8 +141,8 @@ export default function LandingPage() {
             </div>
 
             <p className={styles.subtitle}>
-              Temukan referensi tugas, laporan proyek, tips lolos magang, hingga info beasiswa dari sesama
-              mahasiswa Telkom University. Berhenti mencari di tempat yang terpencar, temukan semuanya di sini.
+              Temukan referensi tugas, laporan proyek, tips lolos magang, hingga info beasiswa dari sesama mahasiswa
+              Telkom University. Berhenti mencari di tempat yang terpencar, temukan semuanya di sini.
             </p>
 
             <div className={styles.searchArea}>
@@ -171,7 +214,7 @@ export default function LandingPage() {
                 </span>
               </div>
               <span className={styles.sso}>
-                SSO Terhubung <i />
+                Akun Terhubung <i />
               </span>
             </div>
 
@@ -209,7 +252,7 @@ export default function LandingPage() {
                     <Icon icon="lucide:circle-check" size={13} strokeWidth={2} />
                     Kurasi Pekan Ini
                   </p>
-                  <p>Semua berkas proposal skripsi &amp; logbook telah diverifikasi lolos cek orisinalitas Turnitin &lt; 15%.</p>
+                  <p>Setiap berkas diperiksa admin sebelum tayang: bebas plagiarisme dan sumber rujukan tercantum.</p>
                 </div>
               </aside>
 
@@ -237,7 +280,12 @@ export default function LandingPage() {
                       aria-label="Simpan"
                       onClick={() => setHotSaved(([a, b]) => [!a, b])}
                     >
-                      <Icon icon="lucide:bookmark" size={15} strokeWidth={2} fill={hotSaved[0] ? 'currentColor' : 'none'} />
+                      <Icon
+                        icon="lucide:bookmark"
+                        size={15}
+                        strokeWidth={2}
+                        fill={hotSaved[0] ? 'currentColor' : 'none'}
+                      />
                     </button>
                   </div>
                   <h3 className={styles.docTitle}>
@@ -246,8 +294,7 @@ export default function LandingPage() {
                     Learning
                   </h3>
                   <p className={styles.docDesc}>
-                    Referensi lengkap beserta rancangan database dan UI/UX untuk mata kuliah Pemrogramar Berbasis
-                    Objek.
+                    Referensi lengkap beserta rancangan database dan UI/UX untuk mata kuliah Pemrograman Berbasis Objek.
                   </p>
                   <div className={styles.docFooter}>
                     <span className={styles.docMeta}>
@@ -259,7 +306,7 @@ export default function LandingPage() {
                         <Icon icon="lucide:eye" size={14} strokeWidth={1.8} /> 1.2k views
                       </span>
                     </span>
-                    <Link to="/resource/iot-aqi" className={styles.docAction}>
+                    <Link to="/eksplorasi" className={styles.docAction}>
                       Buka Berkas <Icon icon="lucide:arrow-right" size={12} strokeWidth={2.4} />
                     </Link>
                   </div>
@@ -278,7 +325,12 @@ export default function LandingPage() {
                       aria-label="Simpan"
                       onClick={() => setHotSaved(([a, b]) => [a, !b])}
                     >
-                      <Icon icon="lucide:bookmark" size={15} strokeWidth={2} fill={hotSaved[1] ? 'currentColor' : 'none'} />
+                      <Icon
+                        icon="lucide:bookmark"
+                        size={15}
+                        strokeWidth={2}
+                        fill={hotSaved[1] ? 'currentColor' : 'none'}
+                      />
                     </button>
                   </div>
                   <h3 className={styles.docTitle}>Tips Lolos Magang UI/UX Designer di Tokopedia (Batch 2025)</h3>
@@ -287,7 +339,7 @@ export default function LandingPage() {
                   </p>
                   <div className={styles.docFooter}>
                     <span className={styles.docMeta}>
-                      <strong>Oleh Rina Agustina • Sistem Informasi</strong>
+                      <strong>Oleh Rina Agustina • Rekayasa Perangkat Lunak</strong>
                       <span className={styles.docRating}>
                         <Icon icon="lucide:star" size={13} fill="currentColor" strokeWidth={0} /> <b>5.0</b>
                       </span>
@@ -308,9 +360,11 @@ export default function LandingPage() {
         {/* ===== Statistik ===== */}
         <section className={styles.stats}>
           <div className={styles.statsBand}>
-            {STATS.map((s) => (
+            {stats.map((s) => (
               <div key={s.label} className={styles.stat}>
-                <span className={`${styles.statValue} ${styles[`stat_${s.tone}`]}`}>{s.value}</span>
+                <span className={`${styles.statValue} ${styles[`stat${s.tone[0].toUpperCase()}${s.tone.slice(1)}`]}`}>
+                  {s.value}
+                </span>
                 <span className={styles.statLabel}>{s.label}</span>
               </div>
             ))}
@@ -324,7 +378,7 @@ export default function LandingPage() {
             <div className={styles.whyGrid}>
               <article className={`${styles.whyCard} ${styles.whyA}`}>
                 <h3>Pencarian &amp; Filter Mudah</h3>
-                <p>Cari materi berdasarkan Fakultas, Program Studi, Mata Kuliah, hingga Semester dengan cepat.</p>
+                <p>Cari materi berdasarkan Program Studi, Mata Kuliah, hingga Semester dengan cepat.</p>
                 <div className={styles.filterDemo}>
                   <span className={styles.demoChip}>
                     <Icon icon="lucide:graduation-cap" size={15} className={styles.iconBlue} /> Fakultas Informatika
@@ -347,7 +401,7 @@ export default function LandingPage() {
                     &ldquo;Tips interview &amp; lolos seleksi magang terbukti&rdquo;
                   </p>
                   <div className={styles.quoteFooter}>
-                    <span>85+ Logbook Semester Ini</span>
+                    <span>Cerita dari kakak tingkat</span>
                     <Link to="/wawasan">
                       Baca <Icon icon="lucide:arrow-right" size={12} strokeWidth={2.2} />
                     </Link>
@@ -356,21 +410,22 @@ export default function LandingPage() {
               </article>
 
               <article className={`${styles.whyCard} ${styles.whyC}`}>
-                <h3>Gatau belum kepikiran</h3>
-                <p className={styles.loremText}>
-                  b;albalbalalbb;albalbalalbb;albalbalalbb;albalbalalbb;albalbalalbb;albalbalalbb;albalbalalb
+                <h3>Dari Mahasiswa, Untuk Mahasiswa</h3>
+                <p>
+                  Semua konten dibagikan sesama mahasiswa. Rating, ulasan, dan bookmark membantu resource terbaik naik
+                  ke atas.
                 </p>
               </article>
 
               <article className={`${styles.whyCard} ${styles.whyD}`}>
                 <h3>Aman &amp; Terpercaya</h3>
                 <p>
-                  Login mudah dan aman menggunakan akun SSO Telkom University. Tersedia fitur pelaporan untuk menjaga
-                  kualitas konten.
+                  Daftar cukup dengan email aktif, dan setiap konten ditinjau admin sebelum tayang. Tersedia fitur
+                  pelaporan untuk menjaga kualitas konten.
                 </p>
                 <div className={styles.trustRow}>
                   <span className={styles.trustChip}>
-                    <Icon icon="lucide:circle-check" size={14} className={styles.iconGreen} /> OAuth SSO Tel-U
+                    <Icon icon="lucide:circle-check" size={14} className={styles.iconGreen} /> Konten Dimoderasi
                   </span>
                   <span className={styles.trustChip}>
                     <Icon icon="lucide:circle-alert" size={14} className={styles.iconOrange} /> Fitur Lapor Konten
@@ -396,10 +451,24 @@ export default function LandingPage() {
             <div className={styles.catGrid}>
               {CATEGORIES.map((c) => (
                 <Link key={c.title} to="/eksplorasi" className={styles.catCard}>
-                  <Icon icon="lucide:file-text" size={20} fill="#000" color="#fff" strokeWidth={1.6} className={styles.catIcon} />
+                  <Icon
+                    icon="lucide:file-text"
+                    size={20}
+                    fill="#000"
+                    color="#fff"
+                    strokeWidth={1.6}
+                    className={styles.catIcon}
+                  />
                   <h3>{c.title}</h3>
                   <p>{c.desc}</p>
-                  <Icon icon="lucide:circle-arrow-right" size={26} fill="#0f4c81" color="#fff" strokeWidth={1.8} className={styles.catArrow} />
+                  <Icon
+                    icon="lucide:circle-arrow-right"
+                    size={26}
+                    fill="#0f4c81"
+                    color="#fff"
+                    strokeWidth={1.8}
+                    className={styles.catArrow}
+                  />
                 </Link>
               ))}
             </div>
@@ -412,22 +481,24 @@ export default function LandingPage() {
           <div className={styles.ctaGlowB} aria-hidden="true" />
           <div className={styles.ctaGlowC} aria-hidden="true" />
           <div className={styles.ctaInner}>
-            <h2>Dari Telyutizen, Untuk Telyutizen.</h2>
+            <h2>Dari TelUtizen, Untuk TelUtizen.</h2>
             <p className={styles.ctaText}>
-              Bergabunglah sekarang. Temukan kemudahan mencari referensi tugas dan jadikan pengalamanmu bermanfaat
-              bagi orang lain.
+              Bergabunglah sekarang. Temukan kemudahan mencari referensi tugas dan jadikan pengalamanmu bermanfaat bagi
+              orang lain.
             </p>
             <div className={styles.ctaButtons}>
               <Link to="/login" className={styles.ctaPrimary}>
                 <Icon icon="lucide:log-in" size={15} strokeWidth={2.2} />
-                Masuk dengan SSO Tel-U
+                Masuk ke AKSARA
               </Link>
               <Link to="/eksplorasi" className={styles.ctaSecondary}>
                 Pelajari Fitur AKSARA <Icon icon="lucide:chevron-right" size={14} strokeWidth={2.4} />
               </Link>
             </div>
           </div>
-          <p className={styles.ctaFoot}>*Akses terbuka bagi seluruh mahasiswa aktif, dosen, dan alumni Telkom University.</p>
+          <p className={styles.ctaFoot}>
+            *Akses terbuka bagi seluruh mahasiswa Fakultas Informatika Telkom University.
+          </p>
         </section>
       </main>
 

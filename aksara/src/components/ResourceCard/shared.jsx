@@ -20,17 +20,20 @@ const CATEGORY_ICONS = {
   lainnya: iconTugas,
 };
 
-export function CategoryBadge({ category }) {
-  if (!CATEGORIES[category]) category = 'lainnya';
+/** label = nama kategori dari database (mode API); category/thumb = kunci frontend untuk ikon */
+export function CategoryBadge({ category, label, thumb }) {
+  const key = CATEGORIES[category] ? category : CATEGORIES[thumb] ? thumb : 'lainnya';
   return (
     <span className={styles.category}>
-      <img src={CATEGORY_ICONS[category]} alt="" className={styles.categoryIcon} />
-      {CATEGORIES[category]}
+      <img src={CATEGORY_ICONS[key]} alt="" className={styles.categoryIcon} />
+      {label || CATEGORIES[key]}
     </span>
   );
 }
 
 export function FormatBadge({ format = 'PDF' }) {
+  // Daftar dari backend tidak menyertakan nama file → badge format tidak ditampilkan
+  if (!format) return null;
   return (
     <span className={styles.format}>
       <img src={iconPdf} alt="" className={styles.formatIcon} />

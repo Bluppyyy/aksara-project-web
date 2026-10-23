@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/useAuth';
 import styles from './ArticleCard.module.css';
 import iconBookmark from '../../assets/wawasan/icon-bookmark.svg';
 
 export default function ArticleCard({ article }) {
   const { id, image, label, labelColor, title, excerpt, author, readTime } = article;
   const [saved, setSaved] = useState(false);
+  const user = useAuth();
+  const navigate = useNavigate();
 
   return (
     <article className={styles.card}>
@@ -36,7 +39,13 @@ export default function ArticleCard({ article }) {
             className={`${styles.bookmark} ${saved ? styles.bookmarkActive : ''}`}
             aria-pressed={saved}
             aria-label={saved ? 'Hapus dari koleksi' : 'Simpan ke koleksi'}
-            onClick={() => setSaved((s) => !s)}
+            onClick={() =>
+              user
+                ? setSaved((s) => !s)
+                : navigate('/login', {
+                    state: { from: '/wawasan', notice: 'Masuk dulu untuk menyimpan artikel ke koleksi.' },
+                  })
+            }
           >
             <img src={iconBookmark} alt="" />
           </button>

@@ -1,2 +1,10 @@
 .vscode/
 _figma-export/
+
+# Draf backend v2 untuk tim backend (tidak masuk repo frontend)
+backend-aksara-lengkap/
+
+# Berkas kerja lokal (tidak ikut repo)
+Claude outputs/
+aksara/.env.*
+!aksara/.env.example

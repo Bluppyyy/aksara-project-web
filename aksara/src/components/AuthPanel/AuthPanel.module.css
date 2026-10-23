@@ -2,17 +2,22 @@
   position: sticky;
   top: 0;
   overflow: hidden;
-  width: 42%;
-  max-width: 560px;
+  /* Figma: panel 601 dari 1437px */
+  width: 41.8%;
+  max-width: 640px;
   height: 100vh;
   min-height: 600px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 32px 40px 48px;
-  background-image: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(232, 141, 103, 0.19) 0%, rgba(232, 141, 103, 0) 82%),
-    linear-gradient(124.79deg, #0f4c81 0%, #0b3961 55.04%, #0b2f4a 100.06%);
+  padding: var(--space-10) var(--space-9) var(--space-12);
+  font-family: 'Plus Jakarta Sans', var(--font-sans);
+  background-image: radial-gradient(
+      ellipse 50% 50% at 50% 50%,
+      rgba(232, 141, 103, 0.19) 0%,
+      rgba(232, 141, 103, 0) 82%
+    ),
+    linear-gradient(124.79deg, var(--color-primary) 0%, #0b3961 55.04%, #0b2f4a 100.06%);
   color: #fff;
 }
 
@@ -69,14 +74,14 @@
   z-index: 1;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   align-self: flex-start;
 }
 
 .logoIconBox {
   position: relative;
-  width: 58px;
-  height: 45px;
+  width: 90px;
+  height: 70px;
 }
 
 .logoIcon {
@@ -95,36 +100,41 @@
 }
 
 .logoName {
-  font-size: 26px;
-  letter-spacing: 0.5px;
+  font-size: var(--text-display-sm);
+  letter-spacing: 0;
 }
 
 .logoTagline {
-  margin-top: 3px;
-  font-size: 9px;
-  letter-spacing: 0.6px;
+  margin-top: 2px;
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
   white-space: nowrap;
 }
 
+/* Figma: judul berada tepat di bawah lingkaran toga (±55% tinggi panel) */
 .copy {
-  position: relative;
+  position: absolute;
   z-index: 1;
-  max-width: 420px;
+  left: 35px;
+  right: 35px;
+  top: 55%;
+  max-width: 500px;
 }
 
 .title {
   font-weight: 700;
-  font-size: 28px;
-  line-height: 36px;
-  letter-spacing: 0.3px;
+  font-size: var(--text-heading-lg);
+  line-height: 38px;
+  letter-spacing: 0.06em;
 }
 
 .description {
-  margin-top: 12px;
+  margin-top: var(--space-6);
   font-weight: 500;
-  font-size: 15px;
-  line-height: 24px;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--text-body-lg);
+  line-height: 20px;
+  letter-spacing: 0.06em;
+  color: #fff;
 }
 
 @media (max-width: 960px) {

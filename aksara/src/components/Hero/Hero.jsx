@@ -5,7 +5,10 @@ import iconSearch from '../../assets/icon-search.svg';
 import btnSubmitSearch from '../../assets/btn-submit-search.svg';
 import btnSubmitSearchAlt from '../../assets/btn-submit-search-alt.svg';
 import { QUICK_CATEGORIES } from '../../data/resources';
-
+import { USE_API } from '../../services/api';
+import { countResources } from '../../services/resources';
+import { kategoriOptions } from '../../services/master';
+import useAsync from '../../hooks/useAsync';
 
 /**
  * variant:
@@ -24,6 +27,19 @@ export default function Hero({
   onCategoryChange,
   children,
 }) {
+  // Mode API: chip kategori = kategori di database (GET /kategori)
+  const { data: dbCats } = useAsync(() => (USE_API ? kategoriOptions().catch(() => null) : Promise.resolve(null)), []);
+  const quickCategories = dbCats?.length ? [{ key: null, label: 'Semua' }, ...dbCats] : QUICK_CATEGORIES;
+  // Mode API: jumlah berkas diambil dari database (berkas yang sudah disetujui admin)
+  const { data: total } = useAsync(() => countResources().catch(() => null), []);
+  // "Terverifikasi" = sudah disetujui admin. Angka baru ditampilkan kalau koleksinya sudah cukup banyak,
+  // supaya tidak terbaca janggal seperti "ke 1 berkas".
+  const heroLead = !USE_API
+    ? 'Akses mandiri ke lebih dari 12.800 berkas terverifikasi'
+    : total >= 50
+      ? `Akses mandiri ke ${total.toLocaleString('id-ID')} berkas yang sudah diverifikasi admin`
+      : 'Akses mandiri ke berkas akademik yang sudah diverifikasi admin';
+
   const compact = variant === 'compact';
   const [query, setQuery] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
@@ -52,8 +68,7 @@ export default function Hero({
             Belajar
           </h1>
           <p className={styles.description}>
-            Akses mandiri ke lebih dari 12.800 berkas terverifikasi: Tugas Besar, Laporan PKL, Esai
-            Beasiswa, dan Ringkasan Lab Telkom University.
+            {heroLead}: Tugas Besar, Laporan PKL, Esai Beasiswa, dan Ringkasan Lab Telkom University.
           </p>
         </div>
 
@@ -76,7 +91,7 @@ export default function Hero({
             </div>
 
             <div className={styles.categories} role="group" aria-label="Kategori cepat">
-              {QUICK_CATEGORIES.map(({ key, label }) => (
+              {quickCategories.map(({ key, label }) => (
                 <button
                   key={label}
                   type="button"

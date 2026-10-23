@@ -7,10 +7,18 @@ import { listBookmarks } from '../services/resources';
 import useAsync from '../hooks/useAsync';
 import { Loading, ErrorState, Empty } from '../components/Status/Status.jsx';
 import { Link } from 'react-router-dom';
+import { USE_API } from '../services/api';
+import { sortResources } from '../utils/filters';
 import iconSearch from '../assets/koleksi/icon-search.svg';
 import iconChevron from '../assets/wawasan/icon-chevron.svg';
 
 const FILTERS = ['Semua', 'Tugas Akhir', 'Praktikum', 'Magang & KP'];
+// Mode demo: label pill → kunci kategori data contoh
+const DEMO_FILTER_KEYS = {
+  'Tugas Akhir': ['skripsi', 'riset'],
+  Praktikum: ['project', 'tugas'],
+  'Magang & KP': ['magang'],
+};
 const SORTS = ['Terbaru', 'Terlama', 'Rating Tertinggi'];
 
 export default function CollectionPage() {
@@ -19,7 +27,15 @@ export default function CollectionPage() {
   const [query, setQuery] = useState('');
 
   const { data, loading, error, reload, setData } = useAsync(listBookmarks, []);
-  const items = (data || []).filter((r) => r.title.toLowerCase().includes(query.trim().toLowerCase()));
+  // Mode API: pill = kategori yang ada di koleksi (nama dari database)
+  const filters = USE_API ? ['Semua', ...new Set((data || []).map((r) => r.categoryLabel).filter(Boolean))] : FILTERS;
+  const matchFilter = (r) =>
+    filter === 'Semua' ||
+    (USE_API ? r.categoryLabel === filter : (DEMO_FILTER_KEYS[filter] || []).includes(r.category));
+  const items = sortResources(
+    (data || []).filter((r) => matchFilter(r) && r.title.toLowerCase().includes(query.trim().toLowerCase())),
+    sort
+  );
   // Hapus kartu dari koleksi saat bookmark-nya dilepas
   const handleChange = (id) => (on) => !on && setData((data || []).filter((r) => r.id !== id));
 
@@ -48,7 +64,7 @@ export default function CollectionPage() {
 
           <div className={styles.filters}>
             <div className={styles.pills} role="group" aria-label="Filter koleksi">
-              {FILTERS.map((f) => (
+              {filters.map((f) => (
                 <button
                   key={f}
                   type="button"
@@ -81,14 +97,15 @@ export default function CollectionPage() {
           <ErrorState error={error} onRetry={reload} />
         ) : items.length === 0 ? (
           <Empty
-            title={query ? 'Tidak ada yang cocok' : 'Koleksimu masih kosong'}
+            title={query || filter !== 'Semua' ? 'Tidak ada yang cocok' : 'Koleksimu masih kosong'}
             description={
-              query
+              query || filter !== 'Semua'
                 ? 'Coba kata kunci lain.'
                 : 'Simpan resource dengan ikon bookmark supaya mudah ditemukan lagi.'
             }
             action={
-              !query && (
+              !query &&
+              filter === 'Semua' && (
                 <Link
                   to="/eksplorasi"
                   className={styles.pillActive}

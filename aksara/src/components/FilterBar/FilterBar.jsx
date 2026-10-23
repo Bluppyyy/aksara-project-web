@@ -1,33 +1,34 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './FilterBar.module.css';
+import { PRODI_FIF } from '../../data/academic';
+import { USE_API } from '../../services/api';
+import { listResources } from '../../services/resources';
+import useAsync from '../../hooks/useAsync';
 import iconFilter from '../../assets/icon-filter.svg';
 import iconRemove from '../../assets/icon-filter-remove.svg';
 import iconChevron from '../../assets/icon-chevron-down-filter.svg';
 
 // Urutan & label sesuai Figma (Eksplorasi — Sebelum Pencarian)
-export const FILTER_GROUPS = [
-  {
-    key: 'fakultas',
-    label: 'Fakultas',
-    options: [
-      'Fakultas Informatika (FIF)',
-      'Fakultas Teknik Elektro (FTE)',
-      'Fakultas Rekayasa Industri (FRI)',
-      'Fakultas Ekonomi & Bisnis (FEB)',
-      'Fakultas Komunikasi & Ilmu Sosial (FKS)',
-      'Fakultas Industri Kreatif (FIK)',
-      'Fakultas Ilmu Terapan (FIT)',
-    ],
-  },
+const FILTER_GROUPS = [
   {
     key: 'prodi',
     label: 'Program Studi',
-    options: ['S1 Informatika', 'S1 Rekayasa Perangkat Lunak', 'S1 Teknologi Informasi', 'S1 Data Sains'],
+    options: PRODI_FIF,
   },
   {
     key: 'semester',
-    label: 'Semester 3 & 5',
-    options: ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8+'],
+    label: 'Semester',
+    options: [
+      'Semester 1',
+      'Semester 2',
+      'Semester 3',
+      'Semester 4',
+      'Semester 5',
+      'Semester 6',
+      'Semester 7',
+      'Semester 8+',
+    ],
   },
   {
     key: 'matkul',
@@ -40,13 +41,61 @@ export const FILTER_GROUPS = [
 ];
 
 /**
- * @param {Record<string,string|null>} value  nilai terpilih per grup, mis. { fakultas: 'Fakultas Informatika (FIF)' }
+ * @param {Record<string,string|null>} value  nilai terpilih per grup, mis. { prodi: 'S1 Informatika' }
  * @param {(key: string, option: string|null) => void} onChange
  * @param {() => void} onReset
+ * @param {boolean} sticky  ikut menempel di bawah header saat halaman di-scroll
  */
-export default function FilterBar({ value = {}, onChange, onReset, groups = FILTER_GROUPS }) {
+/**
+ * Mode API: pilihan Mata Kuliah = mata kuliah dari resource yang sudah ada, Format tanpa ZIP (ditolak backend).
+ */
+function useApiGroups(enabled) {
+  const { data: courses } = useAsync(
+    () =>
+      enabled
+        ? listResources()
+            .then((rows) =>
+              [...new Set(rows.map((r) => r.matkul).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'id'))
+            )
+            .catch(() => [])
+        : Promise.resolve(null),
+    [enabled]
+  );
+  if (!enabled) return null;
+  return FILTER_GROUPS.map((g) => {
+    if (g.key === 'matkul') return { ...g, options: courses || [] };
+    if (g.key === 'format') return { ...g, options: g.options.filter((o) => o !== 'ZIP') };
+    return g;
+  }).filter((g) => g.options.length > 0);
+}
+
+export default function FilterBar({ value = {}, onChange, onReset, groups: groupsProp, sticky = false }) {
+  const apiGroups = useApiGroups(USE_API && !groupsProp);
+  const groups = groupsProp || apiGroups || FILTER_GROUPS;
   const [open, setOpen] = useState(null); // { key, top, left }
   const menuRef = useRef(null);
+  const hitboxRef = useRef(null);
+  const [stuck, setStuck] = useState(null); // null = tidak menempel, angka = tinggi header (px)
+
+  // Bar asli ada di dalam hero (overflow: hidden), jadi saat sudah lewat di bawah header
+  // kita tampilkan salinan yang menempel (fixed) tepat di bawah header.
+  useEffect(() => {
+    if (!sticky) return undefined;
+    const update = () => {
+      const el = hitboxRef.current;
+      if (!el) return;
+      const headerBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+      const below = el.getBoundingClientRect().bottom < headerBottom;
+      setStuck(below ? Math.max(0, Math.round(headerBottom)) : null);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [sticky]);
 
   // Tutup menu saat klik di luar, tekan Esc, scroll, atau resize
   useEffect(() => {
@@ -81,65 +130,76 @@ export default function FilterBar({ value = {}, onChange, onReset, groups = FILT
 
   const openGroup = groups.find((g) => g.key === open?.key);
 
-  return (
-    <div className={styles.hitbox}>
-      <div className={styles.filter}>
-        <div className={styles.scroller}>
-          <div className={styles.selection}>
-            <div className={styles.label}>
-              <img src={iconFilter} alt="" className={styles.labelIcon} />
-              <span>FIlter :</span>
-            </div>
+  const bar = (
+    <div className={styles.filter}>
+      <div className={styles.scroller}>
+        <div className={styles.selection}>
+          <div className={styles.label}>
+            <img src={iconFilter} alt="" className={styles.labelIcon} />
+            <span>Filter :</span>
+          </div>
 
-            <div className={styles.values}>
-              {groups.map((g) => {
-                const selected = value[g.key];
-                const isOpen = open?.key === g.key;
-                return selected ? (
-                  <span key={g.key} className={`${styles.chip} ${styles.chipActive}`}>
-                    <button
-                      type="button"
-                      className={styles.chipMain}
-                      data-filter-trigger
-                      aria-haspopup="listbox"
-                      aria-expanded={isOpen}
-                      onClick={(e) => toggleMenu(g.key, e)}
-                    >
-                      <span className={styles.dot} />
-                      <span>{selected}</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.removeBtn}
-                      onClick={() => choose(g.key, null)}
-                      aria-label={`Hapus filter ${selected}`}
-                    >
-                      <img src={iconRemove} alt="" className={styles.removeIcon} />
-                    </button>
-                  </span>
-                ) : (
+          <div className={styles.values}>
+            {groups.map((g) => {
+              const selected = value[g.key];
+              const isOpen = open?.key === g.key;
+              return selected ? (
+                <span key={g.key} className={`${styles.chip} ${styles.chipActive}`}>
                   <button
-                    key={g.key}
                     type="button"
-                    className={`${styles.chip} ${isOpen ? styles.chipOpen : ''}`}
+                    className={styles.chipMain}
                     data-filter-trigger
                     aria-haspopup="listbox"
                     aria-expanded={isOpen}
                     onClick={(e) => toggleMenu(g.key, e)}
                   >
-                    <span>{g.label}</span>
-                    <img src={iconChevron} alt="" className={styles.chevron} />
+                    <span className={styles.dot} />
+                    <span>{selected}</span>
                   </button>
-                );
-              })}
-            </div>
+                  <button
+                    type="button"
+                    className={styles.removeBtn}
+                    onClick={() => choose(g.key, null)}
+                    aria-label={`Hapus filter ${selected}`}
+                  >
+                    <img src={iconRemove} alt="" className={styles.removeIcon} />
+                  </button>
+                </span>
+              ) : (
+                <button
+                  key={g.key}
+                  type="button"
+                  className={`${styles.chip} ${isOpen ? styles.chipOpen : ''}`}
+                  data-filter-trigger
+                  aria-haspopup="listbox"
+                  aria-expanded={isOpen}
+                  onClick={(e) => toggleMenu(g.key, e)}
+                >
+                  <span>{g.label}</span>
+                  <img src={iconChevron} alt="" className={styles.chevron} />
+                </button>
+              );
+            })}
           </div>
-
-          <button type="button" className={styles.reset} onClick={onReset}>
-            Reset Filter
-          </button>
         </div>
+
+        <button type="button" className={styles.reset} onClick={onReset}>
+          Reset Filter
+        </button>
       </div>
+    </div>
+  );
+
+  return (
+    <div className={styles.hitbox} ref={hitboxRef}>
+      {bar}
+      {stuck !== null &&
+        createPortal(
+          <div className={styles.floating} style={{ top: stuck }}>
+            <div className={styles.floatingInner}>{bar}</div>
+          </div>,
+          document.body
+        )}
 
       {openGroup && (
         <ul

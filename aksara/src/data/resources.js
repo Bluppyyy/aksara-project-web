@@ -27,7 +27,13 @@ export const QUICK_CATEGORIES = [
 const THUMBS = Object.fromEntries(
   Object.entries(
     import.meta.glob('../assets/thumbs/*.{jpg,jpeg,png,webp}', { eager: true, query: '?url', import: 'default' })
-  ).map(([path, url]) => [path.split('/').pop().replace(/\.\w+$/, ''), url])
+  ).map(([path, url]) => [
+    path
+      .split('/')
+      .pop()
+      .replace(/\.\w+$/, ''),
+    url,
+  ])
 );
 
 // Foto default per kategori (dipakai halaman hasil pencarian, koleksi, dll.)
@@ -51,6 +57,7 @@ export function thumbnailFor(resource) {
     THUMBS[resource.thumb] ||
     THUMBS[resource.category] ||
     THUMBS[CATEGORY_FALLBACK[resource.category]] ||
+    THUMBS[CATEGORY_FALLBACK[resource.thumb]] ||
     null
   );
 }
@@ -106,7 +113,8 @@ const TEMPLATES = {
 const LOREM = {
   course: 'KODE  NamaMata Kuliah',
   title: 'Lorem Ipsum initnya disini judul dokumennya apa gitulah panjang sekali',
-  description: 'Lorem Ipsum basaically disini penjelasan dokumennya ya gitudeh kalo panjang ti...panjang ti...panjang ti...',
+  description:
+    'Lorem Ipsum basaically disini penjelasan dokumennya ya gitudeh kalo panjang ti...panjang ti...panjang ti...',
   tags: ['Fakultas', 'Prodi', 'Semester'],
   author: AUTHOR_DR,
 };
@@ -140,8 +148,8 @@ TEMPLATES.uts = {
 TEMPLATES.lorem = {
   ...LOREM,
   category: 'magang',
-  fakultas: 'Fakultas Teknik Elektro (FTE)',
-  prodi: 'S1 Teknik Telekomunikasi',
+  fakultas: 'Fakultas Informatika (FIF)',
+  prodi: 'S1 Teknologi Informasi',
   semester: 6,
   year: 2022,
   rating: 4.5,
@@ -177,9 +185,7 @@ export const relevantResources = [...resultRow(1, 2, 3, 4), ...resultRow(5, 6, 7
 // Deskripsi lebih panjang (2 baris) seperti di Figma
 const LONG_ASTAR =
   'Laporan tugas besar dilengkapi analisis kompleksitas waktu Big-O, benchmarking, dan evaluasi jalur pada berbagai skenario. Dilengkapi source code, dataset peta uji, dan perbandingan dengan algoritma Dijkstra serta Greedy Best-First Search.';
-export const recentlyViewed = [5, 6, 7].map((n) =>
-  make('astar', { thumb: `foto-${n}`, description: LONG_ASTAR })
-);
+export const recentlyViewed = [5, 6, 7].map((n) => make('astar', { thumb: `foto-${n}`, description: LONG_ASTAR }));
 
 export const facultyResearch = [
   make('sentimen', { thumb: 'foto-8' }),
@@ -209,4 +215,6 @@ export const searchResults = [
 ];
 
 // Halaman Koleksi Saya (semua sudah di-bookmark)
-export const bookmarkedResources = Array.from({ length: 6 }, () => make('loremTugas', { bookmarked: true, thumbnail: false }));
+export const bookmarkedResources = Array.from({ length: 6 }, () =>
+  make('loremTugas', { bookmarked: true, thumbnail: false })
+);

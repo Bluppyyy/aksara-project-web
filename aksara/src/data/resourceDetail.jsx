@@ -10,9 +10,10 @@ export const resourceDetail = {
   reviewCount: 42,
   abstract: [
     <>
-      Penelitian proyek akhir ini mengusulkan sebuah arsitektur terintegrasi <strong>Internet of Things (IoT)</strong> yang
-      dikombinasikan dengan algoritma <strong>Machine Learning (Random Forest &amp; LSTM)</strong> untuk mendeteksi serta
-      memprediksi indeks pencemaran udara (Air Quality Index - AQI) secara real-time di area kampus Telkom University.
+      Penelitian proyek akhir ini mengusulkan sebuah arsitektur terintegrasi <strong>Internet of Things (IoT)</strong>{' '}
+      yang dikombinasikan dengan algoritma <strong>Machine Learning (Random Forest &amp; LSTM)</strong> untuk mendeteksi
+      serta memprediksi indeks pencemaran udara (Air Quality Index - AQI) secara real-time di area kampus Telkom
+      University.
     </>,
     'Perangkat keras edge node dirancang menggunakan mikrokontroler ESP32-WROOM-32D yang dihubungkan dengan rangkaian sensor multi-parameter, meliputi sensor debu optik Nova PM SDS011 (PM2.5 dan PM10), sensor semikonduktor gas MQ-135 (CO2, NH3), serta BME280 untuk pemantauan temperatur dan kelembaban lingkungan. Data telemetri dikirimkan secara berkala menggunakan protokol MQTT dengan enkripsi TLS 1.3 menuju broker AWS IoT Core.',
     'Perangkat keras edge node dirancang menggunakan mikrokontroler ESP32-WROOM-32D yang dihubungkan dengan rangkaian sensor multi-parameter, meliputi sensor debu optik Nova PM SDS011 (PM2.5 dan PM10), sensor semikonduktor gas MQ-135 (CO2, NH3), serta BME280 untuk pemantauan temperatur dan kelembaban lingkungan. Data telemetri dikirimkan secara berkala menggunakan protokol MQTT dengan enkripsi TLS 1.3 menuju broker AWS IoT Core.',
@@ -62,8 +63,26 @@ export const resourceDetail = {
     doi: '10.34818/aksara.inf.2024.089',
   },
   related: [
-    { id: 'coap', course: 'CSI3B3 • IoT', file: 'PDF • 9.2 MB', title: 'Implementasi Protokol CoAP pada Jaringan Smart Energy Metering Gedung Kuliah', author: 'Anindya Putri • 2023' },
-    { id: 'esp-idf', course: 'CSI3B3 • IoT', file: 'ZIP + PDF • 24 MB', title: 'Firmware ESP-IDF & Library Sensor Debu Optik SDS011 Berbasis FreeRTOS', author: 'Lab IoT Tel-U • 2024' },
-    { id: 'lstm-xgb', course: 'CSI3A3 • Machine Learning', file: 'PDF • 6.4 MB', title: 'Perbandingan Akurasi Algoritma LSTM vs XGBoost untuk Prediksi Data Runtun Waktu', author: 'Farhan Maulana • 2024' },
+    {
+      id: 'coap',
+      course: 'CSI3B3 • IoT',
+      file: 'PDF • 9.2 MB',
+      title: 'Implementasi Protokol CoAP pada Jaringan Smart Energy Metering Gedung Kuliah',
+      author: 'Anindya Putri • 2023',
+    },
+    {
+      id: 'esp-idf',
+      course: 'CSI3B3 • IoT',
+      file: 'ZIP + PDF • 24 MB',
+      title: 'Firmware ESP-IDF & Library Sensor Debu Optik SDS011 Berbasis FreeRTOS',
+      author: 'Lab IoT Tel-U • 2024',
+    },
+    {
+      id: 'lstm-xgb',
+      course: 'CSI3A3 • Machine Learning',
+      file: 'PDF • 6.4 MB',
+      title: 'Perbandingan Akurasi Algoritma LSTM vs XGBoost untuk Prediksi Data Runtun Waktu',
+      author: 'Farhan Maulana • 2024',
+    },
   ],
 };

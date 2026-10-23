@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import CoverFrame from '../components/CoverFrame/CoverFrame.jsx';
 import Icon from '../components/Icon/Icon.jsx';
 import Header from '../components/Header/Header.jsx';
 import Footer from '../components/Footer/Footer.jsx';
-import { createArticle } from '../services/wawasan';
+import { createArticle } from '../services/insights';
+import { USE_API } from '../services/api';
 import up from './UploadPage.module.css';
-import styles from './UnggahWawasanPage.module.css';
+import styles from './InsightWritePage.module.css';
 import iconShield from '../assets/upload/icon-shield.svg';
 import iconCloudCheck from '../assets/upload/icon-cloud-check.svg';
 import iconTagRemove from '../assets/upload/icon-tag-remove.svg';
@@ -36,16 +38,20 @@ const TOOLS = [
 const DRAFT_KEY = 'aksara.draftWawasan';
 const IMG_MAX_MB = 10;
 
-export default function UnggahWawasanPage() {
+export default function InsightWritePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const fileRef = useRef(null);
   const editorRef = useRef(null);
   const [cover, setCover] = useState(null); // { file, url }
   const [coverError, setCoverError] = useState('');
   const [form, setForm] = useState(() => {
-    const empty = { title: '', subtitle: '', category: '', content: '', tags: ['#DataStructure', '#Algorithms', '#TelU2025'], agree: false };
+    const empty = { title: '', subtitle: '', category: '', content: '', tags: [], agree: false };
     try {
-      return { ...empty, ...(JSON.parse(localStorage.getItem(DRAFT_KEY)) || {}), agree: false };
+      const saved = { ...empty, ...(JSON.parse(localStorage.getItem(DRAFT_KEY)) || {}), agree: false };
+      // Tulisan dari kotak "Bagikan yang ada dipikiranmu" di Beranda
+      if (location.state?.content && !saved.content.trim()) saved.content = location.state.content;
+      return saved;
     } catch {
       return empty;
     }
@@ -54,12 +60,14 @@ export default function UnggahWawasanPage() {
   const [touched, setTouched] = useState(false);
   const [state, setState] = useState('idle'); // idle | sending | done | error
   const [error, setError] = useState('');
-  const [savedAt, setSavedAt] = useState('2 menit lalu');
+  const [savedAt, setSavedAt] = useState('');
 
   const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
 
   // Simpan draft otomatis (per browser) — hanya kenyamanan, bukan penyimpanan utama
   useEffect(() => {
+    const isEmpty = !form.title && !form.subtitle && !form.category && !form.content && !form.tags.length;
+    if (isEmpty) return undefined;
     const t = setTimeout(() => {
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
@@ -115,10 +123,14 @@ export default function UnggahWawasanPage() {
 
   // NFR-USE-01: pesan validasi saat data belum lengkap
   const errors = {
-    cover: !cover ? 'Tambahkan foto sampul.' : '',
+    // Mode API: sampul opsional (backend memakai gambar bawaan kalau kosong)
+    cover: !USE_API && !cover ? 'Tambahkan foto sampul.' : '',
     title: form.title.trim().length < 10 ? 'Judul minimal 10 karakter.' : '',
     category: !form.category ? 'Pilih salah satu kategori.' : '',
-    content: form.content.trim().length < 100 ? `Isi tulisan minimal 100 karakter (sekarang ${form.content.trim().length}).` : '',
+    content:
+      form.content.trim().length < 100
+        ? `Isi tulisan minimal 100 karakter (sekarang ${form.content.trim().length}).`
+        : '',
     agree: !form.agree ? 'Centang komitmen integritas & orisinalitas.' : '',
   };
   const invalid = Object.values(errors).some(Boolean);
@@ -134,7 +146,7 @@ export default function UnggahWawasanPage() {
     setState('sending');
     setError('');
     try {
-      await createArticle(form);
+      await createArticle(form, cover?.file);
       try {
         localStorage.removeItem(DRAFT_KEY);
       } catch {
@@ -191,14 +203,15 @@ export default function UnggahWawasanPage() {
             <header className={`${up.cardHeader} ${styles.header}`}>
               <h1 className={up.title}>Publikasikan Wawasan Baru</h1>
               <p className={up.subtitle}>
-                Tuangkan wawasan seputar dunia kampus, pengembangan diri, dan karier untuk membangun ekosistem belajar yang
-                saling mendukung.
+                Tuangkan wawasan seputar dunia kampus, pengembangan diri, dan karier untuk membangun ekosistem belajar
+                yang saling mendukung.
               </p>
             </header>
 
+            {/* Sampul dikirim sebagai "sampul" (multipart) di POST /experience */}
             <section className={styles.section}>
               <span className={up.label}>
-                Berkas Utama / Naskah Dokumen<span className={up.required}>*</span>
+                Berkas Utama / Naskah Dokumen{USE_API ? ' (opsional)' : <span className={up.required}>*</span>}
               </span>
               <div
                 className={`${up.dropzone} ${styles.drop} ${show('cover') ? styles.invalid : ''}`}
@@ -209,7 +222,7 @@ export default function UnggahWawasanPage() {
                 }}
               >
                 {cover ? (
-                  <img src={cover.url} alt="Pratinjau foto sampul" className={styles.preview} />
+                  <CoverFrame src={cover.url} alt="Pratinjau foto sampul" className={styles.preview} />
                 ) : (
                   <span className={styles.imgIcon}>
                     <Icon icon="lucide:image-plus" size={22} />
@@ -226,7 +239,13 @@ export default function UnggahWawasanPage() {
                   <Icon icon="lucide:file-image" size={15} />
                   {cover ? 'Ganti Foto' : 'Pilih File dari Komputer'}
                 </button>
-                <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="visually-hidden" onChange={(e) => pickCover(e.target.files?.[0])} />
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="visually-hidden"
+                  onChange={(e) => pickCover(e.target.files?.[0])}
+                />
               </div>
             </section>
 
@@ -312,12 +331,23 @@ export default function UnggahWawasanPage() {
                 {form.tags.map((t) => (
                   <span key={t} className={up.tag}>
                     {t}
-                    <button type="button" aria-label={`Hapus ${t}`} onClick={() => set('tags')(form.tags.filter((x) => x !== t))}>
+                    <button
+                      type="button"
+                      aria-label={`Hapus ${t}`}
+                      onClick={() => set('tags')(form.tags.filter((x) => x !== t))}
+                    >
                       <img src={iconTagRemove} alt="" />
                     </button>
                   </span>
                 ))}
-                <input id="tag-w" className={up.tagInput} placeholder="+ Tambah kata kunci..." value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={addTag} />
+                <input
+                  id="tag-w"
+                  className={up.tagInput}
+                  placeholder="+ Tambah kata kunci..."
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={addTag}
+                />
               </div>
             </section>
 
@@ -326,17 +356,18 @@ export default function UnggahWawasanPage() {
                 <img src={iconShield} alt="" className={up.noticeIcon} />
                 <p>
                   <span className={up.noticeBrand}>AKSARA Telkom University</span> menjunjung tinggi etika kejujuran
-                  akademik. Kontributor dilarang keras mengunggah kunci jawaban resmi ujian tanpa izin dosen, data rahasia
-                  instansi mitra kerja praktik, atau dokumen yang memicu pelanggaran hak kekayaan intelektual (HAKI).
+                  akademik. Kontributor dilarang keras mengunggah kunci jawaban resmi ujian tanpa izin dosen, data
+                  rahasia instansi mitra kerja praktik, atau dokumen yang memicu pelanggaran hak kekayaan intelektual
+                  (HAKI).
                 </p>
               </div>
               <label className={up.agree}>
                 <input type="checkbox" checked={form.agree} onChange={(e) => set('agree')(e.target.checked)} />
                 <span className={up.agreeBox} aria-hidden="true" />
                 <span>
-                  <strong>Komitmen Integritas &amp; Orisinalitas:</strong> Saya menyatakan bahwa tulisan ini adalah karya
-                  orisinal saya atau saya memiliki hak legal untuk membagikannya, dan tidak melanggar etika akademik Telkom
-                  University (bebas plagiarisme &amp; diverifikasi Turnitin).
+                  <strong>Komitmen Integritas &amp; Orisinalitas:</strong> Saya menyatakan bahwa tulisan ini adalah
+                  karya orisinal saya atau saya memiliki hak legal untuk membagikannya, dan tidak melanggar etika
+                  akademik Telkom University (bebas plagiarisme dan mencantumkan sumber rujukan dengan benar).
                 </span>
               </label>
               {show('agree') && <p className={up.error}>{errors.agree}</p>}
@@ -346,10 +377,14 @@ export default function UnggahWawasanPage() {
                 </p>
               )}
               <div className={up.actions}>
-                <p className={up.autosave}>
-                  <img src={iconCloudCheck} alt="" />
-                  Draft tersimpan otomatis {savedAt}
-                </p>
+                {savedAt ? (
+                  <p className={up.autosave}>
+                    <img src={iconCloudCheck} alt="" />
+                    Draft tersimpan otomatis {savedAt}
+                  </p>
+                ) : (
+                  <span />
+                )}
                 <div className={up.buttons}>
                   <button
                     type="button"

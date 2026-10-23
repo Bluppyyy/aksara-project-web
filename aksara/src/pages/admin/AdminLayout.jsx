@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icon/Icon.jsx';
-import { useAuth } from '../../context/AuthContext.jsx';
+import { useAuth } from '../../context/useAuth';
 import { logout } from '../../services/auth';
 import { initials } from '../../services/adapters';
 import logo from '../../assets/logo.png';
@@ -18,29 +18,6 @@ const SYSTEM_NAV = [
   { to: '/admin/profil', label: 'Profil Admin', icon: 'lucide:user-round' },
   { to: '/admin/pengaturan', label: 'Pengaturan', icon: 'lucide:settings' },
 ];
-
-/** Breadcrumb di topbar: Beranda & Kelola Resource memakai gaya titik, halaman lain memakai garis miring (sesuai Figma) */
-function TopCrumbs({ pathname }) {
-  const dotStyle = pathname === '/admin' || pathname.startsWith('/admin/resource');
-  if (dotStyle) {
-    return (
-      <div className={styles.crumbs}>
-        <span>Universitas Telkom</span>
-        <span className={styles.crumbDot}>•</span>
-        <span className={styles.crumbActive}>Direktorat Pascasarjana &amp; Riset</span>
-      </div>
-    );
-  }
-  return (
-    <nav className={styles.crumbs} aria-label="Lokasi">
-      <span>Universitas Telkom</span>
-      <span className={styles.crumbSep}>/</span>
-      <span>Portal Pascasarjana &amp; Riset</span>
-      <span className={styles.crumbSep}>/</span>
-      <span className={styles.crumbActive}>Admin AKSARA</span>
-    </nav>
-  );
-}
 
 /**
  * Kerangka semua halaman admin: sidebar kiri (fixed) + topbar + konten (<Outlet />).
@@ -64,8 +41,8 @@ export default function AdminLayout() {
 
   return (
     <div className={styles.shell}>
-      <aside className={`${styles.aside} ${navOpen ? styles.asideOpen : ''}`} aria-label="Navigasi admin">
-        <div className={styles.asideTop}>
+      <aside className={`${styles.sidebar} ${navOpen ? styles.sidebarOpen : ''}`} aria-label="Navigasi admin">
+        <div className={styles.sidebarSection}>
           <Link to="/admin" className={styles.brand} aria-label="AKSARA Admin — Beranda">
             <img src={logo} alt="AKSARA Academic Repository" />
           </Link>
@@ -84,7 +61,7 @@ export default function AdminLayout() {
           </nav>
         </div>
 
-        <div className={styles.asideBottom}>
+        <div className={styles.sidebarSection}>
           <p className={styles.navLabel}>Sistem</p>
           <nav className={styles.nav}>
             {SYSTEM_NAV.map((item) => (
@@ -104,9 +81,11 @@ export default function AdminLayout() {
           </nav>
         </div>
       </aside>
-      {navOpen && <button type="button" className={styles.scrim} aria-label="Tutup menu" onClick={() => setNavOpen(false)} />}
+      {navOpen && (
+        <button type="button" className={styles.scrim} aria-label="Tutup menu" onClick={() => setNavOpen(false)} />
+      )}
 
-      <div className={styles.main}>
+      <div className={styles.mainArea}>
         <header className={styles.topbar}>
           <button
             type="button"
@@ -117,17 +96,12 @@ export default function AdminLayout() {
           >
             <Icon icon="lucide:menu" size={20} />
           </button>
-          <TopCrumbs pathname={pathname} />
-          <div className={styles.topRight}>
-            <Link to="/admin/laporan" className={styles.bell} aria-label="Pemberitahuan: ada laporan baru">
-              <Icon icon="lucide:bell" size={18} />
-              <span className={styles.bellDot} />
-            </Link>
-            <span className={styles.divider} />
+          <span className={styles.topSpacer} />
+          <div className={styles.topbarActions}>
             <Link to="/admin/profil" className={styles.profile}>
               <span className={styles.profileText}>
                 <strong>{user?.nama || 'Administrator Repositori'}</strong>
-                <span>Superadmin Tel-U</span>
+                <span>Admin FIF</span>
               </span>
               <span className={styles.avatar}>{initials(user?.nama || 'Admin AKSARA')}</span>
             </Link>

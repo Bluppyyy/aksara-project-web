@@ -1,9 +1,9 @@
 .card {
   position: relative;
   overflow: hidden;
-  padding: 32px;
+  padding: var(--space-8);
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -13,7 +13,7 @@
   top: -80px;
   width: 320px;
   height: 320px;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background: rgba(210, 228, 255, 0.3);
   filter: blur(32px);
   pointer-events: none;
@@ -23,13 +23,13 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .badgeFile,
@@ -37,18 +37,18 @@
 .badgeOpen {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 6px;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-md);
   white-space: nowrap;
 }
 
 .badgeFile {
-  gap: 6px;
+  gap: var(--space-2);
   background: #00355f;
   color: #fff;
   font-weight: 500;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   letter-spacing: 0.3px;
 }
@@ -57,7 +57,7 @@
   background: #e5e8ef;
   color: #00355f;
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16px;
   letter-spacing: 0.44px;
 }
@@ -66,7 +66,7 @@
   background: rgba(210, 228, 255, 0.4);
   color: #00477c;
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16px;
   letter-spacing: 0.44px;
 }
@@ -74,7 +74,7 @@
 .title {
   max-width: 896px;
   font-weight: 700;
-  font-size: 28px;
+  font-size: var(--text-heading);
   line-height: 35px;
   letter-spacing: -0.7px;
   color: #00355f;
@@ -85,14 +85,14 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
-  padding-top: 4px;
+  gap: var(--space-3);
+  padding-top: var(--space-1);
 }
 
 .author {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .avatar {
@@ -100,21 +100,21 @@
   align-items: center;
   justify-content: center;
   width: 44px;
-  height: 44px;
-  border-radius: 9999px;
+  min-height: 44px;
+  border-radius: var(--radius-full);
   background: #d2e4ff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   color: #001c37;
 }
 
 .authorName {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--text-body-lg);
   line-height: 22px;
   color: var(--color-text);
 }
@@ -125,7 +125,7 @@
 }
 
 .authorMeta {
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 18px;
   color: var(--color-text-muted);
 }
@@ -133,11 +133,11 @@
 .metrics {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 4px 16px;
-  border-radius: 8px;
+  gap: var(--space-4);
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-md);
   background: var(--color-surface-muted);
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 18px;
   color: var(--color-text-muted);
 }
@@ -145,7 +145,7 @@
 .metric {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   white-space: nowrap;
 }
 
@@ -167,14 +167,14 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
-  padding-top: 8px;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
 }
 
 .actionGroup {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .primary,
@@ -182,18 +182,18 @@
 .save {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   line-height: 18px;
   white-space: nowrap;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .primary {
-  padding: 8px 24px;
+  padding: var(--space-2) var(--space-6);
   background: #00355f;
   color: #fff;
 }
@@ -212,7 +212,7 @@
 }
 
 .save {
-  gap: 6px;
+  gap: var(--space-2);
   background: var(--color-surface-muted);
   color: var(--color-text-muted);
   box-shadow: none;
@@ -230,11 +230,11 @@
 .report {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 8px;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--text-caption);
   line-height: 16px;
   letter-spacing: 0.44px;
   color: #ba1a1a;
@@ -245,18 +245,18 @@
 }
 
 .reportBox {
-  padding: 16px;
+  padding: var(--space-4);
   border: 1px solid #f5c2c7;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: #fff8f8;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   color: var(--color-text);
 }
 
 .reportBox form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .reportBox label {
@@ -265,11 +265,11 @@
 
 .reportBox textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid #d0d7de;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: #fff;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   resize: vertical;
   outline: none;
 }
@@ -287,14 +287,14 @@
 .reportActions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .reportActions button {
-  padding: 7px 14px;
-  border-radius: 8px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   color: var(--color-text-muted);
 }
 
@@ -318,14 +318,14 @@
 
 @media (max-width: 640px) {
   .card {
-    padding: 20px;
+    padding: var(--space-5);
   }
   .title {
-    font-size: 22px;
+    font-size: var(--text-heading-sm);
     line-height: 29px;
   }
   .metrics {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--space-2);
   }
 }

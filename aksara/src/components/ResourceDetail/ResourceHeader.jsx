@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useBookmark from '../../hooks/useBookmark';
-import { useAuth } from '../../context/AuthContext.jsx';
-import { reportResource } from '../../services/resources';
+import { useAuth } from '../../context/useAuth';
+import { reportResource, getResourceFileUrl } from '../../services/resources';
+import { USE_API } from '../../services/api';
+import { externalLinkLabel } from '../../services/adapters';
 import styles from './ResourceHeader.module.css';
 import iconPdf from '../../assets/detail/icon-pdf.svg';
 import iconVerified from '../../assets/detail/icon-verified.svg';
@@ -18,12 +20,32 @@ import iconBookmark from '../../assets/detail/icon-bookmark.svg';
 import iconFlag from '../../assets/detail/icon-flag.svg';
 
 export default function ResourceHeader({ resource }) {
-  const { id, title, fileInfo, author, date, downloads, rating, reviewCount, linkFile } = resource;
+  const { id, title, fileInfo, author, date, downloads, rating, reviewCount, linkFile, externalUrl } = resource;
   const [saved, toggleSaved] = useBookmark(id, resource.bookmarked);
   const user = useAuth();
   const [reportOpen, setReportOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [reportState, setReportState] = useState('idle'); // idle | sending | sent | error
+  const [downloadState, setDownloadState] = useState('idle'); // idle | loading | error
+
+  // Mode API: tautan file bersifat sementara (signed URL 60 detik), jadi diminta saat tombol diklik
+  const download = async (e) => {
+    if (!USE_API) return;
+    e.preventDefault();
+    setDownloadState('loading');
+    // Tab dibuka langsung saat klik supaya tidak diblokir popup blocker, lalu diisi tautannya
+    const tab = window.open('about:blank', '_blank');
+    try {
+      const url = await getResourceFileUrl(id);
+      if (!url) throw new Error('File tidak tersedia');
+      if (tab) tab.location.href = url;
+      else window.location.href = url;
+      setDownloadState('idle');
+    } catch {
+      tab?.close();
+      setDownloadState('error');
+    }
+  };
 
   const sendReport = async (e) => {
     e.preventDefault();
@@ -92,15 +114,36 @@ export default function ResourceHeader({ resource }) {
 
         <div className={styles.actions}>
           <div className={styles.actionGroup}>
-            <a href={linkFile || '#'} className={styles.primary} target="_blank" rel="noreferrer" download>
+            <a
+              href={linkFile || '#'}
+              className={styles.primary}
+              target="_blank"
+              rel="noreferrer"
+              download
+              onClick={download}
+              aria-busy={downloadState === 'loading'}
+            >
               <img src={iconDownload} alt="" style={{ width: 12, height: 12 }} />
-              Unduh Dokumen (PDF)
+              {downloadState === 'loading'
+                ? 'Menyiapkan file…'
+                : downloadState === 'error'
+                  ? 'Gagal, coba lagi'
+                  : 'Unduh Dokumen'}
             </a>
-            <a href="#" className={styles.secondary} target="_blank" rel="noreferrer">
-              <img src={iconCode} alt="" style={{ width: 15, height: 9 }} />
-              Source Code GitHub / Dataset
-              <img src={iconExternal} alt="" style={{ width: 10.5, height: 10.5 }} />
-            </a>
+            {/* Tampil kalau pengunggah mengisi tautan GitHub / Drive / dataset (kolom "sumber" di backend) */}
+            {(!USE_API || externalUrl) && (
+              <a
+                href={externalUrl || '#'}
+                className={styles.secondary}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={externalUrl || undefined}
+              >
+                <img src={iconCode} alt="" style={{ width: 15, height: 9 }} />
+                {externalUrl ? externalLinkLabel(externalUrl) : 'Source Code GitHub / Dataset'}
+                <img src={iconExternal} alt="" style={{ width: 10.5, height: 10.5 }} />
+              </a>
+            )}
             <button
               type="button"
               className={`${styles.save} ${saved ? styles.saveActive : ''}`}
@@ -143,9 +186,7 @@ export default function ResourceHeader({ resource }) {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                 />
-                {reportState === 'error' && (
-                  <p className={styles.reportErr}>Gagal mengirim laporan. Coba lagi.</p>
-                )}
+                {reportState === 'error' && <p className={styles.reportErr}>Gagal mengirim laporan. Coba lagi.</p>}
                 <div className={styles.reportActions}>
                   <button type="button" onClick={() => setReportOpen(false)}>
                     Batal

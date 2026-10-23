@@ -1,32 +1,89 @@
-.period {
+/*
+ * Dashboard Administrator
+ * Aturan layout:
+ * - Semua kontainer memakai flex/grid + gap (setara Auto Layout), bukan margin/padding-bottom.
+ * - Spacing memakai skala 8px (--sp-*); 4px hanya untuk elemen mikro.
+ * - "Fill"  = flex: 1 / width: 100% / kolom 1fr.  "Hug" = flex: none + white-space: nowrap.
+ */
+
+.periodBtn {
   font-weight: 500;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   letter-spacing: 0.2px;
-  min-height: 32px;
-  padding: 8px 12px;
 }
 
-/* ---------- Kartu metrik ---------- */
-.stats {
+/* ================= Komponen umum di dalam kartu ================= */
+
+/* Header kartu: judul kiri (fill), aksi/badge kanan (hug) */
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.cardHeader > :first-child {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.cardHeaderText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.cardHeader > :not(.cardHeaderText):last-child {
+  flex: none;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--a-soft);
+  overflow: hidden;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.textLink {
+  align-self: flex-start;
+  font-weight: 600;
+  font-size: var(--text-caption);
+  line-height: 16px;
+  letter-spacing: 0.3px;
+  color: var(--a-primary);
+}
+
+.textLink:hover {
+  text-decoration: underline;
+}
+
+/* ================= Baris 1 — kartu metrik ================= */
+.statGrid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 16px;
-  padding-bottom: 32px;
+  gap: var(--sp-4);
 }
 
-.stat {
+.statCard {
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 20px;
-  min-height: 167px;
-  padding: 20px;
+  gap: var(--sp-6);
+  padding: var(--sp-4);
 }
 
-.statHighlight::before {
+.statCardHighlight::before {
   content: '';
   position: absolute;
   inset: 0 0 auto;
@@ -34,444 +91,433 @@
   background: var(--a-warn);
 }
 
-.statTop {
+.statCardTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
 }
 
 .statIcon {
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
+  flex: none;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
-.icPrimary {
+.statIconPrimary {
   background: var(--a-soft);
   color: var(--a-primary);
 }
 
-.icWarn {
+.statIconWarn {
   background: var(--a-warn-bg);
-  color: #7c310d;
+  color: var(--a-warn-text);
 }
 
-.icDanger {
+.statIconDanger {
   background: var(--a-danger-bg);
   color: var(--a-danger);
 }
 
-.statBadge {
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0;
-  white-space: normal;
-  text-align: left;
-}
-
-.statBody {
+.statCardBody {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--sp-1);
 }
 
 .statValue {
   display: flex;
   align-items: baseline;
-  flex-wrap: nowrap;
-  gap: 4px 8px;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-2);
   font-weight: 500;
-  font-size: 11px;
-  line-height: 14px;
+  font-size: var(--text-caption);
+  line-height: 16px;
   letter-spacing: 0.3px;
   color: var(--a-muted);
 }
 
-.statValue span {
-  min-width: 0;
-}
-
 .statValue strong {
   font-weight: 700;
-  font-size: 24px;
+  font-size: var(--text-heading-sm);
   line-height: 32px;
   letter-spacing: -0.4px;
   color: var(--a-text);
 }
 
-.statValue .val_warn {
+.statValue .statValueWarn {
   color: var(--a-warn);
 }
 
-.statValue .val_danger {
+.statValue .statValueDanger {
   color: var(--a-danger);
 }
 
-/* ---------- Grafik & distribusi ---------- */
-.middle {
+/* ================= Baris 2 & 3 — konten utama (fill) + kolom samping (fixed 320px) ================= */
+.splitRow {
   display: grid;
-  grid-template-columns: minmax(0, 632fr) minmax(0, 304fr);
-  gap: 24px;
-  padding-bottom: 32px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--sp-6);
 }
 
+.splitRowTop {
+  align-items: start;
+}
+
+/* ---------- Kartu grafik ---------- */
 .chartCard {
-  padding: 24px;
-}
-
-.chartHead {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.chartHead > div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-width: 340px;
+  gap: var(--sp-4);
+  padding: var(--sp-6);
 }
 
-.legend {
+.chartLegend {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   color: var(--a-muted);
 }
 
-.legend li {
+.chartLegend li {
   display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  max-width: 70px;
+  align-items: center;
+  gap: var(--sp-2);
+  white-space: nowrap;
 }
 
-.legend li span {
+.chartLegendSwatch {
+  flex: none;
   width: 8px;
   height: 12px;
-  margin-top: 2px;
-  border-radius: 2px;
-  flex-shrink: 0;
+  border-radius: var(--radius-xs);
 }
 
 .chart {
   display: block;
   width: 100%;
   height: auto;
-  margin-top: 16px;
 }
 
-.axis {
-  font-size: 11px;
+.chartAxis {
+  font-size: var(--text-caption);
   fill: #727783;
 }
 
-.axisMonth {
-  font-size: 12px;
+.chartMonth {
+  font-size: var(--text-label);
   font-weight: 600;
   fill: #727783;
 }
 
-.axisActive {
-  font-size: 12px;
+.chartMonthActive {
+  font-size: var(--text-label);
   font-weight: 700;
   fill: #081c32;
 }
 
-.insight {
+.chartInsight {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-  padding: 16px 16px 12px;
-  border-radius: 8px;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
   background: var(--a-soft);
 }
 
-.insight p {
+.chartInsightText {
   display: flex;
-  gap: 8px;
+  align-items: flex-start;
+  gap: var(--sp-2);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   letter-spacing: 0.2px;
   color: var(--a-text);
 }
 
-.insight p svg {
-  flex-shrink: 0;
-  margin-top: 1px;
+.chartInsightText svg {
+  flex: none;
 }
 
-.linkSmall {
-  font-weight: 600;
-  font-size: 11px;
-  line-height: 14px;
-  letter-spacing: 0.3px;
-  color: var(--a-primary);
-}
-
-.linkSmall:hover {
-  text-decoration: underline;
-}
-
-.distCard {
+/* ---------- Kartu distribusi kategori ---------- */
+.categoryCard {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 24px;
+  gap: var(--sp-4);
+  padding: var(--sp-6);
 }
 
-.distHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 16px;
-}
-
-.distText {
-  font-size: 13px;
-  line-height: 18px;
+.categoryDesc {
+  font-size: var(--text-body-sm);
+  line-height: 20px;
   color: var(--a-muted);
 }
 
-.bars {
+.categoryList {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--sp-6);
   margin: 0;
-  padding: 24px 0 0;
+  padding: var(--sp-2) 0 var(--sp-6);
   list-style: none;
 }
 
-.barLabel {
+.categoryItem {
   display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.categoryLabel {
+  display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: var(--sp-2);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   color: var(--a-text);
 }
 
-.barLabel span:last-child {
-  max-width: 105px;
-  text-align: right;
+.categoryName {
+  flex: 1;
+  min-width: 0;
 }
 
-.barTrack {
-  height: 10px;
-  border-radius: 9999px;
-  background: var(--a-soft);
-  overflow: hidden;
+.categoryDetail {
+  flex: none;
+  white-space: nowrap;
 }
 
-.barTrack span {
-  display: block;
-  height: 100%;
-  border-radius: 9999px;
-}
-
-.sync {
+/* Kotak sinkronisasi menempel di bawah kartu */
+.syncBox {
+  margin-top: auto;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 8px;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
   background: var(--a-soft);
-}
-
-.sync > div {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  font-weight: 500;
-  font-size: 11px;
-  line-height: 14px;
-  letter-spacing: 0.3px;
-  color: var(--a-muted);
-}
-
-.sync strong {
-  font-weight: 700;
-  color: var(--a-text);
 }
 
 .syncIcon {
+  flex: none;
   width: 32px;
   height: 32px;
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background: var(--a-chip);
   color: var(--a-primary);
 }
 
-.sync button {
+.syncText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  font-size: var(--text-caption);
+  line-height: 16px;
+  letter-spacing: 0.3px;
   color: var(--a-muted);
 }
 
-/* ---------- Antrean ---------- */
-.bottom {
-  display: grid;
-  grid-template-columns: minmax(0, 632fr) minmax(0, 304fr);
-  gap: 24px;
-  align-items: start;
+.syncText strong {
+  font-weight: 700;
+  color: var(--a-text);
 }
 
+.syncBtn {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--a-muted);
+}
+
+.syncBtn:hover {
+  background: var(--a-chip);
+}
+
+/* ---------- Kartu antrean moderasi ---------- */
 .queueCard {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.queueHead {
-  display: flex;
+.queueHeader {
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 24px 24px 16px;
+  padding: var(--sp-6) var(--sp-6) var(--sp-4);
 }
 
-.queueHead > div:first-child {
+.filterChips {
+  flex: none;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
 }
 
-.quickFilters {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.qf {
-  padding: 4px 10px;
-  border-radius: 8px;
+.filterChip {
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-md);
   background: var(--a-soft);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   color: var(--a-muted);
+  white-space: nowrap;
 }
 
-.qfActive {
+.filterChip:hover {
+  background: var(--a-chip);
+}
+
+.filterChipActive,
+.filterChipActive:hover {
   background: var(--a-primary-2);
   color: #fff;
+}
+
+.colTitle {
+  min-width: 240px;
+}
+
+.colAuthor {
+  min-width: 160px;
+}
+
+.colNowrap {
+  white-space: nowrap;
+}
+
+.colRight {
+  text-align: right;
+}
+
+.cellStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
 }
 
 .fileMeta {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 2px;
+  gap: var(--sp-1);
 }
 
 .rowActions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-2);
 }
 
-.iconOk,
-.iconNo {
+.approveBtn,
+.rejectBtn {
+  flex: none;
   width: 28px;
   height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
 }
 
-.iconOk {
+.approveBtn {
   background: var(--a-primary);
   color: #fff;
 }
 
-.iconNo {
+.rejectBtn {
   background: var(--a-danger-bg);
   color: var(--a-danger);
 }
 
-/* ---------- Widget samping ---------- */
-.side {
+/* ---------- Kolom samping ---------- */
+.sideColumn {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--sp-6);
+  min-width: 0;
 }
 
-.widgetHead {
+.widgetCard {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 16px;
+  flex-direction: column;
+  gap: var(--sp-4);
 }
 
 .reportList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--sp-2);
   margin: 0;
-  padding: 0 0 16px;
+  padding: 0;
   list-style: none;
 }
 
 .reportItem {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px;
-  border-radius: 8px;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
   background: var(--a-soft);
 }
 
-.reportTop {
+.reportItemHead {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
-  font-size: 12px;
+  gap: var(--sp-2);
+  font-size: var(--text-label);
   line-height: 16px;
 }
 
-.reportTop strong {
+.reportTitle {
+  flex: 1;
+  min-width: 0;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.urgent,
-.normal {
-  flex-shrink: 0;
+.priorityUrgent,
+.priorityNormal {
+  flex: none;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-caption);
 }
 
-.urgent {
+.priorityUrgent {
   color: var(--a-danger);
 }
 
-.normal {
+.priorityNormal {
   color: var(--a-secondary);
 }
 
-.reportItem p {
-  font-size: 13px;
-  line-height: 18px;
+.reportText {
+  font-size: var(--text-body-sm);
+  line-height: 20px;
   color: var(--a-muted);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -479,21 +525,21 @@
   overflow: hidden;
 }
 
-.reportFoot {
+.reportItemFoot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-top: 8px;
+  gap: var(--sp-2);
   font-weight: 500;
-  font-size: 11px;
-  line-height: 14px;
+  font-size: var(--text-caption);
+  line-height: 16px;
   color: var(--a-subtle);
 }
 
 .reportBtn {
-  padding: 4px 12px;
-  border-radius: 4px;
+  flex: none;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-sm);
   background: #fff;
   font-weight: 600;
   color: var(--a-primary);
@@ -504,80 +550,88 @@
   color: var(--a-danger);
 }
 
-.fullBtn {
+.fullWidthBtn {
   width: 100%;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 
-.storage {
+.storageUsage {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--sp-2);
 }
 
-.storage .widgetHead {
-  padding-bottom: 4px;
-}
-
-.storageRow {
+.storageUsageLabel {
   display: flex;
   justify-content: space-between;
+  gap: var(--sp-2);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   color: var(--a-muted);
 }
 
-.storageRow strong {
+.storageUsageLabel strong {
   color: var(--a-text);
 }
 
-.storage .barTrack {
-  height: 8px;
-}
-
-.storageGrid {
+.storageStats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
-.storageGrid div {
+.storageStat {
   display: flex;
   flex-direction: column;
-  padding: 8px;
-  border-radius: 6px;
+  gap: var(--sp-1);
+  padding: var(--sp-2);
+  border-radius: var(--radius-md);
   background: var(--a-soft);
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 16px;
   color: var(--a-muted);
 }
 
-.storageGrid strong {
+.storageStat strong {
   color: var(--a-text);
 }
 
-/* ---------- Responsif ---------- */
-@media (max-width: 1200px) {
-  .stats {
+/* ================= Responsif ================= */
+@media (max-width: 1440px) {
+  .statGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 1100px) {
-  .middle,
-  .bottom {
+@media (max-width: 1280px) {
+  .splitRow {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-@media (max-width: 640px) {
-  .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+/* Tabel antrean butuh lebar penuh: kolom samping turun ke bawah sebagai grid 2 kolom */
+@media (max-width: 1600px) {
+  .splitRowTop {
+    grid-template-columns: minmax(0, 1fr);
   }
-  .chartHead,
-  .queueHead {
-    flex-direction: column;
-    align-items: flex-start;
+  .splitRowTop .sideColumn {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .statGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-2);
+  }
+  .chartCard,
+  .categoryCard {
+    padding: var(--sp-4);
+  }
+  .queueHeader {
+    padding: var(--sp-4);
   }
 }

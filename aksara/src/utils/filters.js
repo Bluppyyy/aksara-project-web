@@ -6,7 +6,11 @@ export const CATEGORY_KEYS = ['tugas', 'project', 'skripsi', 'ujian', 'riset', '
 
 /** URLSearchParams → objek filter */
 export function readFilters(params) {
-  const list = (k) => (params.get(k) || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const list = (k) =>
+    (params.get(k) || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
   const range = (k, def) => {
     const [a, b] = (params.get(k) || '').split('-').map(Number);
     return [Number.isFinite(a) && a ? a : def[0], Number.isFinite(b) && b ? b : def[1]];
@@ -81,8 +85,11 @@ const downloadsNum = (d) => {
 
 export function sortResources(items, sort) {
   const list = [...items];
-  if (sort === 'Terbaru') return list.sort((a, b) => (b.year || 0) - (a.year || 0) || (b.id > a.id ? 1 : -1));
+  const time = (r) => (r.createdAt ? new Date(r.createdAt).getTime() : (r.year || 0) * 1e10);
+  if (sort === 'Terbaru') return list.sort((a, b) => time(b) - time(a) || (b.id > a.id ? 1 : -1));
+  if (sort === 'Terlama') return list.sort((a, b) => time(a) - time(b) || (a.id > b.id ? 1 : -1));
   if (sort === 'Rating Tertinggi') return list.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
-  if (sort === 'Paling Banyak Diunduh') return list.sort((a, b) => downloadsNum(b.downloads) - downloadsNum(a.downloads));
+  if (sort === 'Paling Banyak Diunduh')
+    return list.sort((a, b) => downloadsNum(b.downloads) - downloadsNum(a.downloads));
   return list; // Paling Relevan = urutan dari server / pencarian
 }

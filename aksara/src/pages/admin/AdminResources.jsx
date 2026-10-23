@@ -2,14 +2,35 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../../components/Icon/Icon.jsx';
 import useAsync from '../../hooks/useAsync';
-import { listAdminResources, updateResourceStatus } from '../../services/admin';
+import { listAdminResources, updateResourceStatus, deleteResource } from '../../services/admin';
 import { resourceStats } from '../../data/admin';
+import { USE_API } from '../../services/api';
+import { PRODI_FIF } from '../../data/academic';
 import ui from './admin.module.css';
-import styles from './AdminResources.module.css';
-import { StatusBadge, useToast, AdminPager } from './shared.jsx';
+import { PageHeader, StatCards, AdminFilters, StatusBadge } from './shared.jsx';
+import { useToast } from './useToast.jsx';
+import AdminTable, {
+  TitleCell,
+  PersonCell,
+  TextCell,
+  Actions,
+  ActionButton,
+  BulkButton,
+  CategoryBadge,
+} from './AdminTable.jsx';
 
-const CATEGORY_OPTIONS = ['Semua Kategori', 'Laporan Proyek', 'Tugas Akhir', 'Source Code', 'Jurnal & Data', 'Catatan Kuliah', 'Materi Kuliah'];
-const PRODI_OPTIONS = ['Semua Program Studi', 'S1 Informatika', 'S1 Rekayasa PL', 'S1 Sains Data', 'S1 Teknologi Inf.'];
+const ALL_CAT = 'Semua Kategori';
+const ALL_PRODI = 'Semua Prodi';
+const CATEGORY_OPTIONS = [
+  ALL_CAT,
+  'Laporan Proyek',
+  'Tugas Akhir',
+  'Source Code',
+  'Jurnal & Data',
+  'Catatan Kuliah',
+  'Materi Kuliah',
+];
+const PRODI_OPTIONS = [ALL_PRODI, ...PRODI_FIF];
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Semua Status' },
   { value: 'pending', label: 'Menunggu Review' },
@@ -19,29 +40,20 @@ const STATUS_OPTIONS = [
 ];
 const SORTS = ['Terbaru', 'Terlama', 'Judul A-Z'];
 
-const TONE_BOX = { primary: styles.boxPrimary, warn: styles.boxWarn, danger: styles.boxDanger };
-const TONE_TEXT = { primary: styles.txtPrimary, warn: styles.txtWarn, danger: styles.txtDanger };
-
-function Select({ label, value, onChange, options }) {
-  return (
-    <label className={styles.field}>
-      <span>{label}</span>
-      <span className={ui.select}>
-        <select value={value} onChange={(e) => onChange(e.target.value)}>
-          {options.map((o) => (typeof o === 'string' ? <option key={o}>{o}</option> : <option key={o.value} value={o.value}>{o.label}</option>))}
-        </select>
-        <Icon icon="lucide:chevron-down" size={16} />
-      </span>
-    </label>
-  );
-}
+/** Meta yang SAMA untuk setiap baris: format, dilihat, unduhan, favorit */
+const resourceMeta = (r) => [
+  { icon: 'lucide:file-text', text: [r.format, r.size].filter(Boolean).join(' • ') || 'FILE' },
+  { icon: 'lucide:eye', text: r.views ?? '0', label: 'Dilihat' },
+  { icon: 'lucide:download', text: r.downloads ?? '0', label: 'Diunduh' },
+  { icon: 'lucide:bookmark', text: r.favorites ?? '0', label: 'Favorit' },
+];
 
 export default function AdminResources() {
   const { data, loading, error, reload, setData } = useAsync(listAdminResources, []);
   const [toast, notify] = useToast();
   const [q, setQ] = useState('');
-  const [category, setCategory] = useState(CATEGORY_OPTIONS[0]);
-  const [prodi, setProdi] = useState(PRODI_OPTIONS[0]);
+  const [category, setCategory] = useState(ALL_CAT);
+  const [prodi, setProdi] = useState(ALL_PRODI);
   const [status, setStatus] = useState('all');
   const [sort, setSort] = useState(SORTS[0]);
   const [selected, setSelected] = useState([]);
@@ -51,26 +63,20 @@ export default function AdminResources() {
     let list = data || [];
     const term = q.trim().toLowerCase();
     if (term) list = list.filter((r) => [r.title, r.course, r.code, r.author].join(' ').toLowerCase().includes(term));
-    if (category !== CATEGORY_OPTIONS[0]) list = list.filter((r) => r.category === category);
-    if (prodi !== PRODI_OPTIONS[0]) list = list.filter((r) => r.prodi === prodi);
+    if (category !== ALL_CAT) list = list.filter((r) => r.category === category);
+    if (prodi !== ALL_PRODI) list = list.filter((r) => r.prodi === prodi);
     if (status !== 'all') list = list.filter((r) => r.status === status);
     if (sort === 'Terlama') list = [...list].reverse();
     if (sort === 'Judul A-Z') list = [...list].sort((a, b) => a.title.localeCompare(b.title));
     return list;
   }, [data, q, category, prodi, status, sort]);
 
-  const activeFilters = [
-    status !== 'all' && { key: 'status', label: `Status: ${STATUS_OPTIONS.find((s) => s.value === status).label}`, clear: () => setStatus('all') },
-    category !== CATEGORY_OPTIONS[0] && { key: 'cat', label: `Kategori: ${category}`, clear: () => setCategory(CATEGORY_OPTIONS[0]) },
-    prodi !== PRODI_OPTIONS[0] && { key: 'prodi', label: `Prodi: ${prodi}`, clear: () => setProdi(PRODI_OPTIONS[0]) },
-    { key: 'tahun', label: 'Tahun Akademik: 2024/2025', clear: null },
-  ].filter(Boolean);
-
-  const clearAll = () => {
+  const resetFilters = () => {
     setQ('');
-    setCategory(CATEGORY_OPTIONS[0]);
-    setProdi(PRODI_OPTIONS[0]);
+    setCategory(ALL_CAT);
+    setProdi(ALL_PRODI);
     setStatus('all');
+    setSort(SORTS[0]);
   };
 
   /** FR-ADM-02: perbarui status (optimistic update, dibatalkan kalau gagal — NFR-REL-02) */
@@ -87,291 +93,197 @@ export default function AdminResources() {
     }
   };
 
-  const allChecked = rows.length > 0 && rows.every((r) => selected.includes(r.id));
-  const toggleAll = () => setSelected(allChecked ? [] : rows.map((r) => r.id));
-  const toggleOne = (id) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  /** Hapus resource permanen (DELETE /admin/resource/:id) */
+  const remove = async (r) => {
+    if (!window.confirm(`Hapus "${r.title}" secara permanen? Tindakan ini tidak bisa dibatalkan.`)) return;
+    const before = data;
+    setData((list) => list.filter((x) => x.id !== r.id));
+    try {
+      await deleteResource(r.id);
+      notify(`"${r.title}" dihapus.`);
+      setSelected((s) => s.filter((id) => id !== r.id));
+    } catch (err) {
+      setData(before);
+      notify(err.message || 'Gagal menghapus resource.', 'error');
+    }
+  };
+
+  const columns = [
+    {
+      key: 'title',
+      label: 'Resource',
+      render: (r) => (
+        <TitleCell code={r.code} over={r.course} title={r.title} to={`/resource/${r.id}`} meta={resourceMeta(r)} />
+      ),
+    },
+    {
+      key: 'author',
+      label: 'Kontributor',
+      width: 196,
+      render: (r) => <PersonCell name={r.author} lines={[r.nim && `NIM ${r.nim}`, r.prodi]} />,
+    },
+    {
+      key: 'category',
+      label: 'Kategori',
+      width: 128,
+      render: (r) => <CategoryBadge>{r.category}</CategoryBadge>,
+    },
+    {
+      key: 'date',
+      label: 'Tanggal',
+      width: 112,
+      render: (r) => <TextCell primary={r.date} secondary={r.time} nowrap />,
+    },
+    { key: 'status', label: 'Status', width: 156, render: (r) => <StatusBadge status={r.status} /> },
+    {
+      key: 'actions',
+      label: 'Aksi',
+      width: 168,
+      align: 'right',
+      render: (r) => (
+        <Actions>
+          <ActionButton
+            icon="lucide:circle-check"
+            tone="ok"
+            label={`Setujui ${r.title}`}
+            disabled={r.status === 'approved'}
+            onClick={() => changeStatus([r.id], 'approved', `"${r.title}" dipublikasikan.`)}
+          />
+          <ActionButton
+            icon="lucide:eye-off"
+            label={`Sembunyikan ${r.title}`}
+            disabled={r.status === 'hidden'}
+            onClick={() => changeStatus([r.id], 'hidden', `"${r.title}" disembunyikan dari publik.`)}
+          />
+          <ActionButton
+            icon="lucide:circle-x"
+            tone="danger"
+            label={`Tolak ${r.title}`}
+            disabled={r.status === 'rejected'}
+            onClick={() => changeStatus([r.id], 'rejected', `"${r.title}" ditolak.`)}
+          />
+          <ActionButton icon="lucide:trash-2" tone="danger" label={`Hapus ${r.title}`} onClick={() => remove(r)} />
+        </Actions>
+      ),
+    },
+  ];
 
   return (
-    <>
-      <div className={ui.pageHead}>
-        <div className={ui.pageHeadText} style={{ maxWidth: 620 }}>
-          <div className={ui.eyebrow}>
-            <span className={`${ui.pill} ${styles.pillLight}`}>Tel-U Open Repository System</span>
-            <span className={styles.sep}>•</span>
-            <span className={styles.live}>
-              <span className={styles.liveDot} />
-              Sinkronisasi Realtime
-            </span>
-          </div>
-          <h1 className={ui.title}>Kelola Resource Repository</h1>
-          <p className={ui.subtitle}>
-            Manajemen komprehensif berkas dokumen, source code, dan materi akademik yang diunggah mahasiswa dan dosen
-            Universitas Telkom.
-          </p>
-        </div>
-        <div className={ui.headActions}>
-          <button type="button" className={`${ui.btn} ${ui.btnWhite} ${styles.bigBtn}`} onClick={() => notify('Rekap CSV sedang disiapkan.')}>
-            <Icon icon="lucide:download" size={14} color="#3f5f8e" />
-            Export CSV / Rekap
-          </button>
-          <Link to="/unggah" className={`${ui.btn} ${ui.btnPrimary} ${styles.bigBtn}`}>
-            <Icon icon="lucide:circle-plus" size={16} />
-            + Tambah Resource Admin
-          </Link>
-        </div>
-      </div>
-
-      <section className={styles.stats}>
-        {resourceStats.map((s) => (
-          <article key={s.label} className={`${ui.card} ${styles.stat}`}>
-            <div>
-              <span className={ui.overline}>{s.label}</span>
-              <strong className={`${styles.statValue} ${s.tone !== 'primary' ? TONE_TEXT[s.tone] : ''}`}>{s.value}</strong>
-              <span className={`${styles.statNote} ${TONE_TEXT[s.tone]}`}>
-                <Icon icon={s.noteIcon} size={12} />
-                {s.note}
-              </span>
-            </div>
-            <span className={`${styles.statBox} ${TONE_BOX[s.tone]}`}>
-              <Icon icon={s.icon} size={20} />
-            </span>
-          </article>
-        ))}
-      </section>
-
-      {/* Pencarian & filter */}
-      <section className={`${ui.card} ${styles.filters}`}>
-        <div className={styles.filterTop}>
-          <label className={`${ui.search} ${styles.searchBox}`}>
-            <Icon icon="lucide:search" size={18} />
-            <span className="visually-hidden">Cari resource</span>
-            <input
-              type="search"
-              placeholder="Cari judul, kata kunci, nama mahasiswa, atau mata kuliah..."
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </label>
-          <button type="button" className={styles.chipBtn}>
-            <Icon icon="lucide:calendar-days" size={15} />1 Okt 2024 - 31 Des 2024
-            <Icon icon="lucide:chevron-down" size={12} />
-          </button>
-          <label className={styles.chipBtn}>
-            <Icon icon="lucide:list-filter" size={15} />
-            <strong>Urutan:</strong>
-            <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Urutan">
-              {SORTS.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-          </label>
-          <button type="button" className={styles.refresh} aria-label="Muat ulang data" onClick={reload}>
-            <Icon icon="lucide:rotate-cw" size={16} />
-          </button>
-        </div>
-        <div className={styles.filterGrid}>
-          <Select label="Kategori Konten" value={category} onChange={setCategory} options={CATEGORY_OPTIONS} />
-          <Select label="Program Studi" value={prodi} onChange={setProdi} options={PRODI_OPTIONS} />
-          <Select label="Status Moderasi" value={status} onChange={setStatus} options={STATUS_OPTIONS} />
-        </div>
-        <div className={styles.activeRow}>
-          <span className={styles.activeLabel}>Filter Aktif:</span>
-          {activeFilters.map((f) => (
-            <span key={f.key} className={styles.activeChip}>
-              {f.label}
-              {f.clear && (
-                <button type="button" aria-label={`Hapus ${f.label}`} onClick={f.clear}>
-                  <Icon icon="lucide:x" size={12} />
-                </button>
-              )}
-            </span>
-          ))}
-          <button type="button" className={styles.clearAll} onClick={clearAll}>
-            Bersihkan Semua
-          </button>
-        </div>
-      </section>
-
-      {/* Tabel resource (FR-ADM-01) */}
-      <section className={`${ui.card} ${styles.tableCard}`}>
-        <div className={styles.massBar}>
-          <label className={styles.checkLabel}>
-            <input type="checkbox" checked={allChecked} onChange={toggleAll} />
-            Pilih Semua Dokumen ({rows.length})
-          </label>
-          <div className={styles.massActions}>
-            <span>Aksi Massal:</span>
+    <div className={ui.page}>
+      <PageHeader
+        crumbs={[{ label: 'Kelola Resource' }]}
+        title="Kelola Resource"
+        subtitle="Kelola berkas dokumen, source code, dan materi akademik yang diunggah mahasiswa FIF."
+        actions={
+          <>
             <button
               type="button"
-              disabled={!selected.length}
-              onClick={() => changeStatus(selected, 'approved', `${selected.length} resource disetujui & dipublikasikan.`)}
+              className={`${ui.btn} ${ui.btnWhite}`}
+              onClick={() => notify('Rekap CSV sedang disiapkan.')}
             >
-              <Icon icon="lucide:circle-check" size={13} />
-              Setujui Publikasi
+              <Icon icon="lucide:download" size={16} />
+              Export CSV
             </button>
-            <button
-              type="button"
-              className={styles.danger}
+            <Link to="/unggah" className={`${ui.btn} ${ui.btnPrimary}`}>
+              <Icon icon="lucide:plus" size={16} />
+              Tambah Resource
+            </Link>
+          </>
+        }
+      />
+
+      <StatCards
+        items={
+          USE_API
+            ? [
+                {
+                  label: 'Total Resource',
+                  value: String((data || []).length),
+                  note: 'Semua status',
+                  icon: 'lucide:folder-open',
+                  tone: 'primary',
+                },
+                {
+                  label: 'Menunggu Review',
+                  value: String((data || []).filter((r) => r.status === 'pending').length),
+                  note: 'Perlu moderasi',
+                  icon: 'lucide:file-clock',
+                  tone: 'warn',
+                },
+                {
+                  label: 'Terpublikasi',
+                  value: String((data || []).filter((r) => r.status === 'approved').length),
+                  note: 'Tampil di Eksplorasi',
+                  icon: 'lucide:badge-check',
+                  tone: 'ok',
+                },
+                {
+                  label: 'Ditolak',
+                  value: String((data || []).filter((r) => r.status === 'rejected').length),
+                  note: 'Tidak sesuai ketentuan',
+                  icon: 'lucide:file-x-2',
+                  tone: 'danger',
+                },
+              ]
+            : resourceStats
+        }
+      />
+
+      <AdminFilters
+        search={{ value: q, onChange: setQ, placeholder: 'Cari judul, matkul, kontributor…' }}
+        selects={[
+          { label: 'Kategori', value: category, onChange: setCategory, options: CATEGORY_OPTIONS },
+          { label: 'Program studi', value: prodi, onChange: setProdi, options: PRODI_OPTIONS },
+          { label: 'Status', value: status, onChange: setStatus, options: STATUS_OPTIONS },
+          { label: 'Urutan', value: sort, onChange: setSort, options: SORTS },
+        ]}
+        onReset={resetFilters}
+      />
+
+      {/* Tabel resource (FR-ADM-01) — komponen tabel utama */}
+      <AdminTable
+        columns={columns}
+        rows={rows}
+        loading={loading}
+        error={error}
+        onRetry={reload}
+        emptyText="Tidak ada resource yang cocok dengan filter."
+        selectable
+        selected={selected}
+        onSelectedChange={setSelected}
+        bulkActions={
+          <>
+            <BulkButton
+              icon="lucide:circle-check"
+              disabled={!selected.length}
+              onClick={() => changeStatus(selected, 'approved', `${selected.length} resource dipublikasikan.`)}
+            >
+              Setujui
+            </BulkButton>
+            <BulkButton
+              icon="lucide:archive"
+              danger
               disabled={!selected.length}
               onClick={() => changeStatus(selected, 'hidden', `${selected.length} resource diarsipkan.`)}
             >
-              <Icon icon="lucide:archive" size={13} />
               Arsipkan
-            </button>
-          </div>
-        </div>
-
-        {loading ? (
-          <p className={ui.state}>Memuat resource…</p>
-        ) : error ? (
-          <p className={ui.state}>
-            {error.message} <button type="button" className={styles.clearAll} onClick={reload}>Coba lagi</button>
-          </p>
-        ) : rows.length === 0 ? (
-          <p className={ui.state}>Tidak ada resource yang cocok dengan filter.</p>
-        ) : (
-          <div className={ui.tableWrap}>
-            <table className={`${ui.table} ${styles.table}`}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'center' }}>#</th>
-                  <th>Judul Resource &amp; Mata Kuliah</th>
-                  <th>Kontributor &amp; Identitas</th>
-                  <th>Kategori</th>
-                  <th>Program Studi</th>
-                  <th>
-                    Tanggal
-                    <br />
-                    Unggah
-                  </th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'center' }}>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id} className={selected.includes(r.id) ? styles.rowSelected : ''}>
-                    <td>
-                      <input type="checkbox" checked={selected.includes(r.id)} onChange={() => toggleOne(r.id)} aria-label={`Pilih ${r.title}`} />
-                    </td>
-                    <td className={styles.titleCell}>
-                      <div className={styles.courseRow}>
-                        <span className={styles.code}>{r.code}</span>
-                        <span>{r.course}</span>
-                      </div>
-                      <p className={styles.resTitle}>
-                        <Link to={`/resource/${r.id}`}>{r.title}</Link>
-                      </p>
-                      {r.rejectReason ? (
-                        <p className={styles.reject}>
-                          <Icon icon="lucide:circle-alert" size={12} />
-                          {r.rejectReason}
-                        </p>
-                      ) : r.hiddenNote ? (
-                        <p className={styles.hiddenNote}>
-                          <Icon icon="lucide:eye-off" size={12} />
-                          {r.hiddenNote}
-                        </p>
-                      ) : (
-                        <p className={styles.fileRow}>
-                          <span>
-                            <Icon icon={r.fileIcon} size={12} />
-                            {r.file}
-                          </span>
-                          {r.warning && (
-                            <span className={styles.warning}>
-                              <Icon icon="lucide:bell" size={12} />
-                              {r.warning}
-                            </span>
-                          )}
-                          {(r.stats || []).map((s) => (
-                            <span key={s}>
-                              <Icon icon={/pembaca/.test(s) ? 'lucide:eye' : /unduhan/.test(s) ? 'lucide:download' : /DOI/.test(s) ? 'lucide:circle-check' : 'lucide:star'} size={12} />
-                              {s}
-                            </span>
-                          ))}
-                        </p>
-                      )}
-                    </td>
-                    <td>
-                      <div className={styles.person}>
-                        <span className={styles.avatar}>{r.initials}</span>
-                        <div>
-                          <p className={ui.cellStrong} style={{ fontWeight: 600 }}>{r.author}</p>
-                          <p className={`${ui.cellMeta} ${r.idHighlight ? styles.txtPrimary : ''}`}>{r.idLabel}</p>
-                          <p className={ui.cellMeta}>{r.cohort}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`${ui.badge} ${ui.tonePrimary}`}>{r.category}</span>
-                    </td>
-                    <td>
-                      <p className={ui.cellStrong}>{r.prodi}</p>
-                      <p className={ui.cellMeta}>Fakultas Informatika</p>
-                    </td>
-                    <td style={{ whiteSpace: 'nowrap' }}>
-                      <p className={ui.cellStrong}>{r.date}</p>
-                      <p className={ui.cellMeta}>{r.time}</p>
-                    </td>
-                    <td>
-                      <StatusBadge status={r.status} />
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <Link to={`/resource/${r.id}`} className={styles.iconBtn} title="Lihat detail" aria-label={`Lihat ${r.title}`}>
-                          <Icon icon="lucide:eye" size={16} />
-                        </Link>
-                        <button
-                          type="button"
-                          className={`${styles.iconBtn} ${styles.ok}`}
-                          title="Setujui & publikasikan"
-                          aria-label={`Setujui ${r.title}`}
-                          disabled={r.status === 'approved'}
-                          onClick={() => changeStatus([r.id], 'approved', `"${r.title}" dipublikasikan.`)}
-                        >
-                          <Icon icon="lucide:circle-check" size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.iconBtn}
-                          title="Sembunyikan dari publik"
-                          aria-label={`Sembunyikan ${r.title}`}
-                          disabled={r.status === 'hidden'}
-                          onClick={() => changeStatus([r.id], 'hidden', `"${r.title}" disembunyikan dari publik.`)}
-                        >
-                          <Icon icon="lucide:eye-off" size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          className={`${styles.iconBtn} ${styles.no}`}
-                          title="Tolak"
-                          aria-label={`Tolak ${r.title}`}
-                          disabled={r.status === 'rejected'}
-                          onClick={() => changeStatus([r.id], 'rejected', `"${r.title}" ditolak.`)}
-                        >
-                          <Icon icon="lucide:circle-x" size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <div className={styles.footer}>
-          <span>
-            Menampilkan <strong>1 - {rows.length}</strong> dari <strong>2.845 data</strong>
-            <span className={styles.perPage}>
-              Baris per halaman: <span>10</span>
-            </span>
-          </span>
-          <AdminPager page={page} pages={[1, 2, 3]} last={285} onChange={setPage} />
-        </div>
-      </section>
+            </BulkButton>
+          </>
+        }
+        pager={{
+          info: (
+            <>
+              Menampilkan <strong>{rows.length}</strong> dari <strong>{USE_API ? (data || []).length : '2.845'}</strong>{' '}
+              resource
+            </>
+          ),
+          page,
+          pages: USE_API ? [1] : [1, 2, 3],
+          last: USE_API ? undefined : 285,
+          onChange: setPage,
+        }}
+      />
       {toast}
-    </>
+    </div>
   );
 }

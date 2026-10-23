@@ -2,7 +2,7 @@
   position: relative;
   overflow: hidden;
   min-height: 728px;
-  padding: 40px 32px;
+  padding: var(--space-10) var(--space-8);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -20,7 +20,7 @@
 
 .blob {
   position: absolute;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   filter: blur(32px);
   pointer-events: none;
 }
@@ -47,28 +47,28 @@
   max-width: 1440px;
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: var(--space-6);
 }
 
 .heading {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 39px;
+  gap: var(--space-10);
   text-align: center;
 }
 
 .title {
   max-width: 984px;
   font-weight: 700;
-  font-size: 48px;
+  font-size: var(--text-display-lg);
   line-height: 56px;
   color: var(--color-primary-50);
 }
 
 .description {
   max-width: 1120px;
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 20px;
   color: #f8f8f8;
 }
@@ -83,20 +83,20 @@
 .searchCard {
   width: 100%;
   background: var(--color-surface);
-  border-radius: 16px;
-  padding: 1px 14px 10px;
+  border-radius: var(--radius-xl);
+  padding: 1px var(--space-4) var(--space-2);
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: var(--space-2);
   box-shadow: var(--shadow-landing);
 }
 
 .searchRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 0 0 8px;
-  border-radius: 12px;
+  gap: var(--space-2);
+  padding: var(--space-2) 0 0 var(--space-2);
+  border-radius: var(--radius-lg);
 }
 
 .searchInput {
@@ -104,8 +104,8 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 8px 0 12px;
+  gap: var(--space-2);
+  padding: 0 var(--space-2) 0 var(--space-3);
   cursor: text;
 }
 
@@ -122,7 +122,7 @@
   border: 0;
   outline: none;
   background: transparent;
-  font-size: 14px;
+  font-size: var(--text-body);
   color: var(--color-text);
 }
 
@@ -139,8 +139,8 @@
 .categories {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 0 0 18px;
+  gap: var(--space-2);
+  padding: var(--space-2) 0 0 var(--space-4);
   border-top: 1px solid #eaeaea;
   overflow-x: auto;
   scrollbar-width: none;
@@ -152,15 +152,17 @@
 
 .categoryChip {
   flex-shrink: 0;
-  padding: 6px 16px;
-  border-radius: 9999px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
   background: var(--color-chip);
   color: var(--color-text-muted);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   line-height: 18px;
   white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .categoryChip:hover {
@@ -186,7 +188,7 @@
 
 .compact .heading {
   align-items: flex-start;
-  gap: 19px;
+  gap: var(--space-5);
   text-align: left;
 }
 
@@ -200,7 +202,7 @@
 }
 
 .compact .searchCard {
-  border-radius: 17px;
+  border-radius: var(--radius-xl);
   box-shadow: none;
 }
 
@@ -211,13 +213,13 @@
 @media (max-width: 768px) {
   .hero {
     min-height: auto;
-    padding: 56px 16px;
+    padding: var(--space-14) var(--space-4);
   }
   .title {
-    font-size: 32px;
+    font-size: var(--text-heading-lg);
     line-height: 40px;
   }
   .heading {
-    gap: 16px;
+    gap: var(--space-4);
   }
 }

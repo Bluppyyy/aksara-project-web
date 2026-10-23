@@ -1,6 +1,7 @@
+import { USE_API } from '../../services/api';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext.jsx';
+import { useAuth } from '../../context/useAuth';
 import styles from './ReviewsSection.module.css';
 import iconReviews from '../../assets/detail/icon-reviews.svg';
 import iconStarMd from '../../assets/detail/icon-star-md.svg';
@@ -30,14 +31,14 @@ export default function ReviewsSection({ rating, count, reviews: initial, onSubm
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [reviews, setReviews] = useState(initial);
-  const [score, setScore] = useState(5);
+  const [score, setScore] = useState(0);
   const [hover, setHover] = useState(0);
   const [text, setText] = useState('');
   const [helpful, setHelpful] = useState({});
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || !score) return;
     setSending(true);
     setSubmitError('');
     try {
@@ -56,6 +57,7 @@ export default function ReviewsSection({ rating, count, reviews: initial, onSubm
         ...r,
       ]);
       setText('');
+      setScore(0);
     } catch (err) {
       setSubmitError(err.message || 'Gagal mengirim ulasan.');
     } finally {
@@ -128,9 +130,9 @@ export default function ReviewsSection({ rating, count, reviews: initial, onSubm
           <div className={styles.formBottom}>
             <p className={styles.note}>
               <img src={iconLock} alt="" />
-              Komentar akan diposting menggunakan akun SSO Anda.
+              Komentar akan diposting menggunakan akun Anda.
             </p>
-            <button type="submit" className={styles.submit} disabled={!text.trim() || sending}>
+            <button type="submit" className={styles.submit} disabled={!text.trim() || !score || sending}>
               {sending ? 'Mengirim…' : 'Kirim Ulasan'}
             </button>
           </div>
@@ -159,16 +161,18 @@ export default function ReviewsSection({ rating, count, reviews: initial, onSubm
             <p className={styles.reviewText}>{r.text}</p>
             <div className={styles.reviewFooter}>
               <span>{r.time}</span>
-              <span>•</span>
-              <button
-                type="button"
-                className={`${styles.helpful} ${helpful[r.id] ? styles.helpfulActive : ''}`}
-                aria-pressed={!!helpful[r.id]}
-                onClick={() => setHelpful((h) => ({ ...h, [r.id]: !h[r.id] }))}
-              >
-                <img src={iconThumb} alt="" />
-                Membantu ({r.helpful + (helpful[r.id] ? 1 : 0)})
-              </button>
+              {!USE_API && <span>•</span>}
+              {!USE_API && (
+                <button
+                  type="button"
+                  className={`${styles.helpful} ${helpful[r.id] ? styles.helpfulActive : ''}`}
+                  aria-pressed={!!helpful[r.id]}
+                  onClick={() => setHelpful((h) => ({ ...h, [r.id]: !h[r.id] }))}
+                >
+                  <img src={iconThumb} alt="" />
+                  Membantu ({r.helpful + (helpful[r.id] ? 1 : 0)})
+                </button>
+              )}
             </div>
           </li>
         ))}

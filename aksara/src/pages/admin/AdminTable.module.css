@@ -1,0 +1,404 @@
+/* Tabel utama panel admin — dipakai SEMUA tabel admin (lihat AdminTable.jsx) */
+
+.card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--a-shadow);
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-6);
+}
+
+.title {
+  font-weight: 700;
+  font-size: var(--text-body-lg);
+  line-height: 24px;
+  color: var(--a-text);
+}
+
+/* ---------- Bar aksi massal ---------- */
+.bulk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-2) var(--sp-6);
+  border-bottom: 1px solid var(--a-soft);
+  font-weight: 500;
+  font-size: var(--text-label);
+  color: var(--a-muted);
+}
+
+.bulkActions {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.bulkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--radius-md);
+  background: var(--a-soft);
+  font-weight: 600;
+  font-size: var(--text-label);
+  color: var(--a-primary);
+}
+
+.bulkBtn:hover:not(:disabled) {
+  background: var(--a-chip);
+}
+
+.bulkDanger {
+  color: var(--a-danger);
+}
+
+.bulkBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------- Tabel ---------- */
+.scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.table th {
+  height: 44px;
+  padding: 0 var(--sp-4);
+  background: var(--a-soft);
+  font-weight: 600;
+  font-size: var(--text-caption);
+  line-height: 14px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--a-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table td {
+  padding: var(--sp-4);
+  vertical-align: middle;
+  border-top: 1px solid var(--a-soft);
+  font-size: var(--text-label);
+  line-height: 16px;
+  color: var(--a-text);
+  overflow: hidden;
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: var(--sp-6);
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: var(--sp-6);
+}
+
+.table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.table tbody tr:hover {
+  background: #fafcff;
+}
+
+.rowSelected,
+.rowSelected:hover {
+  background: #f3f7ff !important;
+}
+
+.checkCol {
+  text-align: center;
+}
+
+.table input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--a-primary);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* ---------- Sel ---------- */
+.titleCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.over {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+  font-weight: 500;
+  font-size: var(--text-caption);
+  line-height: 16px;
+  color: var(--a-muted);
+}
+
+.code {
+  flex: none;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--a-chip);
+  font-weight: 700;
+  color: var(--a-primary);
+}
+
+.overText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cellTitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 600;
+  font-size: var(--text-body);
+  line-height: 20px;
+  color: var(--a-text);
+}
+
+a.cellTitle:hover {
+  color: var(--a-primary);
+  text-decoration: underline;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--sp-3);
+  font-weight: 500;
+  font-size: var(--text-caption);
+  line-height: 16px;
+  color: var(--a-muted);
+}
+
+.meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.avatar {
+  flex: none;
+  width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--a-chip);
+  color: var(--a-primary);
+  font-weight: 700;
+  font-size: var(--text-caption);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: var(--text-label);
+  line-height: 16px;
+  color: var(--a-text);
+}
+
+.muted {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: var(--text-caption);
+  line-height: 16px;
+  color: var(--a-muted);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.clamp1 {
+  white-space: nowrap;
+}
+
+/* ---------- Aksi ---------- */
+.actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-1);
+}
+
+.actionBtn,
+.actionText {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--a-muted);
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.actionBtn {
+  width: 32px;
+}
+
+.actionText {
+  padding: 0 var(--sp-3);
+  background: var(--a-soft);
+  font-weight: 600;
+  font-size: var(--text-label);
+  color: var(--a-primary);
+  white-space: nowrap;
+}
+
+.actionText:hover {
+  background: var(--a-chip);
+}
+
+.actionBtn:hover:not(:disabled) {
+  background: var(--a-soft);
+  color: var(--a-primary);
+}
+
+.ok:hover:not(:disabled) {
+  background: var(--a-ok-bg);
+  color: var(--a-ok);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--a-danger-bg);
+  color: var(--a-danger);
+}
+
+.actionBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ---------- Status kosong / galat ---------- */
+.state {
+  padding: var(--sp-12) var(--sp-6);
+  text-align: center;
+  font-size: var(--text-body);
+  color: var(--a-muted);
+}
+
+.link {
+  font-weight: 600;
+  color: var(--a-primary);
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .bulk {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ---------- Chip filter di kepala tabel (Beranda & Moderasi) ---------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--radius-md);
+  background: var(--a-soft);
+  font-weight: 600;
+  font-size: var(--text-label);
+  color: var(--a-muted);
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: var(--a-chip);
+}
+
+.chipActive,
+.chipActive:hover {
+  background: var(--a-primary-2);
+  color: #fff;
+}
+
+.chipCount {
+  min-width: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.7);
+  font-size: var(--text-caption);
+  line-height: 18px;
+  color: var(--a-primary);
+  text-align: center;
+}
+
+.category {
+  /* Lebar mengikuti isi; nama panjang turun ke baris berikutnya */
+  display: inline-block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  vertical-align: middle;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--a-chip);
+  font-weight: 600;
+  font-size: var(--text-caption);
+  line-height: 14px;
+  letter-spacing: 0.3px;
+  color: var(--a-primary);
+}

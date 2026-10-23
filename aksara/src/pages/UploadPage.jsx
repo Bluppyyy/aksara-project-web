@@ -1,7 +1,9 @@
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Icon from '../components/Icon/Icon.jsx';
 import { uploadResource } from '../services/resources';
+import { getKategori, getMatkul, getProdi, getSemester, semesterNumberOf } from '../services/master';
+import useAsync from '../hooks/useAsync';
 import { USE_API } from '../services/api';
 import styles from './UploadPage.module.css';
 import Header from '../components/Header/Header.jsx';
@@ -14,19 +16,38 @@ import iconSection from '../assets/upload/icon-section.svg';
 import iconChevron from '../assets/upload/icon-chevron.svg';
 import iconTagRemove from '../assets/upload/icon-tag-remove.svg';
 import iconShield from '../assets/upload/icon-shield.svg';
-import iconCloudCheck from '../assets/upload/icon-cloud-check.svg';
 import iconUpload from '../assets/upload/icon-upload.svg';
+import { FAKULTAS, PRODI_FIF } from '../data/academic';
 
-const ACCEPT = '.pdf,.docx,.pptx,.zip';
-const MAX_MB = 50;
+// Sesuai aturan backend (multer di POST /resource): PDF, Word, PowerPoint, JPG/PNG/WebP, maks. 10 MB
+const EXTENSIONS = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'webp'];
+const ACCEPT = EXTENSIONS.map((e) => `.${e}`).join(',');
+const MAX_MB = 10;
 const ABSTRACT_MAX = 600;
 
 const OPTIONS = {
-  kategori: ['Tugas Kuliah & Makalah', 'Laporan Magang & PKL', 'Skripsi & Tugas Akhir', 'Bank Soal', 'Riset & Publikasi Paper', 'Modul Praktikum'],
+  kategori: [
+    'Tugas Kuliah & Makalah',
+    'Laporan Magang & PKL',
+    'Skripsi & Tugas Akhir',
+    'Bank Soal',
+    'Riset & Publikasi Paper',
+    'Modul Praktikum',
+  ],
   tahun: ['2025/2026 (Tahun Ini)', '2024/2025', '2023/2024', '2022/2023'],
-  fakultas: ['Fakultas Informatika (FIF)', 'Fakultas Teknik Elektro (FTE)', 'Fakultas Rekayasa Industri (FRI)'],
-  prodi: ['S1 Informatika', 'S1 Rekayasa Perangkat Lunak', 'S1 Teknologi Informasi', 'S1 Data Sains'],
-  semester: ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8+'],
+  // AKSARA khusus Fakultas Informatika (FIF)
+  fakultas: [FAKULTAS],
+  prodi: PRODI_FIF,
+  semester: [
+    'Semester 1',
+    'Semester 2',
+    'Semester 3',
+    'Semester 4',
+    'Semester 5',
+    'Semester 6',
+    'Semester 7',
+    'Semester 8+',
+  ],
   matkul: ['Struktur Data', 'Basis Data', 'Pemrograman Berbasis Objek', 'Kecerdasan Buatan', 'Internet of Things'],
 };
 
@@ -39,24 +60,38 @@ function Label({ htmlFor, children, required }) {
   );
 }
 
-function SelectField({ id, label, placeholder, options, value, onChange }) {
+function SelectField({ id, label, placeholder, options, value, onChange, disabled }) {
   return (
     <div className={styles.field}>
       <Label htmlFor={id} required>
         {label}
       </Label>
       <div className={styles.selectWrap}>
-        <select id={id} className={styles.select} value={value} onChange={(e) => onChange(e.target.value)} required>
+        <select
+          id={id}
+          className={styles.select}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required
+          disabled={disabled}
+        >
           {placeholder && (
             <option value="" disabled>
               {placeholder}
             </option>
           )}
-          {options.map((o) => (
-            <option key={o}>{o}</option>
-          ))}
+          {options.map((o) =>
+            typeof o === 'string' ? (
+              <option key={o}>{o}</option>
+            ) : (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            )
+          )}
         </select>
-        <img src={iconChevron} alt="" className={styles.selectIcon} />
+        {/* Field terkunci (mis. Fakultas = FIF) tidak perlu panah dropdown */}
+        {!disabled && <img src={iconChevron} alt="" className={styles.selectIcon} />}
       </div>
     </div>
   );
@@ -74,15 +109,67 @@ export default function UploadPage() {
     title: '',
     abstract: '',
     kategori: '',
-    tahun: OPTIONS.tahun[0],
-    fakultas: '',
+    tahun: '',
+    fakultas: FAKULTAS,
     prodi: '',
     semester: '',
     matkul: '',
-    tags: ['#DataStructure', '#Algorithms', '#TelU2025'],
+    tags: [],
     agree: false,
   });
   const set = (key) => (value) => setForm((f) => ({ ...f, [key]: value }));
+
+  // Mode API: pilihan kategori & mata kuliah diambil dari backend (GET /kategori, GET /mata-kuliah)
+  const { data: kategoriList } = useAsync(() => getKategori().catch(() => []), []);
+  const { data: matkulList } = useAsync(() => getMatkul().catch(() => []), []);
+  const matkulLabel = (m) => (m.kode_matkul ? `${m.kode_matkul} – ${m.nama_matkul}` : m.nama_matkul);
+  const kategoriOptions = kategoriList?.length ? kategoriList.map((k) => k.nama_kategori) : OPTIONS.kategori;
+  // Mode API: nilai option = matkul_id (nama mata kuliah bisa sama di beberapa prodi, mis. "Agama").
+  // Label kembar diberi nomor supaya bisa dibedakan.
+  // Mode API: Program Studi & Semester dari GET /prodi & GET /semester (nilai option = id-nya)
+  const { data: prodiList } = useAsync(() => getProdi().catch(() => []), []);
+  const { data: semesterList } = useAsync(() => getSemester().catch(() => []), []);
+  const prodiOptions = prodiList?.length
+    ? prodiList.map((p) => ({ value: String(p.prodi_id), label: p.nama_prodi }))
+    : OPTIONS.prodi;
+  const semesterOptions = semesterList?.length
+    ? [...semesterList]
+        .sort((a, b) => (semesterNumberOf(a.nama_semester) ?? 99) - (semesterNumberOf(b.nama_semester) ?? 99))
+        .map((x) => ({ value: String(x.semester_id), label: x.nama_semester }))
+    : OPTIONS.semester;
+  const isProdiId = prodiList?.some((p) => String(p.prodi_id) === form.prodi);
+  const isSemesterId = semesterList?.some((x) => String(x.semester_id) === form.semester);
+
+  // Mata kuliah disaring sesuai prodi & semester yang dipilih (kalau datanya terhubung di database)
+  const matkulFiltered = useMemo(() => {
+    if (!matkulList?.length) return [];
+    const byProdi = isProdiId ? matkulList.filter((m) => String(m.prodi_id) === form.prodi) : matkulList;
+    const bySmt = isSemesterId ? byProdi.filter((m) => String(m.semester_id) === form.semester) : byProdi;
+    return bySmt.length ? bySmt : byProdi.length ? byProdi : matkulList;
+  }, [matkulList, form.prodi, form.semester, isProdiId, isSemesterId]);
+
+  // Pilihan mata kuliah yang tidak lagi cocok dengan prodi/semester → dikosongkan
+  useEffect(() => {
+    if (form.matkul && matkulFiltered.length && !matkulFiltered.some((m) => String(m.matkul_id) === form.matkul)) {
+      setForm((f) => ({ ...f, matkul: '' }));
+    }
+  }, [matkulFiltered, form.matkul]);
+
+  const matkulOptions = useMemo(() => {
+    if (!matkulList?.length) return OPTIONS.matkul;
+    const seen = {};
+    return [...matkulFiltered]
+      .sort(
+        (a, b) =>
+          (a.nama_matkul || '').localeCompare(b.nama_matkul || '', 'id') ||
+          (a.kode_matkul || '').localeCompare(b.kode_matkul || '')
+      )
+      .map((m) => {
+        const base = `${matkulLabel(m)}${m.sks ? ` (${m.sks} SKS)` : ''}`;
+        seen[base] = (seen[base] || 0) + 1;
+        return { value: String(m.matkul_id), label: seen[base] > 1 ? `${base} #${seen[base]}` : base };
+      });
+  }, [matkulList, matkulFiltered]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [done, setDone] = useState(false);
@@ -90,7 +177,8 @@ export default function UploadPage() {
   const pickFile = (f) => {
     if (!f) return;
     const ext = f.name.split('.').pop().toLowerCase();
-    if (!['pdf', 'docx', 'pptx', 'zip'].includes(ext)) return setFileError('Format file tidak didukung.');
+    if (!EXTENSIONS.includes(ext))
+      return setFileError('Format file tidak didukung. Gunakan PDF, Word, PowerPoint, JPG, PNG, atau WebP.');
     if (f.size > MAX_MB * 1024 * 1024) return setFileError(`Ukuran file melebihi ${MAX_MB}MB.`);
     setFileError('');
     setFile(f);
@@ -117,6 +205,12 @@ export default function UploadPage() {
   const missing = [
     !form.title.trim() && 'judul',
     !form.abstract.trim() && 'deskripsi',
+    !form.kategori && 'kategori',
+    !form.tahun && 'tahun akademik',
+    !form.fakultas && 'fakultas',
+    !form.prodi && 'program studi',
+    !form.semester && 'semester',
+    !form.matkul && 'mata kuliah',
     !(file || (!needsFile && form.url.trim())) && 'file',
     !form.agree && 'persetujuan komitmen integritas',
   ].filter(Boolean);
@@ -128,7 +222,21 @@ export default function UploadPage() {
     setSubmitting(true);
     setSubmitError('');
     try {
-      await uploadResource(form, file);
+      // Cari ID dari nama yang dipilih. prodi_id & semester_id diambil dari data mata kuliah
+      // supaya pasti valid (foreign key) di database.
+      const kat = kategoriList?.find((k) => k.nama_kategori === form.kategori);
+      const mk = matkulList?.find((m) => String(m.matkul_id) === form.matkul || matkulLabel(m) === form.matkul);
+      await uploadResource(
+        {
+          ...form,
+          matkul: mk ? matkulLabel(mk) : form.matkul, // dipakai sebagai "sumber" bila tidak ada URL
+          categoryId: kat?.category_id,
+          matkulId: mk?.matkul_id,
+          prodiId: isProdiId ? form.prodi : mk?.prodi_id,
+          semesterId: isSemesterId ? form.semester : mk?.semester_id,
+        },
+        file
+      );
       setDone(true);
       window.scrollTo(0, 0);
     } catch (err) {
@@ -190,8 +298,8 @@ export default function UploadPage() {
           <header className={styles.cardHeader}>
             <h1 className={styles.title}>Unggah Resource Akademik</h1>
             <p className={styles.subtitle}>
-              Bagikan tugas, laporan, atau modul praktikum untuk membantu mahasiswa lain dan memperkaya
-              khazanah ilmiah kampus.
+              Bagikan tugas, laporan, atau modul praktikum untuk membantu mahasiswa lain dan memperkaya khazanah ilmiah
+              kampus.
             </p>
           </header>
 
@@ -219,7 +327,8 @@ export default function UploadPage() {
                   `${(file.size / 1024 / 1024).toFixed(1)} MB — siap diunggah`
                 ) : (
                   <>
-                    Mendukung format <strong>PDF, DOCX, PPTX, dan ZIP</strong> (Maksimal 50MB per file)
+                    Mendukung format <strong>PDF, Word, PowerPoint, JPG, PNG, dan WebP</strong> (Maksimal {MAX_MB}MB per
+                    file)
                   </>
                 )}
               </p>
@@ -310,16 +419,58 @@ export default function UploadPage() {
             </div>
 
             <div className={styles.row}>
-              <SelectField id="kategori" label="Kategori" placeholder="Pilih Kategori" options={OPTIONS.kategori} value={form.kategori} onChange={set('kategori')} />
-              <SelectField id="tahun" label="Tahun Akademik" options={OPTIONS.tahun} value={form.tahun} onChange={set('tahun')} />
+              <SelectField
+                id="kategori"
+                label="Kategori"
+                placeholder="Pilih Kategori"
+                options={kategoriOptions}
+                value={form.kategori}
+                onChange={set('kategori')}
+              />
+              <SelectField
+                id="tahun"
+                label="Tahun Akademik"
+                placeholder="Pilih Tahun Akademik"
+                options={OPTIONS.tahun}
+                value={form.tahun}
+                onChange={set('tahun')}
+              />
             </div>
             <div className={styles.row}>
-              <SelectField id="fakultas" label="Fakultas" placeholder="Pilih Fakultas" options={OPTIONS.fakultas} value={form.fakultas} onChange={set('fakultas')} />
-              <SelectField id="prodi" label="Program Studi" placeholder="Pilih Program Studi" options={OPTIONS.prodi} value={form.prodi} onChange={set('prodi')} />
+              <SelectField
+                id="fakultas"
+                label="Fakultas"
+                options={OPTIONS.fakultas}
+                value={form.fakultas}
+                onChange={set('fakultas')}
+                disabled
+              />
+              <SelectField
+                id="prodi"
+                label="Program Studi"
+                placeholder="Pilih Program Studi"
+                options={prodiOptions}
+                value={form.prodi}
+                onChange={set('prodi')}
+              />
             </div>
             <div className={styles.row}>
-              <SelectField id="semester" label="Semester" placeholder="Pilih Semester" options={OPTIONS.semester} value={form.semester} onChange={set('semester')} />
-              <SelectField id="matkul" label="Mata Kuliah" placeholder="Pilih Mata Kuliah" options={OPTIONS.matkul} value={form.matkul} onChange={set('matkul')} />
+              <SelectField
+                id="semester"
+                label="Semester"
+                placeholder="Pilih Semester"
+                options={semesterOptions}
+                value={form.semester}
+                onChange={set('semester')}
+              />
+              <SelectField
+                id="matkul"
+                label="Mata Kuliah"
+                placeholder="Pilih Mata Kuliah"
+                options={matkulOptions}
+                value={form.matkul}
+                onChange={set('matkul')}
+              />
             </div>
 
             <div className={styles.tagsField}>
@@ -330,7 +481,11 @@ export default function UploadPage() {
                 {form.tags.map((t) => (
                   <span key={t} className={styles.tag}>
                     {t}
-                    <button type="button" aria-label={`Hapus ${t}`} onClick={() => set('tags')(form.tags.filter((x) => x !== t))}>
+                    <button
+                      type="button"
+                      aria-label={`Hapus ${t}`}
+                      onClick={() => set('tags')(form.tags.filter((x) => x !== t))}
+                    >
                       <img src={iconTagRemove} alt="" />
                     </button>
                   </span>
@@ -352,10 +507,9 @@ export default function UploadPage() {
             <div className={styles.notice}>
               <img src={iconShield} alt="" className={styles.noticeIcon} />
               <p>
-                <span className={styles.noticeBrand}>AKSARA Telkom University</span> menjunjung tinggi etika
-                kejujuran akademik. Kontributor dilarang keras mengunggah kunci jawaban resmi ujian tanpa izin
-                dosen, data rahasia instansi mitra kerja praktik, atau dokumen yang memicu pelanggaran hak
-                kekayaan intelektual (HAKI).
+                <span className={styles.noticeBrand}>AKSARA Telkom University</span> menjunjung tinggi etika kejujuran
+                akademik. Kontributor dilarang keras mengunggah kunci jawaban resmi ujian tanpa izin dosen, data rahasia
+                instansi mitra kerja praktik, atau dokumen yang memicu pelanggaran hak kekayaan intelektual (HAKI).
               </p>
             </div>
 
@@ -363,9 +517,9 @@ export default function UploadPage() {
               <input type="checkbox" checked={form.agree} onChange={(e) => set('agree')(e.target.checked)} required />
               <span className={styles.agreeBox} aria-hidden="true" />
               <span>
-                <strong>Komitmen Integritas &amp; Orisinalitas:</strong> Saya menyatakan bahwa dokumen ini
-                adalah karya orisinal saya atau saya memiliki hak legal untuk membagikannya, dan tidak
-                melanggar etika akademik Telkom University (bebas plagiarisme &amp; diverifikasi Turnitin).
+                <strong>Komitmen Integritas &amp; Orisinalitas:</strong> Saya menyatakan bahwa dokumen ini adalah karya
+                orisinal saya atau saya memiliki hak legal untuk membagikannya, dan tidak melanggar etika akademik
+                Telkom University (bebas plagiarisme dan mencantumkan sumber rujukan dengan benar).
               </span>
             </label>
 
@@ -374,15 +528,10 @@ export default function UploadPage() {
                 {submitError}
               </p>
             )}
-            {!canSubmit && !submitting && (
-              <p className={styles.helper}>Lengkapi dulu: {missing.join(', ')}.</p>
-            )}
+            {!canSubmit && !submitting && <p className={styles.helper}>Lengkapi dulu: {missing.join(', ')}.</p>}
 
             <div className={styles.actions}>
-              <p className={styles.autosave}>
-                <img src={iconCloudCheck} alt="" />
-                Draft tersimpan otomatis 2 menit lalu
-              </p>
+              <span />
               <div className={styles.buttons}>
                 <button type="button" className={styles.cancel} onClick={() => navigate(-1)}>
                   Batal

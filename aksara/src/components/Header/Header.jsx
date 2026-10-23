@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../Icon/Icon.jsx';
-import { useAuth } from '../../context/AuthContext.jsx';
-import { logout } from '../../services/auth';
+import { useAuth } from '../../context/useAuth';
+import { logout, isAdmin } from '../../services/auth';
 import styles from './Header.module.css';
 import logo from '../../assets/logo.png';
 import iconLogin from '../../assets/icon-login.svg';
 import iconCirclePlus from '../../assets/header/icon-circle-plus.svg';
 import iconBookmark from '../../assets/header/icon-bookmark.svg';
 import iconBookmarkActive from '../../assets/header/icon-bookmark-active.svg';
-import iconBell from '../../assets/header/icon-bell.svg';
 
 const NAV_ITEMS = [
   { label: 'Beranda', to: '/', end: true },
@@ -81,6 +80,8 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
               <button
                 type="button"
                 className={styles.contributeButton}
+                aria-label="Kontribusi"
+                title="Kontribusi"
                 aria-haspopup="menu"
                 aria-expanded={contribOpen}
                 onClick={() => {
@@ -109,15 +110,8 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
               className={`${styles.iconLink} ${bookmarkActive ? styles.iconLinkActive : ''}`}
               aria-label="Koleksi Saya"
             >
-              <img
-                src={bookmarkActive ? iconBookmarkActive : iconBookmark}
-                alt=""
-                className={styles.bookmarkIcon}
-              />
+              <img src={bookmarkActive ? iconBookmarkActive : iconBookmark} alt="" className={styles.bookmarkIcon} />
             </Link>
-            <button type="button" className={styles.iconButton} aria-label="Notifikasi">
-              <img src={iconBell} alt="" className={styles.bellIcon} />
-            </button>
             <div className={styles.account}>
               <button
                 type="button"
@@ -138,7 +132,7 @@ export default function Header({ variant: forced, bookmarkActive = false }) {
                   <Link to="/koleksi" className={styles.accountItem}>
                     Koleksi Saya
                   </Link>
-                  {user.role === 'admin' && (
+                  {isAdmin(user) && (
                     <Link to="/admin" className={styles.accountItem}>
                       Panel Admin
                     </Link>

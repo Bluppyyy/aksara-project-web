@@ -63,15 +63,16 @@ Satu web untuk dua peran (FR-LOGIN-03, NFR-SEC-01). Setelah login, peran dikenal
 
 | Route | Halaman | Akses |
 |---|---|---|
-| `/` | Landing page (tamu) / Aktivitas Komunitas (mahasiswa login) | – |
+| `/` | Landing page (tamu) / Beranda Aktivitas Komunitas (mahasiswa login) | – |
+| `/komunitas` | Beranda Aktivitas Komunitas | Mahasiswa |
 | `/login`, `/admin/login` | Masuk (keduanya mengenali peran otomatis) | – |
 | `/daftar` | Registrasi 4 langkah + layar berhasil | – |
 | `/eksplorasi` | Eksplorasi (sebelum mencari) | – |
-| `/eksplorasi/hasil?q=&kategori=&fakultas=…` | Hasil pencarian, kategori, dan filter | – |
+| `/eksplorasi/hasil?q=&kategori=&fakultas=…` | Hasil pencarian, kategori, dan filter | Mahasiswa |
 | `/wawasan` | Wawasan & pengalaman | – |
-| `/wawasan/:id` | Detail wawasan | – |
+| `/wawasan/:id` | Detail wawasan | Mahasiswa |
 | `/wawasan/tulis` | Tulis wawasan (share experience) | Mahasiswa |
-| `/resource/:id` | Detail resource | – |
+| `/resource/:id` | Detail resource | Mahasiswa |
 | `/unggah` | Unggah resource | Mahasiswa |
 | `/koleksi` | Koleksi (bookmark) | Mahasiswa |
 | `/admin` | Dashboard admin | Admin |
@@ -79,6 +80,8 @@ Satu web untuk dua peran (FR-LOGIN-03, NFR-SEC-01). Setelah login, peran dikenal
 | `/admin/laporan`, `/admin/laporan/:id` | Kelola & detail laporan (FR-ADM-03, 04) | Admin |
 | `/admin/moderasi`, `/admin/moderasi/:id` | Moderasi konten (FR-ADM-05) | Admin |
 | `/admin/profil`, `/admin/pengaturan` | Profil & pengaturan admin | Admin |
+
+Tamu (belum login) hanya bisa melihat Landing Page, tampilan awal Eksplorasi, dan tampilan awal Wawasan. Mencari, memilih kategori, membuka resource/artikel, atau menyimpan ke koleksi akan diarahkan ke halaman login, lalu kembali ke halaman tujuan setelah berhasil masuk.
 
 ## Struktur folder
 

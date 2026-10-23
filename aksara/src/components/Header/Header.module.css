@@ -14,10 +14,11 @@
   max-width: 1280px;
   height: 80px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--space-6);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-6); /* jarak minimum supaya menu tidak menabrak tombol di layar sempit */
 }
 
 .brand {
@@ -36,12 +37,12 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: var(--space-6);
 }
 
 .navLink {
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--text-body-lg);
   line-height: 24px;
   color: var(--color-text-nav);
   transition: color 0.15s ease;
@@ -62,15 +63,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   width: 124.5px;
-  height: 40px;
-  padding: 10px 16px;
-  border-radius: 8px;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
   background: var(--color-primary);
   color: #fff;
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 20px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: background 0.15s ease;
@@ -94,20 +95,20 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 25px;
+  gap: var(--space-6);
 }
 
 .contributeButton {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 38px;
-  padding: 0 15px 0 12px;
-  border-radius: 30px;
+  gap: var(--space-2);
+  min-height: 38px;
+  padding: 0 var(--space-4) 0 var(--space-3);
+  border-radius: var(--radius-full);
   background: var(--color-primary);
   color: #fff;
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 20px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: background 0.15s ease;
@@ -149,8 +150,8 @@
 .iconLinkActive {
   width: 42px;
   height: 42px;
-  margin: -11px;
-  border-radius: 55px;
+  margin: -12px;
+  border-radius: var(--radius-full);
   background: var(--color-primary);
 }
 
@@ -164,12 +165,12 @@
   align-items: center;
   justify-content: center;
   width: 42px;
-  height: 42px;
-  border-radius: 9999px;
-  background-image: linear-gradient(45deg, #0f4c81 0%, #1261a2 100%);
+  min-height: 42px;
+  border-radius: var(--radius-full);
+  background-image: linear-gradient(45deg, var(--color-primary) 0%, var(--color-primary-600) 100%);
   color: #fff;
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--text-body-lg);
   line-height: 16px;
 }
 
@@ -184,25 +185,25 @@
   top: calc(100% + 10px);
   z-index: 60;
   width: 220px;
-  padding: 8px;
+  padding: var(--space-2);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: #fff;
   box-shadow: 0 12px 30px rgba(15, 23, 41, 0.12);
 }
 
 .accountName {
-  padding: 6px 10px 0;
+  padding: var(--space-2) var(--space-2) 0;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--text-body);
   color: var(--color-text);
 }
 
 .accountEmail {
-  padding: 0 10px 8px;
-  margin-bottom: 4px;
+  padding: 0 var(--space-2) var(--space-2);
+  margin-bottom: var(--space-1);
   border-bottom: 1px solid var(--color-border);
-  font-size: 12px;
+  font-size: var(--text-label);
   color: var(--color-text-subtle);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -211,17 +212,17 @@
 .accountItem {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   width: 100%;
-  padding: 9px 10px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body);
   color: var(--color-text);
   text-align: left;
 }
 
 .accountItem:hover {
-  background: #f1f4fa;
+  background: var(--color-surface-muted);
 }
 
 /* ===== Menu HP ===== */
@@ -231,7 +232,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--color-text);
 }
 
@@ -242,41 +243,74 @@
 .mobileMenu {
   display: none;
   flex-direction: column;
-  padding: 8px 16px 16px;
+  padding: var(--space-2) var(--space-4) var(--space-4);
   border-top: 1px solid var(--color-border);
   background: #fff;
 }
 
 .mobileLink {
   text-align: left;
-  padding: 12px 8px;
-  border-radius: 8px;
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-md);
   font-weight: 600;
-  font-size: 15px;
+  font-size: var(--text-body-lg);
   color: var(--color-text-nav);
 }
 
 .mobileLink:hover,
 .mobileLinkActive {
-  background: #f1f4fa;
+  background: var(--color-surface-muted);
   color: var(--color-primary);
 }
 
 .mobileCta {
-  margin-top: 8px;
-  padding: 12px;
-  border-radius: 10px;
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
   background: var(--color-primary);
   color: #fff;
   font-weight: 600;
   text-align: center;
 }
 
+/* Layar laptop kecil / tablet landscape: rapatkan header supaya menu & tombol tidak bertabrakan */
+@media (max-width: 1100px) {
+  .brand,
+  .brandWide,
+  .actions {
+    width: auto;
+  }
+  .nav {
+    gap: var(--space-5);
+  }
+  .userActions {
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 960px) {
+  /* Tombol Kontribusi jadi ikon saja */
+  .contributeButton {
+    width: 38px;
+    padding: 0;
+    justify-content: center;
+  }
+  .contributeButton span:last-child {
+    display: none;
+  }
+  .nav {
+    gap: var(--space-4);
+  }
+  .navLink {
+    font-size: var(--text-body-lg);
+  }
+}
+
 @media (max-width: 768px) {
   .inner {
-    padding: 0 16px;
+    padding: 0 var(--space-4);
     height: 64px;
-    gap: 12px;
+    gap: var(--space-3);
   }
   .logo {
     width: 126px;
@@ -295,13 +329,13 @@
     display: none;
   }
   .userActions {
-    gap: 8px;
+    gap: var(--space-2);
     margin-left: auto;
   }
   .avatar {
     width: 36px;
-    height: 36px;
-    font-size: 14px;
+    min-height: 36px;
+    font-size: var(--text-body);
   }
   .brandWide {
     width: auto;

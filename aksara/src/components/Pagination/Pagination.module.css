@@ -3,23 +3,23 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 24px 16px 16px;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4) var(--space-4);
   background: var(--color-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-explore);
 }
 
 .stepButton {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 8px;
+  gap: var(--space-1);
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
   background: var(--color-surface-muted);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   line-height: 18px;
   color: var(--color-text);
 }
@@ -40,10 +40,10 @@
   align-items: center;
   justify-content: center;
   width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  min-height: 36px;
+  border-radius: var(--radius-md);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   line-height: 18px;
   color: var(--color-text-muted);
 }
@@ -60,9 +60,9 @@
 }
 
 .ellipsis {
-  padding: 0 6px;
+  padding: 0 var(--space-2);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-body-sm);
   line-height: 18px;
   color: var(--color-text-subtle);
 }

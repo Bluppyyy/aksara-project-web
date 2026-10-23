@@ -48,7 +48,8 @@ const FRIENDLY = {
  * @param {{ method?: string, body?: object|FormData, auth?: boolean, query?: object }} options
  */
 export async function api(path, { method = 'GET', body, auth = false, query } = {}) {
-  const url = new URL(BASE_URL + path);
+  // BASE_URL boleh alamat lengkap (https://api.contoh.id) atau path proxy Vite (/api)
+  const url = new URL(BASE_URL + path, window.location.origin);
   if (query) {
     Object.entries(query).forEach(([k, v]) => {
       if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);

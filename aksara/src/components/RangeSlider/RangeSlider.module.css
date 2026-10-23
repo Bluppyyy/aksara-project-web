@@ -10,7 +10,7 @@
   position: absolute;
   top: 10px;
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
 }
 
 .base {
@@ -52,7 +52,7 @@
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  margin-top: 3px;
+  margin-top: var(--space-1);
   border: 0;
   background: url('../../assets/explore/slider-handle.svg') center / 22px 22px no-repeat;
   cursor: pointer;
@@ -71,5 +71,5 @@
 .track input:focus-visible::-webkit-slider-thumb {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
 }

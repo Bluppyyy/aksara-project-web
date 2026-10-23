@@ -13,9 +13,7 @@ export default function AbstractCard({ paragraphs, keywords }) {
         Abstrak &amp; Ringkasan Laporan
       </h2>
 
-      <div
-        className={`${styles.body} ${expanded || paragraphs.join(' ').length <= 600 ? styles.expanded : ''}`}
-      >
+      <div className={`${styles.body} ${expanded || paragraphs.join(' ').length <= 600 ? styles.expanded : ''}`}>
         {paragraphs.map((p, i) => (
           <p key={i}>{p}</p>
         ))}

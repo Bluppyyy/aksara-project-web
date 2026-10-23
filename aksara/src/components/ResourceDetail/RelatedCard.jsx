@@ -3,7 +3,7 @@ import styles from './SidebarCards.module.css';
 import iconRelated from '../../assets/detail/icon-related.svg';
 import iconPerson from '../../assets/detail/icon-person.svg';
 
-export default function RelatedCard({ items }) {
+export default function RelatedCard({ items, seeAllTo = '/eksplorasi/hasil' }) {
   return (
     <section className={styles.card}>
       <div className={styles.headingRow}>
@@ -11,7 +11,7 @@ export default function RelatedCard({ items }) {
           <img src={iconRelated} alt="" style={{ width: 22, height: 19.5 }} />
           Resource Terkait
         </h3>
-        <Link to="/eksplorasi/hasil" className={styles.seeAll}>
+        <Link to={seeAllTo} className={styles.seeAll}>
           Lihat Semua
         </Link>
       </div>
