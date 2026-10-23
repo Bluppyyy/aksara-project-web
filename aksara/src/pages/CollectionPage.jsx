@@ -3,7 +3,9 @@ import styles from './CollectionPage.module.css';
 import Header from '../components/Header/Header.jsx';
 import Footer from '../components/Footer/Footer.jsx';
 import ResourceCard from '../components/ResourceCard/ResourceCard.jsx';
+import ArticleCard from '../components/ArticleCard/ArticleCard.jsx';
 import { listBookmarks } from '../services/resources';
+import { listArticleBookmarks } from '../services/insights';
 import useDragScroll from '../hooks/useDragScroll';
 import useAsync from '../hooks/useAsync';
 import { Loading, ErrorState, Empty } from '../components/Status/Status.jsx';
@@ -21,6 +23,14 @@ const DEMO_FILTER_KEYS = {
   'Magang & KP': ['magang'],
 };
 const SORTS = ['Terbaru', 'Terlama', 'Rating Tertinggi'];
+const WAWASAN = 'Wawasan';
+
+/** Resource + wawasan yang disimpan (GET /bookmark mengirim keduanya) */
+const loadCollection = () =>
+  Promise.all([listBookmarks(), listArticleBookmarks()]).then(([resources, insights]) => [
+    ...resources,
+    ...insights.map((a) => ({ ...a, kind: 'wawasan' })),
+  ]);
 
 export default function CollectionPage() {
   const [filter, setFilter] = useState('Semua');
@@ -28,18 +38,33 @@ export default function CollectionPage() {
   const [sort, setSort] = useState('Terbaru');
   const [query, setQuery] = useState('');
 
-  const { data, loading, error, reload, setData } = useAsync(listBookmarks, []);
-  // Mode API: pill = kategori yang ada di koleksi (nama dari database)
-  const filters = USE_API ? ['Semua', ...new Set((data || []).map((r) => r.categoryLabel).filter(Boolean))] : FILTERS;
-  const matchFilter = (r) =>
-    filter === 'Semua' ||
-    (USE_API ? r.categoryLabel === filter : (DEMO_FILTER_KEYS[filter] || []).includes(r.category));
+  const { data, loading, error, reload, setData } = useAsync(loadCollection, []);
+  const all = data || [];
+  // Mode API: pill = kategori resource yang ada di koleksi (nama dari database) + "Wawasan" kalau ada tulisan tersimpan
+  const filters = USE_API
+    ? [
+        'Semua',
+        ...new Set(
+          all
+            .filter((r) => r.kind !== 'wawasan')
+            .map((r) => r.categoryLabel)
+            .filter(Boolean)
+        ),
+        ...(all.some((r) => r.kind === 'wawasan') ? [WAWASAN] : []),
+      ]
+    : FILTERS;
+  const matchFilter = (r) => {
+    if (filter === 'Semua') return true;
+    if (filter === WAWASAN) return r.kind === 'wawasan';
+    if (r.kind === 'wawasan') return false;
+    return USE_API ? r.categoryLabel === filter : (DEMO_FILTER_KEYS[filter] || []).includes(r.category);
+  };
   const items = sortResources(
-    (data || []).filter((r) => matchFilter(r) && r.title.toLowerCase().includes(query.trim().toLowerCase())),
+    all.filter((r) => matchFilter(r) && r.title.toLowerCase().includes(query.trim().toLowerCase())),
     sort
   );
   // Hapus kartu dari koleksi saat bookmark-nya dilepas
-  const handleChange = (id) => (on) => !on && setData((data || []).filter((r) => r.id !== id));
+  const handleChange = (item) => (on) => !on && setData(all.filter((r) => r !== item));
 
   return (
     <div className={styles.page}>
@@ -103,7 +128,7 @@ export default function CollectionPage() {
             description={
               query || filter !== 'Semua'
                 ? 'Coba kata kunci lain.'
-                : 'Simpan resource dengan ikon bookmark supaya mudah ditemukan lagi.'
+                : 'Simpan resource atau wawasan dengan ikon bookmark supaya mudah ditemukan lagi.'
             }
             action={
               !query &&
@@ -120,9 +145,13 @@ export default function CollectionPage() {
           />
         ) : (
           <div className={styles.grid}>
-            {items.map((r) => (
-              <ResourceCard key={r.id} resource={r} onBookmarkChange={handleChange(r.id)} />
-            ))}
+            {items.map((r) =>
+              r.kind === 'wawasan' ? (
+                <ArticleCard key={`w-${r.id}`} article={r} onBookmarkChange={handleChange(r)} />
+              ) : (
+                <ResourceCard key={`r-${r.id}`} resource={r} onBookmarkChange={handleChange(r)} />
+              )
+            )}
           </div>
         )}
       </main>

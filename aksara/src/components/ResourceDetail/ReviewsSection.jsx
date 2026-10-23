@@ -26,7 +26,16 @@ function Stars({ value }) {
   );
 }
 
-export default function ReviewsSection({ rating, count, reviews: initial, onSubmit }) {
+const DEFAULT_PLACEHOLDER =
+  'Beri ulasan untuk membantu mahasiswa lain mengetahui kualitas referensi ini... (contoh: kejelasan skema rangkaian, kelengkapan kode, atau metodologi)';
+
+export default function ReviewsSection({
+  rating,
+  count,
+  reviews: initial,
+  onSubmit,
+  placeholder = DEFAULT_PLACEHOLDER,
+}) {
   const user = useAuth();
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -43,9 +52,11 @@ export default function ReviewsSection({ rating, count, reviews: initial, onSubm
     setSubmitError('');
     try {
       await onSubmit?.({ rating: score, text: text.trim() });
+      // Backend menyimpan 1 ulasan per mahasiswa → ulasan lama milik user ini diganti yang baru
       setReviews((r) => [
         {
           id: Date.now(),
+          userId: user?.id ?? null,
           initials: user?.initials || 'A',
           name: user?.nama || 'Kamu',
           meta: '',
@@ -54,7 +65,7 @@ export default function ReviewsSection({ rating, count, reviews: initial, onSubm
           time: 'Baru saja',
           helpful: 0,
         },
-        ...r,
+        ...r.filter((x) => !(user?.id && x.userId === user.id)),
       ]);
       setText('');
       setScore(0);
@@ -121,7 +132,7 @@ export default function ReviewsSection({ rating, count, reviews: initial, onSubm
 
           <textarea
             className={styles.textarea}
-            placeholder="Beri ulasan untuk membantu mahasiswa lain mengetahui kualitas referensi ini... (contoh: kejelasan skema rangkaian, kelengkapan kode, atau metodologi)"
+            placeholder={placeholder}
             value={text}
             onChange={(e) => setText(e.target.value)}
             aria-label="Ulasan"

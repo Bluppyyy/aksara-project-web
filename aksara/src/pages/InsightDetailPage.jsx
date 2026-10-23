@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import CoverFrame from '../components/CoverFrame/CoverFrame.jsx';
 import Header from '../components/Header/Header.jsx';
@@ -6,10 +6,10 @@ import Footer from '../components/Footer/Footer.jsx';
 import Icon from '../components/Icon/Icon.jsx';
 import ReviewsSection from '../components/ResourceDetail/ReviewsSection.jsx';
 import { Loading, ErrorState } from '../components/Status/Status.jsx';
-import { USE_API } from '../services/api';
 import useAsync from '../hooks/useAsync';
 import { useAuth } from '../context/useAuth';
-import { getArticle, reportArticle } from '../services/insights';
+import { isAdmin } from '../services/auth';
+import { getArticle, reportArticle, setArticleBookmark, createArticleReview } from '../services/insights';
 import { resourceDetail } from '../data/resourceDetail.jsx';
 import styles from './InsightDetailPage.module.css';
 
@@ -34,16 +34,28 @@ export default function InsightDetailPage() {
   const [reportState, setReportState] = useState('idle');
   const [notice, setNotice] = useState('');
 
+  // Status simpan awal dari backend (GET /bookmark)
+  useEffect(() => {
+    if (a) setSaved(Boolean(a.bookmarked));
+  }, [a]);
+
   const requireLogin = () => {
     if (user) return true;
     navigate('/login', { state: { from: `/wawasan/${id}` } });
     return false;
   };
 
-  const toggleSave = () => {
+  const toggleSave = async () => {
     if (!requireLogin()) return;
-    setSaved((s) => !s);
-    setNotice(saved ? 'Tulisan dihapus dari koleksi.' : 'Tulisan disimpan ke Koleksi Saya.');
+    const next = !saved;
+    setSaved(next);
+    try {
+      await setArticleBookmark(a.id, next);
+      setNotice(next ? 'Tulisan disimpan ke Koleksi Saya.' : 'Tulisan dihapus dari koleksi.');
+    } catch (err) {
+      setSaved(!next);
+      setNotice(err.message || 'Gagal memperbarui koleksi.');
+    }
   };
 
   const sendReport = async (e) => {
@@ -91,7 +103,7 @@ export default function InsightDetailPage() {
               <h1 className={styles.title}>{a.title}</h1>
               <p className={styles.subtitle}>{a.subtitle}</p>
               <div className={styles.heroFoot}>
-                {/* Mode API: hanya tampilkan metrik yang dikirim backend (ulasan wawasan belum ada) */}
+                {/* Metrik dari backend: tanggal, jumlah_dibaca, rating rata-rata & total ulasan */}
                 <div className={styles.metrics}>
                   {[
                     a.date && (
@@ -106,7 +118,7 @@ export default function InsightDetailPage() {
                         <strong>{a.reads}</strong> Baca
                       </span>
                     ),
-                    !USE_API && (
+                    a.reviewCount > 0 && (
                       <span key="s">
                         <Icon icon="lucide:star" size={13} fill="#e88d67" color="#e88d67" />
                         <strong>{a.rating}</strong>
@@ -127,8 +139,8 @@ export default function InsightDetailPage() {
                     )}
                 </div>
                 <div className={styles.actions}>
-                  {/* Bookmark backend hanya untuk resource → simpan wawasan disembunyikan di mode API */}
-                  {!USE_API && (
+                  {/* Simpan ke Koleksi khusus mahasiswa (backend: roleMiddleware('mahasiswa')) */}
+                  {!isAdmin(user) && (
                     <button
                       type="button"
                       className={`${styles.save} ${saved ? styles.saveOn : ''}`}
@@ -232,15 +244,13 @@ export default function InsightDetailPage() {
                   )}
                 </article>
 
-                {/* Ulasan untuk wawasan belum ada di backend → hanya tampil di mode demo */}
-                {!USE_API && (
-                  <ReviewsSection
-                    rating={a.rating}
-                    count={a.reviewCount}
-                    reviews={resourceDetail.reviews}
-                    onSubmit={async () => {}}
-                  />
-                )}
+                <ReviewsSection
+                  rating={a.rating}
+                  count={a.reviewCount}
+                  reviews={a.reviews || resourceDetail.reviews}
+                  onSubmit={(review) => createArticleReview(a.id, review)}
+                  placeholder="Bagikan pendapatmu tentang tulisan ini... (contoh: seberapa membantu, kejelasan cerita, atau tips yang bisa dipraktikkan)"
+                />
               </div>
 
               <aside className={styles.right}>

@@ -75,23 +75,12 @@ export async function updateResourceStatus(id, status, alasan) {
 
 /**
  * Tautan file untuk pratinjau di halaman moderasi.
- * 1) GET /admin/resource/:id/file — kalau nanti disediakan backend (bisa untuk semua status)
- * 2) GET /resource/:id/file — saat ini hanya untuk resource yang sudah disetujui
+ * GET /resource/:id/file?action=preview — admin boleh membuka semua status (pending/approved/rejected),
+ * dan akses admin tidak dihitung sebagai unduhan.
  */
-export async function getAdminResourceFileUrl(id, status) {
+export async function getAdminResourceFileUrl(id) {
   if (!USE_API) return null;
-  try {
-    const res = await api(`/admin/resource/${id}/file`, { auth: true });
-    return res.data?.file_url || null;
-  } catch (err) {
-    if (err.status !== 404) throw err;
-  }
-  if (status !== 'approved') {
-    throw new Error(
-      'Pratinjau berkas baru bisa dibuka setelah resource disetujui. Backend belum menyediakan akses berkas untuk resource yang masih menunggu review.'
-    );
-  }
-  const res = await api(`/resource/${id}/file`, { auth: true });
+  const res = await api(`/resource/${id}/file`, { auth: true, query: { action: 'preview' } });
   return res.data?.file_url || null;
 }
 

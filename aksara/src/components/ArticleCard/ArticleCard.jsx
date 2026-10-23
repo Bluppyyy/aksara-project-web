@@ -1,14 +1,32 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
+import { setArticleBookmark } from '../../services/insights';
 import styles from './ArticleCard.module.css';
-import iconBookmark from '../../assets/wawasan/icon-bookmark.svg';
+import Icon from '../Icon/Icon.jsx';
 
-export default function ArticleCard({ article }) {
+export default function ArticleCard({ article, onBookmarkChange }) {
   const { id, image, label, labelColor, title, excerpt, author, readTime } = article;
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved] = useState(Boolean(article.bookmarked));
+  const [busy, setBusy] = useState(false);
   const user = useAuth();
   const navigate = useNavigate();
+
+  // Simpan/lepas wawasan dari Koleksi (POST/DELETE /bookmark). Tampilan berubah dulu, dibatalkan kalau gagal.
+  const toggle = async () => {
+    if (busy) return;
+    const next = !saved;
+    setSaved(next);
+    setBusy(true);
+    try {
+      await setArticleBookmark(id, next);
+      onBookmarkChange?.(next);
+    } catch {
+      setSaved(!next);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <article className={styles.card}>
@@ -41,13 +59,13 @@ export default function ArticleCard({ article }) {
             aria-label={saved ? 'Hapus dari koleksi' : 'Simpan ke koleksi'}
             onClick={() =>
               user
-                ? setSaved((s) => !s)
+                ? toggle()
                 : navigate('/login', {
                     state: { from: '/wawasan', notice: 'Masuk dulu untuk menyimpan artikel ke koleksi.' },
                   })
             }
           >
-            <img src={iconBookmark} alt="" />
+            <Icon icon="lucide:bookmark" size={16} fill={saved ? 'currentColor' : undefined} />
           </button>
         </div>
       </div>

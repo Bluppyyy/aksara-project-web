@@ -1,9 +1,12 @@
 // Service layer Wawasan & Pengalaman (experience) — FR-CON-02, FR-QC-01.
-// Backend: GET /experience & GET /experience/:id (hanya yang approved),
-//          POST /experience (multipart: judul, sub_judul, konten, kategori, tags, sampul), POST /report { experience_id, alasan }
+// Backend: GET /experience & GET /experience/:id (hanya yang approved; detail menambah jumlah_dibaca),
+//          POST /experience (multipart: judul, sub_judul, konten, kategori, tags, sampul), POST /report { experience_id, alasan },
+//          GET /rating-review/experience/:id, POST /rating-review { experience_id, nilai_rating, isi_review },
+//          POST /bookmark { experience_id }, DELETE /bookmark/:experience_id
 import { api, USE_API } from './api';
+import { fetchBookmarkRows, invalidateBookmarks } from './bookmarks';
 import { articles, articleDetail } from '../data/articles';
-import { initials, personMeta } from './adapters';
+import { initials, personMeta, toReview } from './adapters';
 
 const delay = (v, ms = 250) => new Promise((r) => setTimeout(() => r(v), ms));
 
@@ -50,25 +53,55 @@ function toArticle(e, i = 0) {
     readTime: e.menit_baca ? `${e.menit_baca} Menit Baca` : readTime(e.konten),
     date: fmtDate(e.created_at),
     createdAt: e.created_at || null,
-    reads: e.jumlah_dilihat ?? '–',
+    reads: e.jumlah_dibaca ?? e.jumlah_dilihat ?? '–',
+    rating: e.rating_rata_rata != null ? Number(e.rating_rata_rata).toFixed(1) : '–',
+    reviewCount: e.total_ulasan ?? 0,
     tags: (e.tags || []).map((t) => String(t).replace(/^#/, '')).filter(Boolean),
     konten: e.konten || '',
   };
 }
 
+/** id wawasan yang sudah disimpan user (bookmark hanya untuk mahasiswa; admin/tamu → kosong) */
+async function savedArticleIds() {
+  try {
+    const rows = await fetchBookmarkRows();
+    return new Set(rows.filter((b) => b.experience_id).map((b) => String(b.experience_id)));
+  } catch {
+    return new Set();
+  }
+}
+
 /** GET /experience → hanya tulisan yang sudah disetujui admin */
 export async function listArticles() {
   if (!USE_API) return delay(articles);
-  const res = await api('/experience');
-  return (res.data || []).map(toArticle);
+  const [res, saved] = await Promise.all([api('/experience'), savedArticleIds()]);
+  return (res.data || []).map((e, i) => ({ ...toArticle(e, i), bookmarked: saved.has(String(e.experience_id)) }));
+}
+
+/**
+ * GET /experience/:id menambah jumlah_dibaca setiap dipanggil → permintaan yang berdekatan
+ * (mis. React StrictMode saat development) memakai satu request saja supaya tidak terhitung dua kali.
+ */
+const detailCache = new Map();
+function fetchArticle(id) {
+  const hit = detailCache.get(id);
+  if (hit && Date.now() - hit.at < 3000) return hit.promise;
+  const promise = api(`/experience/${id}`).catch((err) => {
+    detailCache.delete(id);
+    throw err;
+  });
+  detailCache.set(id, { at: Date.now(), promise });
+  return promise;
 }
 
 export async function getArticle(id) {
   if (!USE_API) return delay({ ...articleDetail, id });
-  let a;
+  let a, reviews, saved;
   try {
-    const res = await api(`/experience/${id}`);
+    const [res, list, ids] = await Promise.all([fetchArticle(id), listArticleReviews(id), savedArticleIds()]);
     a = toArticle(res.data);
+    reviews = list;
+    saved = ids.has(String(id));
   } catch (err) {
     if (err.status === 404) throw new Error('Tulisan tidak ditemukan atau belum disetujui admin.');
     throw err;
@@ -85,8 +118,10 @@ export async function getArticle(id) {
     readTime: a.readTime,
     date: a.date,
     reads: a.reads,
-    rating: '–', // ulasan untuk wawasan belum ada di SRS/backend
-    reviewCount: 0,
+    rating: a.rating,
+    reviewCount: a.reviewCount || reviews.length,
+    reviews,
+    bookmarked: saved,
     image: a.image,
     caption: '',
     hasCover: a.hasCover,
@@ -114,6 +149,59 @@ export async function createArticle({ title, subtitle, category, content, tags =
   if (cleanTags.length) fd.append('tags', JSON.stringify(cleanTags));
   if (cover) fd.append('sampul', cover);
   return api('/experience', { method: 'POST', auth: true, body: fd });
+}
+
+/** Ulasan wawasan. Backend: GET /rating-review/experience/:id */
+export async function listArticleReviews(id) {
+  if (!USE_API) return delay([]);
+  try {
+    const res = await api(`/rating-review/experience/${id}`);
+    return (res.data || []).map(toReview);
+  } catch {
+    return []; // ulasan gagal dimuat → halaman tetap tampil
+  }
+}
+
+/** 1 ulasan per mahasiswa per wawasan (kirim ulang = perbarui). nilai_rating bilangan bulat 1–5 */
+export async function createArticleReview(id, { rating, text }) {
+  if (!USE_API) return delay(null);
+  return api('/rating-review', {
+    method: 'POST',
+    auth: true,
+    body: { experience_id: id, nilai_rating: Math.round(Number(rating)), isi_review: text },
+  });
+}
+
+/** Simpan wawasan ke Koleksi. "Sudah ada" (409) / "tidak ada" (404) dianggap berhasil. */
+export async function setArticleBookmark(id, on) {
+  if (!USE_API) return delay(null, 100);
+  invalidateBookmarks();
+  try {
+    if (on) return await api('/bookmark', { method: 'POST', auth: true, body: { experience_id: id } });
+    return await api(`/bookmark/${id}`, { method: 'DELETE', auth: true });
+  } catch (err) {
+    if ((on && err.status === 409) || (!on && err.status === 404)) return null;
+    throw err;
+  }
+}
+
+/** Wawasan yang disimpan user (GET /bookmark → item dengan experience) untuk halaman Koleksi */
+export async function listArticleBookmarks() {
+  if (!USE_API) return delay([]);
+  const [rows, all] = await Promise.all([
+    fetchBookmarkRows(),
+    api('/experience')
+      .then((x) => x.data || [])
+      .catch(() => []),
+  ]);
+  // GET /bookmark belum mengirim data penulis & rating → dilengkapi dari GET /experience
+  const byId = new Map(all.map((e) => [String(e.experience_id), e]));
+  return rows
+    .filter((b) => b.experience_id && b.experience)
+    .map((b, i) => {
+      const full = byId.get(String(b.experience_id)) || {};
+      return { ...toArticle({ ...full, experience_id: b.experience_id, ...b.experience }, i), bookmarked: true };
+    });
 }
 
 /** FR-QC-01: laporkan tulisan */

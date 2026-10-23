@@ -1,4 +1,5 @@
 import { api, USE_API, getSession } from './api';
+import { fetchBookmarkRows, invalidateBookmarks } from './bookmarks';
 import { toResourceCard, toResourceDetail, toReview } from './adapters';
 import { categoryIdFor, masterMaps } from './master';
 import { applyFilters } from '../utils/filters';
@@ -89,8 +90,8 @@ const withExtras = (row, extras) => {
 async function bookmarkedIds() {
   if (!getSession()?.access_token) return new Set();
   try {
-    const res = await api('/bookmark', { auth: true });
-    return new Set((res.data || []).map((b) => String(b.resource_id)));
+    const rows = await fetchBookmarkRows();
+    return new Set(rows.filter((b) => b.resource_id).map((b) => String(b.resource_id)));
   } catch {
     return new Set(); // admin / gagal → abaikan
   }
@@ -210,16 +211,15 @@ async function relatedResources(r, matkul) {
   return picked;
 }
 
-/** Tautan unduh sementara (berlaku 60 detik). Backend: GET /resource/:id/file → { data: { file_url } } */
 /**
- * Tautan file sementara (signed URL, berlaku 60 detik). Backend: GET /resource/:id/file
- * preview: true → dipakai untuk pratinjau. Dikirim sebagai ?preview=1 supaya backend bisa
- * tidak menghitungnya sebagai unduhan (perlu didukung backend), dan dipakai ulang selama 50 detik.
+ * Tautan file sementara (signed URL, berlaku 60 detik). Backend: GET /resource/:id/file → { data: { file_url } }
+ * - unduh   → ?action=download (backend menambah jumlah_unduhan)
+ * - preview → ?action=preview (tidak dihitung sebagai unduhan), dipakai ulang selama 50 detik
  */
 export async function getResourceFileUrl(id, { preview = false } = {}) {
   if (!USE_API) return null;
   const load = () =>
-    api(`/resource/${id}/file`, { auth: true, query: preview ? { preview: 1 } : undefined }).then(
+    api(`/resource/${id}/file`, { auth: true, query: { action: preview ? 'preview' : 'download' } }).then(
       (res) => res.data?.file_url || null
     );
   return preview ? once(`preview:${id}`, 50000, load) : load();
@@ -241,8 +241,12 @@ export async function refreshRecent(items = []) {
 
 export async function listReviews(resourceId) {
   if (!USE_API) return delay(resourceDetail.reviews);
-  const res = await api(`/rating-review/${resourceId}`);
-  return (res.data || []).map(toReview);
+  try {
+    const res = await api(`/rating-review/${resourceId}`);
+    return (res.data || []).map(toReview);
+  } catch {
+    return []; // ulasan gagal dimuat → detail resource tetap tampil
+  }
 }
 
 /** Backend menyimpan 1 ulasan per user per resource (upsert); nilai_rating wajib bilangan bulat 1–5 */
@@ -263,8 +267,8 @@ export async function reportResource(resourceId, alasan) {
 // ---------- Bookmark ----------
 export async function listBookmarks() {
   if (!USE_API) return delay(bookmarkedResources);
-  const [res, matkul, extras] = await Promise.all([api('/bookmark', { auth: true }), masterMaps(), resourceExtras()]);
-  return (res.data || [])
+  const [rows, matkul, extras] = await Promise.all([fetchBookmarkRows(), masterMaps(), resourceExtras()]);
+  return rows
     .filter((b) => b.resource)
     .map((b) => ({
       ...toResourceCard(withExtras({ resource_id: b.resource_id, ...b.resource }, extras), matkul),
@@ -275,6 +279,7 @@ export async function listBookmarks() {
 /** POST /bookmark { resource_id } · DELETE /bookmark/:resource_id. "Sudah ada" (409) dianggap berhasil. */
 export async function setBookmark(resourceId, on) {
   if (!USE_API) return delay(null, 100);
+  invalidateBookmarks();
   try {
     if (on) return await api('/bookmark', { method: 'POST', auth: true, body: { resource_id: resourceId } });
     return await api(`/bookmark/${resourceId}`, { method: 'DELETE', auth: true });

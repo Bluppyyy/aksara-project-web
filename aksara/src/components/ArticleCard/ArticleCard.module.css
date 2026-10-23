@@ -138,13 +138,10 @@
 .bookmark {
   display: flex;
   padding: var(--space-1) var(--space-1) var(--space-3);
+  color: #727780;
 }
 
-.bookmark img {
-  width: 11.667px;
-  height: 15px;
-}
-
-.bookmarkActive img {
-  filter: brightness(0) saturate(100%) invert(20%) sepia(67%) saturate(1500%) hue-rotate(190deg);
+/* Tersimpan: ikon terisi warna utama */
+.bookmarkActive {
+  color: var(--color-primary);
 }

@@ -144,6 +144,7 @@ export function toReview(r) {
   const name = r.pengguna?.nama || 'Mahasiswa';
   return {
     id: r.rating_id,
+    userId: r.user_id ?? null,
     initials: initials(name),
     name,
     meta: r.pengguna ? personMeta(r.pengguna) : '',
