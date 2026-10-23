@@ -9,3 +9,6 @@ Claude outputs/
 aksara/.env.*
 !aksara/.env.example
 !aksara/.env.development
+
+# Dibuat otomatis oleh scripts/build-icons.mjs setiap npm run dev / build
+aksara/src/icons/collection.json
