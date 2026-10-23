@@ -118,13 +118,12 @@ export default function InsightDetailPage() {
                         <strong>{a.reads}</strong> Baca
                       </span>
                     ),
-                    a.reviewCount > 0 && (
-                      <span key="s">
-                        <Icon icon="lucide:star" size={13} fill="#e88d67" color="#e88d67" />
-                        <strong>{a.rating}</strong>
-                        <em>({a.reviewCount} ulasan)</em>
-                      </span>
-                    ),
+                    // Rating selalu tampil seperti di Figma; belum ada ulasan → "– (0 ulasan)"
+                    <span key="s">
+                      <Icon icon="lucide:star" size={13} fill="#e88d67" color="#e88d67" />
+                      <strong>{a.rating}</strong>
+                      <em>({a.reviewCount} ulasan)</em>
+                    </span>,
                   ]
                     .filter(Boolean)
                     .flatMap((el, i) =>
