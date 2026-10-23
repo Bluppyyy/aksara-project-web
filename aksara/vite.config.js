@@ -20,6 +20,8 @@ export default defineConfig(({ mode }) => {
       modules: { generateScopedName: readableClassName },
     },
     server: {
+      // Izinkan link Cloudflare Tunnel / ngrok untuk membagikan localhost ke teman (lihat panduan localhost)
+      allowedHosts: ['.trycloudflare.com', '.ngrok-free.app'],
       // Saat development, /api/* diteruskan ke backend (default http://localhost:3000).
       // Frontend & backend jadi satu origin → tidak ada masalah CORS / beda port.
       proxy: {
