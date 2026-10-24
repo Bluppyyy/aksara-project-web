@@ -111,7 +111,7 @@ async function contentTitles() {
 export async function listReports() {
   if (!USE_API) return delay(adminReports);
   const res = await api('/admin/report', { auth: true });
-  // Backend v2 sudah menyertakan judul konten (r.konten); backend lama → ambil dari daftar admin
+  // Judul konten dikirim backend di r.konten; kalau tidak ada, diambil dari daftar resource & wawasan admin
   const titles = (res.data || []).some((r) => r.konten === undefined) ? await contentTitles() : null;
   return (res.data || []).map((r) => {
     const isRes = Boolean(r.resource_id);

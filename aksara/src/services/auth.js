@@ -23,7 +23,7 @@ export async function login(email, password) {
   const session = res?.data?.session;
   if (!session?.access_token) throw new Error('Login gagal. Periksa kembali email dan kata sandi.');
 
-  // Backend v2: profil & peran ikut dikirim di data.profile (FR-LOGIN-03)
+  // Profil & peran dikirim backend di data.profile (FR-LOGIN-03)
   const p = res.data.profile;
   if (p?.role) {
     setSession({
@@ -44,23 +44,23 @@ export async function login(email, password) {
     return getSession().user;
   }
 
-  // Backend lama: profil dari browser, peran dicek lewat endpoint yang dijaga roleMiddleware
+  // Cadangan kalau data.profile kosong (akun ada di Supabase Auth tapi belum ada di tabel "pengguna"):
+  // profil dari browser, peran dicek lewat endpoint yang dijaga roleMiddleware
   const profile = getProfile(email);
   setSession({
     access_token: session.access_token,
     refresh_token: session.refresh_token,
     user: { email, nama: profile.nama || email.split('@')[0], ...profile, role: 'mahasiswa' },
   });
-  // Peran disimpan di tabel "pengguna". Backend belum punya GET /me, jadi peran dicek lewat
-  // endpoint yang dijaga roleMiddleware: /test-mahasiswa (200 = mahasiswa, 403 = bukan mahasiswa).
+  // /test-mahasiswa: 200 = mahasiswa, 403 = bukan mahasiswa, 404 = belum ada di tabel "pengguna"
   const role = await detectRole();
   setSession({ ...getSession(), user: { ...getSession().user, role } });
   return getSession().user;
 }
 
 /**
- * Peran disimpan di kolom "role" tabel pengguna. Backend belum punya GET /me, jadi peran dicek lewat
- * endpoint yang dijaga roleMiddleware: /test-mahasiswa (khusus mahasiswa) lalu /admin/experience (khusus admin).
+ * Cadangan penentuan peran saat login tidak mengirim data.profile.
+ * Dicek lewat endpoint yang dijaga roleMiddleware: /test-mahasiswa (khusus mahasiswa) lalu /admin/experience (khusus admin).
  */
 async function detectRole() {
   try {
@@ -98,9 +98,8 @@ async function detectRole() {
 }
 
 /**
- * Daftar akun. Backend: POST /register { email, password } → akun Supabase + baris "pengguna" (role mahasiswa).
- * Backend belum punya kolom nama/NIM/prodi/kelas/minat, jadi data profil itu disimpan di browser ini
- * (per email) supaya Beranda tetap bisa menampilkan nama & preferensi setelah login.
+ * Daftar akun (FR-LOGIN-05). Backend: POST /register { email, password, nama, nim, prodi, angkatan, kode_kelas, minat }
+ * → akun Supabase Auth + baris "pengguna" (role mahasiswa) dengan data profil lengkap.
  */
 export async function register({ name, email, password, nim, fakultas, prodi, angkatan, kelas, minat }) {
   const profile = { nama: name, nim, fakultas, prodi, angkatan, kelas, minat: minat?.bidang || [] };
@@ -116,11 +115,11 @@ export async function register({ name, email, password, nim, fakultas, prodi, an
     method: 'POST',
     body: { email, password, nama: name, nim, prodi, angkatan, kode_kelas: kelas, minat: profile.minat },
   });
-  saveProfile(email, profile); // cadangan untuk backend lama yang belum menyimpan profil
+  saveProfile(email, profile); // salinan lokal, dipakai login cadangan bila data.profile kosong
   return res.data;
 }
 
-// ---- Profil lokal (sampai backend punya kolom profil) ----
+// ---- Profil lokal (cadangan bila login tidak mengirim data.profile) ----
 const PROFILE_KEY = 'aksara.profiles';
 function getProfile(email) {
   try {

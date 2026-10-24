@@ -92,7 +92,7 @@ export default function InsightsPage() {
   if (featured.length > 0 && !carouselReady) setCarouselReady(true);
   const visible = all.filter((a) => {
     const q = query.trim().toLowerCase();
-    // Pill kategori hanya menyaring kalau backend mengirim kategori tulisan (GET /experience belum punya kolom kategori)
+    // Pill kategori menyaring berdasarkan kolom kategori dari GET /experience (mode demo: tidak menyaring)
     if (USE_API && category !== 'Semua Tulisan' && categoryKey(a.category || '') !== categoryKey(category))
       return false;
     return !q || a.title.toLowerCase().includes(q) || a.author.name.toLowerCase().includes(q);

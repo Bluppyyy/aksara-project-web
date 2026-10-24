@@ -95,10 +95,10 @@ function SelectBox({ value, onChange, options, icon, invalid, id, placeholder, d
 
 /* ---------------- Halaman ---------------- */
 /**
- * Registrasi 4 langkah sesuai Figma ("refister farel"):
- * 1. Akun  2. Informasi Akademik  3. Minat Akademik  4. Tinjau & Konfirmasi  → layar berhasil.
- * Backend saat ini baru menyimpan email + password; data lain ikut dikirim supaya
- * langsung tersimpan begitu backend menambah kolomnya.
+ * Registrasi mahasiswa (FR-LOGIN-04, FR-LOGIN-05) sesuai Figma ("refister farel"):
+ * 1. Data diri (nama, NIM, email, kata sandi)  2. Informasi akademik & minat  3. Layar berhasil.
+ * Semua data dikirim ke POST /register dan disimpan backend di tabel "pengguna".
+ * Catatan: keunikan NIM belum dicek backend (BUG01 dari QA).
  */
 export default function RegisterPage() {
   const navigate = useNavigate();

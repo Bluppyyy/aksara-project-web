@@ -100,8 +100,8 @@ async function bookmarkedIds() {
 /**
  * Daftar resource untuk halaman Hasil Eksplorasi (FR-EXP-01..03).
  * Backend: GET /resource-relevan?q=&category_id=&format=&tahun=&rating_min=&rating_max=&sort=&page=
- * (hanya resource berstatus approved). Filter yang belum bisa dikirim ke backend
- * (pilihan ganda, prodi, semester, mata kuliah per nama) diterapkan lewat applyFilters().
+ * (hanya resource berstatus approved). Pilihan ganda (mis. 2 kategori), prodi, semester, dan mata kuliah
+ * disaring di frontend lewat applyFilters() karena backend hanya menerima satu nilai per filter.
  */
 export async function listResources(filters = {}) {
   const f = { kategori: [], semester: [], matkul: [], format: [], tahun: [2010, 2026], rating: [1, 5], ...filters };

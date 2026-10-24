@@ -274,7 +274,7 @@ export default function AdminDashboard() {
 
       {/* ---------- Grafik tren + distribusi kategori ---------- */}
       <section className={styles.splitRow} style={USE_API ? { gridTemplateColumns: 'minmax(0, 1fr)' } : undefined}>
-        {/* Backend belum mengirim tanggal unggah, jadi grafik tren hanya tampil di mode demo */}
+        {/* Grafik tren belum dihitung dari data backend, jadi sementara hanya tampil di mode demo */}
         {!USE_API && (
           <article className={`${ui.card} ${styles.chartCard}`}>
             <div className={styles.cardHeader}>
