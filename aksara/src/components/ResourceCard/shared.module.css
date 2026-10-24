@@ -69,6 +69,11 @@
   background: #c8c8c8;
 }
 
+.bookmark:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .bookmarkIconBox {
   position: relative;
   width: 9.333px;

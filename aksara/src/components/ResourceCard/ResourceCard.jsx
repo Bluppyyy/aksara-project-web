@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import useBookmark from '../../hooks/useBookmark';
+import { USE_API } from '../../services/api';
 import { addRecent } from '../../utils/recent';
 import { thumbnailFor } from '../../data/resources';
 import styles from './ResourceCard.module.css';
@@ -23,7 +24,8 @@ export default function ResourceCard({ resource, onBookmarkChange }) {
         </div>
         <div className={styles.previewBottom}>
           <FormatBadge format={format} />
-          <BookmarkButton active={bookmarked} onToggle={toggleBookmark} />
+          {/* Mode API: resource contoh (katalog lokal) tidak ada di database, jadi tidak bisa disimpan */}
+          <BookmarkButton active={bookmarked} onToggle={toggleBookmark} disabled={USE_API && resource.sample} />
         </div>
       </div>
 
@@ -31,7 +33,7 @@ export default function ResourceCard({ resource, onBookmarkChange }) {
         <div className={styles.info}>
           <div className={styles.course}>
             <img src={iconCourse} alt="" className={styles.courseIcon} />
-            <span>{course}</span>
+            <span title={course}>{course}</span>
           </div>
           <div className={styles.texts}>
             <h3 className={styles.title}>
@@ -45,7 +47,7 @@ export default function ResourceCard({ resource, onBookmarkChange }) {
 
         <ul className={styles.tags}>
           {tags.map((tag) => (
-            <li key={tag} className={styles.tag}>
+            <li key={tag} className={styles.tag} title={tag}>
               {tag}
             </li>
           ))}
@@ -55,8 +57,12 @@ export default function ResourceCard({ resource, onBookmarkChange }) {
           <div className={styles.author}>
             <span className={styles.avatar}>{author.initials}</span>
             <div className={styles.authorText}>
-              <span className={styles.authorName}>{author.name}</span>
-              <span className={styles.authorMeta}>{author.meta}</span>
+              <span className={styles.authorName} title={author.name}>
+                {author.name}
+              </span>
+              <span className={styles.authorMeta} title={author.meta}>
+                {author.meta}
+              </span>
             </div>
           </div>
           <div className={styles.stats}>

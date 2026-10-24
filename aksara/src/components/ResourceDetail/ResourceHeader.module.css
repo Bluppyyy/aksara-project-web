@@ -329,3 +329,25 @@
     gap: var(--space-2);
   }
 }
+
+/* Resource contoh (katalog lokal) di mode API: tombol aksi dinonaktifkan */
+.disabled,
+.save:disabled,
+.report:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary.disabled:hover {
+  background: #00355f;
+}
+
+.sampleNote {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-50);
+  color: var(--color-primary);
+  font-size: var(--text-body-sm);
+  line-height: 20px;
+}

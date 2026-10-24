@@ -35,6 +35,7 @@ export default function ReviewsSection({
   reviews: initial,
   onSubmit,
   placeholder = DEFAULT_PLACEHOLDER,
+  disabledNote = '', // diisi → form ulasan diganti pesan ini (mis. resource contoh di mode API)
 }) {
   const user = useAuth();
   const [sending, setSending] = useState(false);
@@ -94,7 +95,11 @@ export default function ReviewsSection({
         </div>
       </div>
 
-      {!user ? (
+      {disabledNote ? (
+        <div className={styles.form}>
+          <p className={styles.formTitle}>{disabledNote}</p>
+        </div>
+      ) : !user ? (
         <div className={styles.form}>
           <p className={styles.formTitle}>
             <Link to="/login" style={{ color: 'var(--color-primary)' }}>

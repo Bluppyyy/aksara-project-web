@@ -49,13 +49,16 @@ export function Thumbnail({ src }) {
 }
 
 /** variant: "glass" (di atas foto / gradient biru) | "solid" (abu-abu, dipakai di list item) */
-export function BookmarkButton({ active, onToggle, variant = 'glass' }) {
+/** disabled: untuk resource contoh di mode API (tidak ada di database, jadi tidak bisa disimpan) */
+export function BookmarkButton({ active, onToggle, variant = 'glass', disabled = false }) {
   return (
     <button
       type="button"
       className={`${styles.bookmark} ${variant === 'solid' ? styles.bookmarkSolid : ''}`}
       aria-pressed={active}
-      aria-label={active ? 'Hapus bookmark' : 'Simpan ke bookmark'}
+      aria-label={disabled ? 'Resource contoh tidak bisa disimpan' : active ? 'Hapus bookmark' : 'Simpan ke bookmark'}
+      title={disabled ? 'Resource contoh tidak bisa disimpan ke Koleksi' : undefined}
+      disabled={disabled}
       onClick={onToggle}
     >
       <span className={styles.bookmarkIconBox}>

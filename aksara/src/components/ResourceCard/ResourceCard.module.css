@@ -1,4 +1,7 @@
+/* Tinggi kartu seragam ±422px: foto 160 + isi (20 + 18 + 8 + 44 + 8 + 40 + 52 tag + 52 footer + 20) */
 .card {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -20,6 +23,7 @@
 .preview {
   position: relative;
   height: 160px;
+  flex-shrink: 0;
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
@@ -50,6 +54,7 @@
 
 /* Isi kartu */
 .body {
+  flex: 1;
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
@@ -61,15 +66,26 @@
   gap: var(--space-2);
 }
 
+/* Kode & nama mata kuliah: selalu 1 baris */
 .course {
+  height: 18px;
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  min-width: 0;
   font-weight: 600;
   font-size: var(--text-caption-sm);
   line-height: 16px;
   color: var(--color-primary);
-  white-space: pre;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.course span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre; /* tetap 1 baris, spasi ganda antara kode & nama tidak digabung */
 }
 
 .courseIcon {
@@ -101,10 +117,10 @@
 }
 
 .description {
-  height: 41px;
+  height: 40px;
   font-family: var(--font-public);
   font-size: var(--text-label);
-  line-height: 19.5px;
+  line-height: 20px;
   color: var(--color-text-muted);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -112,30 +128,38 @@
   overflow: hidden;
 }
 
+/* Slot tag dikunci 52px (1 baris chip 22px) supaya semua kartu sama tinggi; tag panjang dipotong "…" */
 .tags {
   list-style: none;
   margin: 0;
-  padding: var(--space-4) 0;
+  height: 52px;
+  padding: 15px 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-content: flex-start;
   gap: var(--space-2);
+  overflow: hidden;
 }
 
 .tag {
-  min-height: 20.5px;
-  max-width: 100%;
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 22px;
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-chip);
   font-weight: 500;
   font-size: var(--text-caption);
-  line-height: 16.5px;
+  line-height: 18px;
   color: var(--color-text-muted);
-  white-space: normal;
-  overflow-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .footer {
+  margin-top: auto;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -179,15 +203,19 @@
   font-size: var(--text-caption);
   line-height: 14px;
   color: var(--color-text);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Teks panjang (mis. "Rekayasa Perangkat Lunak") turun ke baris berikutnya, tidak menimpa rating */
+/* Teks panjang (mis. "Rekayasa Perangkat Lunak") dipotong "…" supaya tidak menggeser rating & unduhan */
 .authorMeta {
   font-size: var(--text-caption-sm);
   line-height: 15px;
   color: var(--color-text-muted);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stats {

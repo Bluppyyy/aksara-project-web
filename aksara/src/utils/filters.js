@@ -65,7 +65,8 @@ export function applyFilters(items, f) {
   const q = norm(f.q).trim();
   return items.filter((r) => {
     if (q && !norm(`${r.title} ${r.description} ${r.course}`).includes(q)) return false;
-    if (f.kategori.length && !f.kategori.includes(r.category)) return false;
+    // Kategori cepat (tugas, project, …) dicocokkan dengan kunci kartu (thumb); kategori database dengan "k:<id>"
+    if (f.kategori.length && !f.kategori.some((k) => k === r.category || k === r.thumb)) return false;
     if (f.fakultas && r.fakultas && r.fakultas !== f.fakultas) return false;
     if (f.prodi && r.prodi && r.prodi !== f.prodi) return false;
     if (f.semester.length && r.semester && !f.semester.includes(Number(r.semester))) return false;

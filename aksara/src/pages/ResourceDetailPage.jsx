@@ -40,12 +40,19 @@ export default function ResourceDetailPage() {
             <div className={styles.layout}>
               <div className={styles.left}>
                 <AbstractCard paragraphs={r.abstract} keywords={r.keywords} />
-                <DocumentPreview totalPages={r.totalPages} cover={r.cover} resourceId={r.id} title={r.title} />
+                {/* Resource contoh tidak punya berkas di Storage → pratinjau sampul tiruan */}
+                <DocumentPreview
+                  totalPages={r.totalPages}
+                  cover={r.cover}
+                  resourceId={r.isSample ? null : r.id}
+                  title={r.title}
+                />
                 <ReviewsSection
                   rating={r.rating}
                   count={r.reviewCount}
                   reviews={r.reviews}
                   onSubmit={(review) => createReview(r.id, review)}
+                  disabledNote={r.readOnly ? 'Ulasan belum tersedia untuk resource contoh.' : ''}
                 />
               </div>
               <aside className={styles.right}>

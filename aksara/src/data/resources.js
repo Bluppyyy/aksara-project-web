@@ -11,14 +11,14 @@ export const CATEGORIES = {
   lainnya: 'Lainnya',
 };
 
-// Kategori cepat di bawah search bar (urutan sesuai Figma). key = null → "Semua"
+// Kategori cepat di bawah search bar: daftar tetap (mode demo & API) supaya tidak berkedip saat dimuat. key = null → "Semua"
 export const QUICK_CATEGORIES = [
   { key: null, label: 'Semua' },
   { key: 'tugas', label: 'Tugas Kuliah' },
   { key: 'project', label: 'Project' },
   { key: 'skripsi', label: 'Skripsi & Tugas Akhir' },
   { key: 'ujian', label: 'Ujian & Latihan Soal' },
-  { key: 'riset', label: 'Riset & Publikasi Paper' },
+  { key: 'riset', label: 'Riset' },
   { key: 'lainnya', label: 'Lainnya' },
 ];
 
@@ -54,6 +54,7 @@ export function thumbnailFor(resource) {
   if (resource.thumbnail === false) return null;
   return (
     resource.thumbnail ||
+    THUMBS[resource.photo] ||
     THUMBS[resource.thumb] ||
     THUMBS[resource.category] ||
     THUMBS[CATEGORY_FALLBACK[resource.category]] ||
@@ -171,16 +172,6 @@ const make = (key, overrides = {}) => ({
   ...TEMPLATES[key],
   ...overrides,
 });
-
-// Foto sampul mengikuti urutan di Figma: baris 1 & 3 pakai foto 1–4, baris 2 pakai foto 5–8
-const resultRow = (a, b, c, d) => [
-  make('astar', { thumb: `foto-${a}` }),
-  make('astar', { thumb: `foto-${b}` }),
-  make('sentimen', { bookmarked: true, thumb: `foto-${c}` }),
-  make('goto', { thumb: `foto-${d}` }),
-];
-
-export const relevantResources = [...resultRow(1, 2, 3, 4), ...resultRow(5, 6, 7, 8), ...resultRow(1, 2, 3, 4)];
 
 // Deskripsi lebih panjang (2 baris) seperti di Figma
 const LONG_ASTAR =

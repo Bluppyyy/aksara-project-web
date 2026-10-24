@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import useBookmark from '../../hooks/useBookmark';
+import { USE_API } from '../../services/api';
 import { addRecent } from '../../utils/recent';
 import { thumbnailFor } from '../../data/resources';
 import styles from './ResourceListItem.module.css';
@@ -39,7 +40,12 @@ export default function ResourceListItem({ resource, onBookmarkChange }) {
                 </Link>
               </h3>
             </div>
-            <BookmarkButton variant="solid" active={bookmarked} onToggle={toggleBookmark} />
+            <BookmarkButton
+              variant="solid"
+              active={bookmarked}
+              onToggle={toggleBookmark}
+              disabled={USE_API && resource.sample}
+            />
           </div>
 
           <p className={styles.description}>{description}</p>

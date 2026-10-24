@@ -1,11 +1,12 @@
 import { api, USE_API, getSession } from './api';
 import { fetchBookmarkRows, invalidateBookmarks } from './bookmarks';
 import { toResourceCard, toResourceDetail, toReview } from './adapters';
-import { categoryIdFor, masterMaps } from './master';
+import { categoryIdFor, categoryKeyOf, getKategori, masterMaps } from './master';
 import { applyFilters } from '../utils/filters';
 import { saveRecent } from '../utils/recent';
-import { searchResults, bookmarkedResources, relevantResources } from '../data/resources';
+import { searchResults, bookmarkedResources, CATEGORIES } from '../data/resources';
 import { resourceDetail } from '../data/resourceDetail.jsx';
+import { sampleResources, isSampleId } from '../data/sampleResources';
 
 const delay = (v, ms = 250) => new Promise((r) => setTimeout(() => r(v), ms));
 
@@ -18,7 +19,9 @@ const FORMAT_TO_API = { PDF: 'pdf', DOC: 'doc', DOCX: 'doc', PPT: 'ppt', PPTX: '
 async function toRelevantQuery(f) {
   const query = { sort: 'terbaru' };
   if (f.q?.trim()) query.q = f.q.trim();
-  if (f.kategori?.length === 1) {
+  // Hanya kategori database ("k:<id>") yang dikirim ke backend. Kunci kategori cepat (tugas, project, …)
+  // bisa mewakili lebih dari satu kategori database, jadi disaring di frontend (utils/filters.js).
+  if (f.kategori?.length === 1 && String(f.kategori[0]).startsWith('k:')) {
     const id = await categoryIdFor(f.kategori[0]).catch(() => null);
     if (id != null) query.category_id = id;
   }
@@ -98,14 +101,33 @@ async function bookmarkedIds() {
 }
 
 /**
- * Daftar resource untuk halaman Hasil Eksplorasi (FR-EXP-01..03).
- * Backend: GET /resource-relevan?q=&category_id=&format=&tahun=&rating_min=&rating_max=&sort=&page=
- * (hanya resource berstatus approved). Pilihan ganda (mis. 2 kategori), prodi, semester, dan mata kuliah
- * disaring di frontend lewat applyFilters() karena backend hanya menerima satu nilai per filter.
+ * Katalog contoh memakai kunci kategori frontend (tugas, project, …). Kalau filter berisi kategori database
+ * ("k:<id>", dari sidebar mode API), terjemahkan dulu ke kunci frontend lewat nama kategorinya.
  */
-export async function listResources(filters = {}) {
+async function sampleFilters(f) {
+  if (!f.kategori.some((k) => String(k).startsWith('k:'))) return f;
+  const list = await getKategori().catch(() => []);
+  const keyOf = (k) => {
+    const found = list.find((c) => `k:${c.category_id}` === String(k));
+    return found ? categoryKeyOf(found.nama_kategori) : k;
+  };
+  return { ...f, kategori: f.kategori.map(keyOf) };
+}
+
+/**
+ * Daftar resource untuk halaman Eksplorasi & Hasil Eksplorasi (FR-EXP-01..03, FR-RES-01).
+ * Backend: GET /resource-relevan?q=&category_id=&format=&tahun=&rating_min=&rating_max=&sort=&page=
+ * (hanya resource berstatus approved). Pilihan ganda (mis. 2 kategori), kategori cepat, prodi, semester,
+ * dan mata kuliah disaring di frontend lewat applyFilters() karena backend hanya menerima satu nilai per filter.
+ *
+ * withSamples: tambahkan katalog contoh (data/sampleResources.js) di belakang data backend, supaya daftar
+ * dan pagination tetap terisi walau database masih berisi sedikit resource. Kartu contoh dibuka dengan
+ * detail lokal (lihat getResource) dan aksi simpan/unduh/ulasan untuknya dinonaktifkan di mode API.
+ */
+export async function listResources(filters = {}, { withSamples = false } = {}) {
   const f = { kategori: [], semester: [], matkul: [], format: [], tahun: [2010, 2026], rating: [1, 5], ...filters };
-  if (!USE_API) return applyFilters(await delay(searchResults), f);
+  const samples = withSamples ? applyFilters(sampleResources, await sampleFilters(f)) : [];
+  if (!USE_API) return [...samples, ...applyFilters(await delay(searchResults), f)];
 
   const [rows, matkul, saved, extras] = await Promise.all([
     fetchAllRelevant(await toRelevantQuery(f)),
@@ -117,8 +139,8 @@ export async function listResources(filters = {}) {
     ...toResourceCard(withExtras(r, extras), matkul),
     bookmarked: r.is_bookmarked || saved.has(String(r.resource_id)),
   }));
-  // q sudah disaring backend; sisanya disaring di sini
-  return applyFilters(items, { ...f, q: '' });
+  // q sudah disaring backend; sisanya disaring di sini. Data asli tampil lebih dulu, lalu katalog contoh.
+  return [...applyFilters(items, { ...f, q: '' }), ...samples];
 }
 
 /** Jumlah resource yang sudah disetujui (pagination.total_data dari GET /resource-relevan). Mode demo: null */
@@ -128,19 +150,9 @@ export async function countResources() {
   return res.pagination?.total_data ?? (res.data || []).length;
 }
 
-/** "Resource Relevan untuk Kamu" di halaman Eksplorasi: halaman pertama /resource-relevan */
-export async function listRelevant() {
-  if (!USE_API) return delay(relevantResources);
-  const [res, matkul, saved, extras] = await Promise.all([
-    api('/resource-relevan', { query: { sort: 'terbaru', page: 1 } }),
-    masterMaps(),
-    bookmarkedIds(),
-    resourceExtras(),
-  ]);
-  return (res.data || []).map((r) => ({
-    ...toResourceCard(withExtras(r, extras), matkul),
-    bookmarked: r.is_bookmarked || saved.has(String(r.resource_id)),
-  }));
+/** "Resource Relevan untuk Kamu" di halaman Eksplorasi: semua resource + katalog contoh (dipaginasi di halaman) */
+export function listRelevant() {
+  return listResources({}, { withSamples: true });
 }
 
 /**
@@ -160,7 +172,75 @@ function once(key, ttlMs, fn) {
   return promise;
 }
 
+const fmtDate = (iso) =>
+  iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+
+/** Detail resource contoh dari katalog lokal (tidak ada di database) */
+function sampleDetail(id) {
+  const index = sampleResources.findIndex((r) => r.id === id);
+  if (index < 0) throw new Error('Resource tidak ditemukan.');
+  const r = sampleResources[index];
+  const [kode, ...rest] = r.course.split(/\s+/);
+  const matkul = rest.join(' ');
+  const label = CATEGORIES[r.category] || 'Dokumen';
+  return {
+    id: r.id,
+    isSample: true,
+    // Mode API: resource contoh tidak ada di database → unduh, simpan, lapor, dan ulasan dinonaktifkan
+    readOnly: USE_API,
+    title: r.title,
+    fileInfo: `${r.format} • ${label}`,
+    hasFile: false,
+    author: r.author,
+    date: fmtDate(r.createdAt),
+    downloads: r.downloads,
+    views: '–',
+    rating: '–',
+    reviewCount: 0,
+    reviews: [],
+    bookmarked: false,
+    abstract: [
+      r.description,
+      `Disusun untuk mata kuliah ${matkul} (${kode}), ${r.prodi} semester ${r.semester}, Fakultas Informatika Telkom University.`,
+    ],
+    keywords: r.keywords,
+    cover: {
+      faculty: `FAKULTAS INFORMATIKA • PROGRAM STUDI ${r.prodi.toUpperCase()}`,
+      kicker: label.toUpperCase(),
+      title: r.title,
+      purpose: `Disusun untuk mata kuliah ${matkul} (${kode})`,
+      author: r.author.name,
+      nim: '',
+      place: `Bandung, ${r.year}`,
+    },
+    totalPages: 12 + ((index * 7) % 36),
+    meta: {
+      course: `${matkul} (${kode})`,
+      courseInfo: `${r.prodi} • Semester ${r.semester}`,
+      lecturer: '—',
+      lecturerInfo: '',
+      semester: String(r.semester),
+      year: String(r.year),
+      license: '—',
+      licenseNote: '',
+      doi: '',
+    },
+    related: sampleResources
+      .filter((x) => x.category === r.category && x.id !== r.id)
+      .slice(0, 3)
+      .map((x) => ({
+        id: x.id,
+        course: x.course.replace(/\s+/, ' • '),
+        file: x.format,
+        title: x.title,
+        author: `${x.author.name} • ${x.year}`,
+      })),
+    relatedLink: `/eksplorasi/hasil?kategori=${r.category}`,
+  };
+}
+
 export async function getResource(id) {
+  if (isSampleId(id)) return delay(sampleDetail(id));
   if (!USE_API) return delay(resourceDetail);
   return once(`detail:${id}`, 3000, () => loadResource(id));
 }
@@ -217,7 +297,7 @@ async function relatedResources(r, matkul) {
  * - preview → ?action=preview (tidak dihitung sebagai unduhan), dipakai ulang selama 50 detik
  */
 export async function getResourceFileUrl(id, { preview = false } = {}) {
-  if (!USE_API) return null;
+  if (!USE_API || isSampleId(id)) return null;
   const load = () =>
     api(`/resource/${id}/file`, { auth: true, query: { action: preview ? 'preview' : 'download' } }).then(
       (res) => res.data?.file_url || null
@@ -231,7 +311,7 @@ export async function getResourceFileUrl(id, { preview = false } = {}) {
  */
 export async function refreshRecent(items = []) {
   if (!USE_API || !items.length) return items;
-  const latest = await listResources().catch(() => null);
+  const latest = await listResources({}, { withSamples: true }).catch(() => null);
   if (!latest) return items;
   const byId = new Map(latest.map((r) => [String(r.id), r]));
   const fresh = items.map((r) => byId.get(String(r.id))).filter(Boolean);
@@ -252,6 +332,7 @@ export async function listReviews(resourceId) {
 /** Backend menyimpan 1 ulasan per user per resource (upsert); nilai_rating wajib bilangan bulat 1–5 */
 export async function createReview(resourceId, { rating, text }) {
   if (!USE_API) return delay(null);
+  if (isSampleId(resourceId)) throw new Error('Aksi ini tidak tersedia untuk resource contoh.');
   return api('/rating-review', {
     method: 'POST',
     auth: true,
@@ -261,6 +342,7 @@ export async function createReview(resourceId, { rating, text }) {
 
 export async function reportResource(resourceId, alasan) {
   if (!USE_API) return delay(null);
+  if (isSampleId(resourceId)) throw new Error('Aksi ini tidak tersedia untuk resource contoh.');
   return api('/report', { method: 'POST', auth: true, body: { resource_id: resourceId, alasan } });
 }
 
@@ -279,6 +361,7 @@ export async function listBookmarks() {
 /** POST /bookmark { resource_id } · DELETE /bookmark/:resource_id. "Sudah ada" (409) dianggap berhasil. */
 export async function setBookmark(resourceId, on) {
   if (!USE_API) return delay(null, 100);
+  if (isSampleId(resourceId)) throw new Error('Resource contoh tidak bisa disimpan ke Koleksi.');
   invalidateBookmarks();
   try {
     if (on) return await api('/bookmark', { method: 'POST', auth: true, body: { resource_id: resourceId } });

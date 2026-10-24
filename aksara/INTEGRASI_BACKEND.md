@@ -35,13 +35,14 @@ Semua pemanggilan ada di `src/services/` (`api.js`, `auth.js`, `resources.js`, `
 
 ## Catatan / keterbatasan
 
-| Hal                                                      | Penanganan                                                         |
-| -------------------------------------------------------- | ------------------------------------------------------------------ |
-| Tahun akademik & kata kunci di form Unggah               | Belum ada kolomnya di backend, belum ikut tersimpan                |
-| Unggah hanya dengan tautan (tanpa file)                  | Backend mewajibkan file; tautan disimpan di kolom `sumber`         |
-| Format file                                              | PDF, Word, PowerPoint, JPG/PNG/WebP, maks. 10 MB (aturan backend)  |
-| Status resource "Arsipkan"                               | Dikirim sebagai `hidden` (backend: approved / rejected / hidden)   |
-| Wawasan belum bisa disembunyikan                         | Backend hanya approved / rejected, tombol Sembunyikan tidak tampil |
-| Keunikan NIM saat daftar                                 | Belum dicek backend (BUG01 dari QA)                                |
-| Notifikasi                                               | Belum ada endpoint, disusun dari data resource & wawasan yang ada  |
-| Nama prodi "S1 Data Sains" (database) vs "S1 Sains Data" | Disamakan di `prodiLabel()` (`master.js`)                          |
+| Hal                                                      | Penanganan                                                                                                                              |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Tahun akademik & kata kunci di form Unggah               | Belum ada kolomnya di backend, belum ikut tersimpan                                                                                     |
+| Unggah hanya dengan tautan (tanpa file)                  | Backend mewajibkan file; tautan disimpan di kolom `sumber`                                                                              |
+| Format file                                              | PDF, Word, PowerPoint, JPG/PNG/WebP, maks. 10 MB (aturan backend)                                                                       |
+| Status resource "Arsipkan"                               | Dikirim sebagai `hidden` (backend: approved / rejected / hidden)                                                                        |
+| Wawasan belum bisa disembunyikan                         | Backend hanya approved / rejected, tombol Sembunyikan tidak tampil                                                                      |
+| Keunikan NIM saat daftar                                 | Belum dicek backend (BUG01 dari QA)                                                                                                     |
+| Notifikasi                                               | Belum ada endpoint, disusun dari data resource & wawasan yang ada                                                                       |
+| Katalog resource contoh (`data/sampleResources.js`)      | Tampil setelah data backend di Eksplorasi supaya pagination terisi; tidak ada di database, jadi unduh/simpan/lapor/ulasan dinonaktifkan |
+| Nama prodi "S1 Data Sains" (database) vs "S1 Sains Data" | Disamakan di `prodiLabel()` (`master.js`)                                                                                               |

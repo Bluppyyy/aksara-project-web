@@ -21,6 +21,8 @@ import iconFlag from '../../assets/detail/icon-flag.svg';
 
 export default function ResourceHeader({ resource }) {
   const { id, title, fileInfo, author, date, downloads, rating, reviewCount, linkFile, externalUrl } = resource;
+  // Resource contoh (katalog lokal) di mode API: tidak ada di database → unduh, simpan, dan lapor dinonaktifkan
+  const readOnly = Boolean(resource.readOnly);
   const [saved, toggleSaved] = useBookmark(id, resource.bookmarked);
   const user = useAuth();
   const [reportOpen, setReportOpen] = useState(false);
@@ -69,10 +71,13 @@ export default function ResourceHeader({ resource }) {
             <img src={iconPdf} alt="" style={{ width: 11.667, height: 11.667 }} />
             {fileInfo}
           </span>
-          <span className={styles.badgeVerified}>
-            <img src={iconVerified} alt="" style={{ width: 13.75, height: 13.125 }} />
-            Terverifikasi
-          </span>
+          {/* "Terverifikasi" = sudah disetujui admin; resource contoh belum pernah dimoderasi */}
+          {!readOnly && (
+            <span className={styles.badgeVerified}>
+              <img src={iconVerified} alt="" style={{ width: 13.75, height: 13.125 }} />
+              Terverifikasi
+            </span>
+          )}
           <span className={styles.badgeOpen}>
             <img src={iconLock} alt="" style={{ width: 9.333, height: 12.25 }} />
             Open Access
@@ -116,12 +121,13 @@ export default function ResourceHeader({ resource }) {
           <div className={styles.actionGroup}>
             <a
               href={linkFile || '#'}
-              className={styles.primary}
               target="_blank"
               rel="noreferrer"
               download
-              onClick={download}
+              onClick={readOnly ? (e) => e.preventDefault() : download}
               aria-busy={downloadState === 'loading'}
+              aria-disabled={readOnly || undefined}
+              className={`${styles.primary} ${readOnly ? styles.disabled : ''}`}
             >
               <img src={iconDownload} alt="" style={{ width: 12, height: 12 }} />
               {downloadState === 'loading'
@@ -149,6 +155,7 @@ export default function ResourceHeader({ resource }) {
               className={`${styles.save} ${saved ? styles.saveActive : ''}`}
               aria-pressed={saved}
               onClick={toggleSaved}
+              disabled={readOnly}
             >
               <img src={iconBookmark} alt="" style={{ width: 10.5, height: 13.5 }} />
               {saved ? 'Tersimpan di Koleksi' : 'Simpan ke Koleksi'}
@@ -158,6 +165,7 @@ export default function ResourceHeader({ resource }) {
             type="button"
             className={styles.report}
             aria-expanded={reportOpen}
+            disabled={readOnly}
             onClick={() => {
               setReportOpen((o) => !o);
               setReportState('idle');
@@ -167,6 +175,13 @@ export default function ResourceHeader({ resource }) {
             Laporkan Konten
           </button>
         </div>
+
+        {readOnly && (
+          <p className={styles.sampleNote} role="note">
+            Ini resource contoh dari katalog AKSARA, belum tersimpan di database. Unduh, simpan ke koleksi, lapor, dan
+            ulasan tersedia untuk resource yang diunggah mahasiswa.
+          </p>
+        )}
 
         {reportOpen && (
           <div className={styles.reportBox}>

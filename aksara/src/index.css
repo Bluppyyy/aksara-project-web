@@ -158,12 +158,37 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Animasi masuk "pop-in & fade-in" (dipakai halaman Eksplorasi). Atur jeda per elemen lewat --pop-delay.
+   fill-mode "backwards": setelah selesai, transform kembali ke none supaya elemen position: fixed di dalamnya
+   (filter bar yang menempel, menu dropdown) tetap mengacu ke layar. */
+@keyframes aksara-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(20px);
+  }
+  65% {
+    transform: scale(1.008) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.anim-pop-in {
+  animation: aksara-pop-in 1000ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: var(--pop-delay, 0ms);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   * {
     transition: none !important;
+  }
+  .anim-pop-in {
+    animation: none;
   }
 }
 

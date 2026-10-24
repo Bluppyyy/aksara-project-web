@@ -53,7 +53,7 @@ function useApiGroups(enabled) {
   const { data: courses } = useAsync(
     () =>
       enabled
-        ? listResources()
+        ? listResources({}, { withSamples: true })
             .then((rows) =>
               [...new Set(rows.map((r) => r.matkul).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'id'))
             )

@@ -31,7 +31,12 @@ export default function ExploreResultsPage() {
   const kategori = filters.kategori.length === 1 ? filters.kategori[0] : null;
   const key = params.toString();
   // Data diambil ulang setiap filter di URL berubah
-  const { data: results, loading, error, reload } = useAsync(() => listResources(filters), [key]);
+  const {
+    data: results,
+    loading,
+    error,
+    reload,
+  } = useAsync(() => listResources(filters, { withSamples: true }), [key]);
   const sorted = useMemo(() => sortResources(results || [], sort), [results, sort]);
   // 12 kartu per halaman (sama dengan backend /resource-relevan)
   const PER_PAGE = 12;

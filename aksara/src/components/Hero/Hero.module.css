@@ -52,11 +52,12 @@
 }
 
 .heading {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-10);
-  text-align: left;
+  text-align: center;
 }
 
 .title {
@@ -64,7 +65,8 @@
   font-weight: 700;
   font-size: var(--text-display-lg);
   line-height: 56px;
-  color: var(--color-primary-50);
+  color: #e8f2fa;
+  text-align: center;
 }
 
 .description {
@@ -72,6 +74,7 @@
   font-size: var(--text-body);
   line-height: 20px;
   color: #f8f8f8;
+  text-align: center;
 }
 
 .searchGroup {
@@ -196,11 +199,13 @@
 
 .compact .description {
   max-width: 1120px;
+  text-align: left;
 }
 
 .compact .title {
   width: 984px;
   max-width: calc(100vw - 64px);
+  text-align: left;
 }
 
 .compact .searchCard {

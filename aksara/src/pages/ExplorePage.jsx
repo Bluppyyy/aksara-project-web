@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { writeFilters } from '../utils/filters';
 import { getRecent } from '../utils/recent';
@@ -24,12 +24,23 @@ import iconStar from '../assets/icon-star-section.svg';
 import iconTrending from '../assets/icon-trending-up.svg';
 import { facultyResearch, favoriteCourses, trending } from '../data/resources';
 
-function CardRow({ items }) {
+const PER_PAGE = 12;
+const STAGGER_MS = 45; // jeda antar kartu saat animasi masuk
+
+/** Props animasi masuk: kosong kalau animasi sudah selesai (halaman berikutnya / sortir tidak dianimasikan ulang) */
+const popIn = (on, delay) => (on ? { className: 'anim-pop-in', style: { '--pop-delay': `${delay}ms` } } : {});
+
+function CardRow({ items, intro, baseDelay }) {
   return (
     <div className={styles.cardGrid}>
-      {items.map((r) => (
-        <ResourceCard key={r.id} resource={r} />
-      ))}
+      {items.map((r, i) => {
+        const pop = popIn(intro, baseDelay + i * STAGGER_MS);
+        return (
+          <div key={r.id} className={`${styles.cardItem} ${pop.className || ''}`} style={pop.style}>
+            <ResourceCard resource={r} />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -41,7 +52,7 @@ export default function ExplorePage() {
   // supaya resource yang sudah dihapus/disembunyikan tidak sempat muncul lalu hilang.
   const { data: freshRecent } = useAsync(() => refreshRecent(savedRecent), [user?.email]);
   const recent = USE_API ? freshRecent || [] : savedRecent;
-  // GET /resource-relevan (publik) — halaman pertama, 12 resource terbaru yang sudah disetujui
+  // Semua resource yang sudah disetujui (GET /resource-relevan) + katalog contoh, dipaginasi 12 per halaman
   const {
     data: relevantData,
     loading: relevantLoading,
@@ -51,17 +62,43 @@ export default function ExplorePage() {
   const [filters, setFilters] = useState({});
   const [sort, setSort] = useState('Paling Relevan');
   const [view, setView] = useState('grid');
+  const [page, setPage] = useState(1);
   const relevant = sortResources(relevantData || [], sort);
+  const totalPages = Math.max(1, Math.ceil(relevant.length / PER_PAGE));
+  const pageItems = relevant.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  // Mode API: bagian di bawah diisi dari resource asli (bukan data contoh); bagian kosong disembunyikan
+  // Animasi masuk hanya saat halaman pertama dimuat. Kartu menyusul setelah filter bar (±620 ms sejak halaman
+  // tampil); kalau data datang lebih lambat, jedanya dikurangi supaya kartu tidak menunggu terlalu lama.
+  const mountedAt = useRef(performance.now());
+  const [intro, setIntro] = useState(true);
+  const [cardBase, setCardBase] = useState(620);
+  useEffect(() => {
+    if (relevantLoading) return undefined;
+    setCardBase(Math.max(0, 620 - Math.round(performance.now() - mountedAt.current)));
+    const t = setTimeout(() => setIntro(false), 2600); // 1 s animasi + jeda stagger terakhir
+    return () => clearTimeout(t);
+  }, [relevantLoading]);
+
+  const goToPage = (n) => {
+    setPage(n);
+    document.getElementById('relevant-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const changeSort = (value) => {
+    setSort(value);
+    setPage(1); // urutan berubah → kembali ke halaman 1
+  };
+
+  // Bagian di bawah diisi dari daftar yang sama (data backend + katalog contoh); data contoh lama hanya cadangan
   const live = relevantData || [];
   const byRating = (list) => [...list].sort((a, b) => (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0));
-  const research = USE_API
-    ? live.filter((r) => ['riset', 'skripsi'].includes(r.thumb || r.category)).slice(0, 4)
-    : facultyResearch;
-  const courses = USE_API ? byRating(live.filter((r) => r.matkul)).slice(0, 4) : favoriteCourses;
-  const trendingItems = USE_API ? byRating(live).slice(0, 4) : trending;
-  const [page, setPage] = useState(1);
+  const pick = (list, fallback) => (list.length ? list : USE_API ? [] : fallback);
+  const research = pick(
+    live.filter((r) => ['riset', 'skripsi'].includes(r.thumb || r.category)).slice(0, 4),
+    facultyResearch
+  );
+  const courses = pick(byRating(live.filter((r) => r.matkul)).slice(0, 4), favoriteCourses);
+  // Trending = paling banyak diunduh (sama dengan tautan "Lihat Semua" → urut=populer)
+  const trendingItems = pick(sortResources(live, 'Paling Banyak Diunduh').slice(0, 4), trending);
   const navigate = useNavigate();
 
   // Alur Figma: Eksplorasi (sebelum pencarian) → Eksplorasi — Hasil Pencarian.
@@ -96,6 +133,7 @@ export default function ExplorePage() {
 
       <main>
         <Hero
+          animate
           onSearch={({ query, category }) => goToResults({ q: query, kategori: category })}
           onCategoryChange={(category, query) => {
             // "Semua" tetap di halaman ini; kategori lain langsung menampilkan hasil eksplorasi
@@ -111,15 +149,17 @@ export default function ExplorePage() {
         </Hero>
 
         {/* Resource Relevan untuk Kamu */}
-        <section className={styles.results}>
+        <section id="relevant-results" className={styles.results}>
           <div className={styles.resultsInner}>
-            <ResultsToolbar
-              title="Resource Relevan untuk Kamu"
-              sort={sort}
-              onSortChange={setSort}
-              view={view}
-              onViewChange={setView}
-            />
+            <div {...popIn(intro, 620)}>
+              <ResultsToolbar
+                title="Resource Relevan untuk Kamu"
+                sort={sort}
+                onSortChange={changeSort}
+                view={view}
+                onViewChange={setView}
+              />
+            </div>
 
             {relevantLoading ? (
               <Loading label="Memuat resource…" />
@@ -132,22 +172,28 @@ export default function ExplorePage() {
               />
             ) : view === 'grid' ? (
               <div className={styles.cardGridResults}>
-                {relevant.map((r) => (
-                  <ResourceCard key={r.id} resource={r} />
-                ))}
+                {pageItems.map((r, i) => {
+                  const pop = popIn(intro, cardBase + i * STAGGER_MS);
+                  return (
+                    <div key={r.id} className={`${styles.cardItem} ${pop.className || ''}`} style={pop.style}>
+                      <ResourceCard resource={r} />
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className={styles.list}>
-                {relevant.map((r) => (
-                  <ResourceListItem key={r.id} resource={r} />
+                {pageItems.map((r, i) => (
+                  <div key={r.id} {...popIn(intro, cardBase + i * STAGGER_MS)}>
+                    <ResourceListItem resource={r} />
+                  </div>
                 ))}
               </div>
             )}
 
-            {/* Halaman berikutnya ada di Hasil Eksplorasi (semua resource) */}
-            {relevant.length > 0 && (
+            {!relevantLoading && !relevantError && totalPages > 1 && (
               <div className={styles.paginationSpacing}>
-                <Pagination page={page} totalPages={USE_API ? 1 : 12} onChange={setPage} />
+                <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
               </div>
             )}
           </div>
@@ -157,10 +203,14 @@ export default function ExplorePage() {
         {recent.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionInner}>
-              <SectionHeader icon={iconHistory} title="Terakhir Dilihat" />
+              <div {...popIn(intro, cardBase + 250)}>
+                <SectionHeader icon={iconHistory} title="Terakhir Dilihat" />
+              </div>
               <div className={styles.list}>
-                {recent.map((r) => (
-                  <ResourceListItem key={r.id} resource={r} />
+                {recent.map((r, i) => (
+                  <div key={r.id} {...popIn(intro, cardBase + 280 + i * STAGGER_MS)}>
+                    <ResourceListItem resource={r} />
+                  </div>
                 ))}
               </div>
             </div>
@@ -171,12 +221,14 @@ export default function ExplorePage() {
         {research.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionInner}>
-              <SectionHeader
-                icon={iconUniversity}
-                title="Karya Riset Fakultas Informatika"
-                to="/eksplorasi/hasil?kategori=riset"
-              />
-              <CardRow items={research} />
+              <div {...popIn(intro, cardBase + 300)}>
+                <SectionHeader
+                  icon={iconUniversity}
+                  title="Karya Riset Fakultas Informatika"
+                  to="/eksplorasi/hasil?kategori=riset"
+                />
+              </div>
+              <CardRow items={research} intro={intro} baseDelay={cardBase + 300} />
             </div>
           </section>
         )}
@@ -185,8 +237,10 @@ export default function ExplorePage() {
         {courses.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionInner}>
-              <SectionHeader icon={iconStar} title="Mata Kuliah Favorit" />
-              <CardRow items={courses} />
+              <div {...popIn(intro, cardBase + 400)}>
+                <SectionHeader icon={iconStar} title="Mata Kuliah Favorit" />
+              </div>
+              <CardRow items={courses} intro={intro} baseDelay={cardBase + 400} />
             </div>
           </section>
         )}
@@ -195,12 +249,14 @@ export default function ExplorePage() {
         {trendingItems.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionInner}>
-              <SectionHeader
-                icon={iconTrending}
-                title="Sedang Trending di AKSARA"
-                to="/eksplorasi/hasil?urut=populer"
-              />
-              <CardRow items={trendingItems} />
+              <div {...popIn(intro, cardBase + 500)}>
+                <SectionHeader
+                  icon={iconTrending}
+                  title="Sedang Trending di AKSARA"
+                  to="/eksplorasi/hasil?urut=populer"
+                />
+              </div>
+              <CardRow items={trendingItems} intro={intro} baseDelay={cardBase + 500} />
             </div>
           </section>
         )}

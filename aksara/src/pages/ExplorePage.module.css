@@ -1,6 +1,12 @@
 .page {
   min-height: 100vh;
   background: var(--color-page);
+  /* Animasi pop-in (scale & translateY) sempat melebihi lebar layar → muncul scrollbar ganda.
+     "clip" memotong tanpa membuat area scroll baru, jadi filter bar yang menempel tetap berfungsi.
+     Sengaja tanpa "contain": containment membuat elemen position: fixed (filter bar menempel, menu dropdown)
+     mengacu ke wrapper, bukan ke layar. */
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Lebar konten 1216px (1280 - 2×32 padding) */
@@ -26,8 +32,18 @@
 .cardGridResults {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
   column-gap: var(--space-6);
   row-gap: var(--space-5);
+}
+
+/* Pembungkus kartu (tempat animasi masuk) — kartu mengisi penuh supaya tinggi tiap baris seragam */
+.cardItem {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .list {
