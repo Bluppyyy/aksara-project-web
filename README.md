@@ -37,7 +37,9 @@ npm install
 npm run dev
 ```
 
-Buka http://localhost:5173.
+Buka http://localhost:5180.
+
+Port 5180 dikunci di `vite.config.js`. Kalau muncul error port sudah dipakai, tutup dulu `npm run dev` lain yang masih berjalan.
 
 Frontend otomatis tersambung ke backend: request ke `/api` diteruskan Vite ke `http://localhost:3000` (diatur di `.env.development` dan `vite.config.js`). Tidak perlu membuat `.env` sendiri.
 

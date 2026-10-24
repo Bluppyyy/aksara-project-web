@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
       modules: { generateScopedName: readableClassName },
     },
     server: {
+      // Port tetap 5180 untuk semua laptop tim; kalau sedang dipakai, Vite berhenti dengan pesan error (tidak pindah port diam-diam)
+      port: 5180,
+      strictPort: true,
       // Izinkan link Cloudflare Tunnel / ngrok untuk membagikan localhost ke teman (lihat panduan localhost)
       allowedHosts: ['.trycloudflare.com', '.ngrok-free.app'],
       // Saat development, /api/* diteruskan ke backend (default http://localhost:3000).
