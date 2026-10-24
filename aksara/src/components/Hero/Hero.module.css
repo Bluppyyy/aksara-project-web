@@ -138,6 +138,16 @@
   width: 32px;
   height: 32px;
   flex-shrink: 0;
+  transition:
+    opacity 0.15s ease,
+    filter 0.15s ease;
+}
+
+/* Belum ada kata kunci → tombol kirim abu-abu & tidak bisa diklik */
+.submitButton:disabled {
+  opacity: 0.45;
+  filter: grayscale(1);
+  cursor: not-allowed;
 }
 
 .categories {

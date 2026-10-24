@@ -48,8 +48,13 @@ export default function Hero({
   const [query, setQuery] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
 
+  // Tombol kirim baru aktif setelah ada kata kunci. Di halaman hasil yang sudah punya kata kunci, tetap aktif
+  // supaya pencarian bisa dikosongkan lagi (kirim kata kunci kosong = tampilkan semua).
+  const canSubmit = query.trim() !== '' || (compact && initialQuery !== '');
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!canSubmit) return;
     onSearch?.({ query: query.trim(), category: activeCategory });
   };
 
@@ -94,7 +99,13 @@ export default function Hero({
                   placeholder="Cari judul referensi, nama mata kuliah, atau laporan magang..."
                 />
               </label>
-              <button type="submit" className={styles.submitButton} aria-label="Cari">
+              <button
+                type="submit"
+                className={styles.submitButton}
+                aria-label="Cari"
+                disabled={!canSubmit}
+                title={canSubmit ? undefined : 'Ketik kata kunci dulu'}
+              >
                 <img src={compact ? btnSubmitSearchAlt : btnSubmitSearch} alt="" />
               </button>
             </div>
