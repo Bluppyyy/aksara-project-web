@@ -1,0 +1,55 @@
+/* Elemen tambahan isi wawasan; ukuran & warna huruf mengikuti elemen induk */
+
+.h3 {
+  margin: var(--space-8) 0 var(--space-3);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.15em;
+  line-height: 1.4;
+  color: #111827;
+}
+
+.list {
+  margin: var(--space-4) 0;
+  padding-left: 1.4em;
+}
+
+ul.list {
+  list-style: disc;
+}
+
+ol.list {
+  list-style: decimal;
+}
+
+.list li + li {
+  margin-top: var(--space-2);
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-word;
+}
+
+.figure {
+  margin: var(--space-6) 0;
+}
+
+.figure img,
+.inlineImg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}
+
+.figure figcaption {
+  margin-top: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: 18px;
+  text-align: center;
+  color: #6b7280;
+}

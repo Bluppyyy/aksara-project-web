@@ -6,6 +6,7 @@ import useAsync from '../../hooks/useAsync';
 import { USE_API } from '../../services/api';
 import { getModeration, moderate, allowedStatuses, getAdminResourceFileUrl } from '../../services/admin';
 import FileViewer from '../../components/ResourceDetail/FileViewer.jsx';
+import Markdown from '../../components/Markdown/Markdown.jsx';
 import { useFilePreview } from '../../components/ResourceDetail/useFilePreview';
 import ui from './admin.module.css';
 import styles from './AdminModerationDetail.module.css';
@@ -165,7 +166,7 @@ export default function AdminModerationDetail() {
             </div>
           </section>
 
-          {/* Backend belum menyediakan file untuk konten yang masih pending → bagian ini hanya tampil kalau ada berkas */}
+          {/* Daftar lampiran tambahan hanya ada di data demo; berkas utama resource tampil di Pratinjau Berkas */}
           {m.files.length > 0 && (
             <section className={`${ui.card} ${ui.cardPad}`}>
               <div className={styles.filesHead}>
@@ -404,12 +405,8 @@ function ResourceFilePreview({ id, status, title }) {
   );
 }
 
-/** Pratinjau tulisan wawasan: sampul, sub-judul, dan isi apa adanya */
+/** Pratinjau tulisan wawasan: sampul, sub-judul, dan isi dengan format yang sama seperti halaman Detail Wawasan */
 function InsightPreview({ m }) {
-  const paragraphs = (m.content || '')
-    .split(/\n+/)
-    .map((t) => t.trim())
-    .filter(Boolean);
   return (
     <section className={`${ui.card} ${ui.cardPad}`}>
       <div className={styles.previewHead}>
@@ -423,11 +420,7 @@ function InsightPreview({ m }) {
           <CoverFrame src={m.cover} alt={`Sampul ${m.title}`} className={styles.insightCover} />
           <h3 className={styles.insightTitle}>{m.title}</h3>
           {m.subtitle && <p className={styles.insightSubtitle}>{m.subtitle}</p>}
-          {paragraphs.map((t, i) => (
-            <p key={i} className={styles.insightText}>
-              {t.replace(/^#{1,3}\s+/, '')}
-            </p>
-          ))}
+          <Markdown text={m.content || ''} paragraphClassName={styles.insightText} />
         </article>
       </div>
     </section>

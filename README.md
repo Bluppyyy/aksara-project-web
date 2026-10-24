@@ -108,7 +108,7 @@ aksara/
    ├─ services/   # pemanggilan API ke backend
    ├─ context/    # status login (AuthContext)
    ├─ hooks/      # custom hooks (useAsync, useBookmark, dst.)
-   ├─ utils/      # fungsi bantu (filter, riwayat dilihat)
+   ├─ utils/      # fungsi bantu (filter, riwayat dilihat, markdown wawasan)
    ├─ data/       # data contoh untuk mode demo
    └─ assets/     # gambar & ikon dari Figma
 ```

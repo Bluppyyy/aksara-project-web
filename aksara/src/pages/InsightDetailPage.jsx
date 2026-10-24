@@ -1,9 +1,10 @@
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import CoverFrame from '../components/CoverFrame/CoverFrame.jsx';
 import Header from '../components/Header/Header.jsx';
 import Footer from '../components/Footer/Footer.jsx';
 import Icon from '../components/Icon/Icon.jsx';
+import Markdown from '../components/Markdown/Markdown.jsx';
 import ReviewsSection from '../components/ResourceDetail/ReviewsSection.jsx';
 import { Loading, ErrorState } from '../components/Status/Status.jsx';
 import useAsync from '../hooks/useAsync';
@@ -12,16 +13,6 @@ import { isAdmin } from '../services/auth';
 import { getArticle, reportArticle, setArticleBookmark, createArticleReview } from '../services/insights';
 import { resourceDetail } from '../data/resourceDetail.jsx';
 import styles from './InsightDetailPage.module.css';
-
-/** Ubah teks sederhana: `kode` → <code>, *miring* → <em> (tanpa dangerouslySetInnerHTML) */
-function RichText({ text }) {
-  const parts = text.split(/(`[^`]+`|\*[^*]+\*)/g);
-  return parts.map((p, i) => {
-    if (p.startsWith('`')) return <code key={i}>{p.slice(1, -1)}</code>;
-    if (p.startsWith('*')) return <em key={i}>{p.slice(1, -1)}</em>;
-    return <Fragment key={i}>{p}</Fragment>;
-  });
-}
 
 export default function InsightDetailPage() {
   const { id } = useParams();
@@ -216,20 +207,7 @@ export default function InsightDetailPage() {
                     {a.caption && <figcaption>{a.caption}</figcaption>}
                   </figure>
                   <div className={styles.body}>
-                    {a.blocks.map((b, i) => {
-                      if (b.type === 'h2') return <h2 key={i}>{b.text}</h2>;
-                      if (b.type === 'quote')
-                        return (
-                          <blockquote key={i}>
-                            <RichText text={b.text} />
-                          </blockquote>
-                        );
-                      return (
-                        <p key={i} className={b.type === 'lead' ? styles.lead : ''}>
-                          <RichText text={b.text} />
-                        </p>
-                      );
-                    })}
+                    <Markdown blocks={a.blocks} leadClassName={styles.lead} />
                   </div>
                   {a.keywords.length > 0 && (
                     <div className={styles.keywords}>

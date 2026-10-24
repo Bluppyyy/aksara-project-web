@@ -19,7 +19,7 @@ const CATEGORIES = [
   { label: 'Karir, Portofolio & Riset', icon: 'lucide:rocket' },
 ];
 
-/* Toolbar editor: menyisipkan sintaks Markdown sederhana di posisi kursor */
+/* Toolbar editor: menyisipkan sintaks Markdown sederhana di posisi kursor (ditampilkan oleh components/Markdown) */
 const TOOLS = [
   { label: 'Tebal', icon: 'lucide:bold', wrap: ['**', '**'] },
   { label: 'Miring', icon: 'lucide:italic', wrap: ['*', '*'] },
@@ -31,7 +31,7 @@ const TOOLS = [
   { label: 'Daftar poin', icon: 'lucide:list', line: '- ' },
   { label: 'Daftar nomor', icon: 'lucide:list-ordered', line: '1. ', sep: true },
   { label: 'Tautan', icon: 'lucide:link', wrap: ['[', '](https://)'] },
-  { label: 'Gambar', icon: 'lucide:image', wrap: ['![keterangan](', ')'] },
+  { label: 'Gambar', icon: 'lucide:image', wrap: ['![keterangan](', ')'], placeholder: 'https://link-gambar.jpg' },
   { label: 'Kode', icon: 'lucide:code', wrap: ['`', '`'] },
 ];
 
@@ -96,7 +96,7 @@ export default function InsightWritePage() {
     let next;
     let cursor;
     if (tool.wrap) {
-      const sel = value.slice(s, e) || tool.label.toLowerCase();
+      const sel = value.slice(s, e) || tool.placeholder || tool.label.toLowerCase();
       next = value.slice(0, s) + tool.wrap[0] + sel + tool.wrap[1] + value.slice(e);
       cursor = s + tool.wrap[0].length + sel.length;
     } else {

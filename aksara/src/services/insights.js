@@ -7,11 +7,15 @@ import { api, USE_API } from './api';
 import { fetchBookmarkRows, invalidateBookmarks } from './bookmarks';
 import { articles, articleDetail } from '../data/articles';
 import { initials, personMeta, toReview } from './adapters';
+import { parseBlocks, stripMarkdown } from '../utils/markdown';
 
 const delay = (v, ms = 250) => new Promise((r) => setTimeout(() => r(v), ms));
 
 const readTime = (text = '') => `${Math.max(1, Math.round(text.split(/\s+/).length / 200))} Menit Baca`;
-const excerpt = (text = '') => (text.length > 140 ? `${text.slice(0, 140).trim()}…` : text);
+const excerpt = (raw = '') => {
+  const text = stripMarkdown(raw);
+  return text.length > 140 ? `${text.slice(0, 140).trim()}…` : text;
+};
 
 const fmtDate = (iso) =>
   iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
@@ -106,10 +110,6 @@ export async function getArticle(id) {
     if (err.status === 404) throw new Error('Tulisan tidak ditemukan atau belum disetujui admin.');
     throw err;
   }
-  const paragraphs = a.konten
-    .split(/\n{2,}|\n/)
-    .map((t) => t.trim())
-    .filter(Boolean);
   return {
     ...articleDetail,
     id,
@@ -128,12 +128,7 @@ export async function getArticle(id) {
     category: a.category,
     author: { initials: a.author.initials, name: a.author.name, meta: a.author.meta },
     keywords: a.tags,
-    blocks: paragraphs.map((text, i) => {
-      const h = text.match(/^#{1,3}\s+(.*)$/);
-      if (h) return { type: 'h2', text: h[1] };
-      if (text.startsWith('>')) return { type: 'quote', text: text.replace(/^>\s*/, '') };
-      return { type: i === 0 ? 'lead' : 'p', text };
-    }),
+    blocks: parseBlocks(a.konten), // markdown dari toolbar Tulis Wawasan (lihat utils/markdown.js)
   };
 }
 
